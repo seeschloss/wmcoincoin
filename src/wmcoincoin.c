@@ -718,8 +718,10 @@ exec_coin_coin(Dock *dock, int sid, const char *ua, const char *msg_)
   /* Triton> Euh..., je ne suis pas sur de ce que je dois mettre ici,
              je crois que je vais repousser à plus tard.
              Bon, tonton zorel< a dit text/xml alors je mets text/xml 
-             hop, un truc de plus qui est fait ! Patch Accept: fini. \o/ */
-  r.accept = strdup("text/xml");
+             hop, un truc de plus qui est fait ! Patch Accept: fini. \o/
+     See> application/xml, c'est bien aussi.
+  */
+  r.accept = strdup("application/xml, text/xml");
   if (dock->post_anonyme && r.cookie) { free(r.cookie); r.cookie = NULL; }
   r.type = HTTP_POST;
   r.referer = strdup(path); url_au_coiffeur(r.referer, 1);
@@ -752,12 +754,16 @@ exec_coin_coin(Dock *dock, int sid, const char *ua, const char *msg_)
     }
     if (!site->prefs->user_cookie && r.new_cookie) {
         site->prefs->user_cookie = strdup(r.new_cookie);
+	char *p;
+	for (p = site->prefs->user_cookie; *p; ++p) {
+	    if (*p == '\n' || *p == '\r') *p = ' ';
+	}
     }
     http_request_close(&r);
     site->http_success_cnt++;
     site->http_recent_error_cnt = 0;
     site->board->last_posted_id = r.post_id;
- } else if (r.response != 302 && r.response != 406) {
+ } else if (r.response >= 400 && r.response != 406) { /* 406 c'est du bête "Not Acceptable", on s'en fout */
     char *s;
     /* si la reponse n'est pas un 302 Found */
     s = str_printf(_("[%s] Damned ! There has been an error<p>%s"), site->prefs->site_name, http_error());
