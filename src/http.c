@@ -740,6 +740,8 @@ http_print_request(HttpRequest *r)
           c'est a cause de zorel< qui fait rien qu'a donner des comportements bizarres a sa future Tribune Web 4.2
   si il renvoie autre chose (404 etc..) on renvoie r->error=1
   si il y a une connexion timeout, on renvoie r->error=2
+  See> ce n'est pas bizarre d'utiliser les codes HTTP idoines, le 303 See Other est aussi tout à fait approprié
+       lorsqu'un post vient d'être créé.
 */
 void
 http_skip_header(HttpRequest *r)
@@ -775,15 +777,12 @@ http_skip_header(HttpRequest *r)
 	  if (buff[j] == ' ') {
 	    r->response = atoi(buff+j+1);
             if (r->response == 304) {
-              //if (strcasecmp("304 Not Modified\n", buff+j+1) == 0) {
 	      r->content_length = 0; /* ça sert à rien d'essayer de lire un truc vide 
 					c'est pas super joli de faire ça ici mais ça ira pour cette fois
 				      */
-	    } else if ((r->response != 200) && (r->response != 201) && (r->response != 302)) {
+	    } else if (r->response >= 400) {
               /* Triton> maintenant, le 201 Created renvoyé par la tribune de test de zorel n'indique plus d'erreur */
-              /*if (strcasecmp("200 OK\n", buff+j+1) != 0 && 
-		strcasecmp("302 Found\n", buff+j+1) != 0 &&
-		strcasecmp("302 Moved Temporarily\n", buff+j+1) != 0) {*/
+              /* See> on peut aussi s'attendre à une 303 See Other quand un post est créé */
 	      set_http_err();
 	      snprintf(http_last_err_msg, HTTP_ERR_MSG_SZ, "%s",buff+j+1); 
 	      myprintf(_("[%<MAG %s>]: %<yel %s>"), http_last_url, buff+j+1);
@@ -815,15 +814,15 @@ http_skip_header(HttpRequest *r)
 	                           [; expires=<date>][; domain=<domain_name>]
 	                           [; path=<some_path>][; secure][; httponly] */
 	    char *garbage;
-		if (garbage = strstr(buff+11, "expires=")) {
+		if (garbage = strcasestr(buff+11, "expires=")) {
 			r->new_cookie = strndup(buff+11, garbage - buff - 11);
-		} else if (garbage = strstr(buff+11, "domain=")) {
+		} else if (garbage = strcasestr(buff+11, "domain=")) {
 			r->new_cookie = strndup(buff+11, garbage - buff - 11);
-		} else if (garbage = strstr(buff+11, "path")) {
+		} else if (garbage = strcasestr(buff+11, "path")) {
 			r->new_cookie = strndup(buff+11, garbage - buff - 11);
-		} else if (garbage = strstr(buff+11, "secure")) {
+		} else if (garbage = strcasestr(buff+11, "secure")) {
 			r->new_cookie = strndup(buff+11, garbage - buff - 11);
-		} else if (garbage = strstr(buff+11, "httponly")) {
+		} else if (garbage = strcasestr(buff+11, "httponly")) {
 			r->new_cookie = strndup(buff+11, garbage - buff - 11);
 		} else {
 			r->new_cookie = strdup(buff+11);
@@ -967,7 +966,7 @@ http_get_line(HttpRequest *r, char *s, int sz)
 
   if (r->telnet.error) {
     set_http_err();
-    snprintf(http_last_err_msg, HTTP_ERR_MSG_SZ, _("http_get_line messed up (got=%d): %s!"), got, STR_LAST_ERROR);
+    snprintf(http_last_err_msg, HTTP_ERR_MSG_SZ, _("http_get_line messed up (got=%d, telnet.error=%d): %s!"), got, r->telnet.error, STR_LAST_ERROR);
     printf("[%s] %s\n", http_last_url, http_last_err_msg);
     goto error;
   }
