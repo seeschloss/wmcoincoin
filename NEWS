@@ -1,0 +1,23 @@
+2001-12-16 v2.3.2: bugfixes divers 
+2001-12-02 super ispell pour le palmipede + bugfixes + cleanup pour le cvs
+2001-10-28 la v2.2beta a aussi une bone tete
+2001-09-29 la v2.1beta a une bonne tete
+2001-09-19 rolala ça fait longtemps que j'ai pas touché a ce fichier.
+2001-05-24 apres la 1.0beta, solide comme un roc, on va passer directement a la 1.1...
+           Avec tout plein de nouveautés pour encore mieux troller:
+		* des petits ballons d'aide, c'est pas utile mais c'est marrant a faire.
+		* des messages dans de vrai fenetre quand il y a une erreur embetante
+		* j'ai viré curl ! c'etait surtout histoire d'ecrire un petit truc 
+		pour faire des GET et des POST, avec des sockets et tout.. instructif. 
+		j'ai peut etre rendu le truc moins robuste qu'avec curl, mais c'est plus
+		propre, et ca permet de mieux gerer les situations d'erreurs.
+		* le palmipede editor, qui permet d'editer les messages/useragent a poster
+		avec gestion des balises html...
+		* la compatibilité KDE ! et sans doute plein d'autres windowmanagers, mais
+		j'ai pas essayé.
+2001-03-10 Ca fait des semaines que je me dis qu'il faut sortir la version suivante
+	   Je crois que je vqis pqsser a l'acte.
+2001-02-21 Je viens de corriger 2-3 conneries dans le README
+2001-02-21 Apres reflexion, c'etait debile d'utiliser des threads --> retour aux
+           bon vieux signaux. ca marche bien :-)
+2001-02-19 La version 0.9 de wmCoinCoin semble prête !

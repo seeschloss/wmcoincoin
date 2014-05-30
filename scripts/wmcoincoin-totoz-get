@@ -1,0 +1,151 @@
+#!/bin/sh
+#set -x
+
+imgrep="$HOME/.wmcoincoin/totoz"
+mkdir -p "$imgrep" && cd "$imgrep"
+
+# Get the proxy
+option_file="$HOME/.wmcoincoin/options"
+proxy=$(sed -ne 's/\(^.http.proxy: \)\(.*$\)/\2/p' $option_file | head -1)
+proxy_auth=$(sed -ne 's/\(^.http.proxy_auth: \)\(.*$\)/\2/p' $option_file | head -1)
+if [ -n "$proxy" ]; then
+  proxy_option="-x "$proxy" -U "$proxy_auth
+fi
+
+siteroot="http://totoz.eu/"
+extlist="gif,png"
+
+usage()
+
+{
+echo '           .:55BBB555555555555@@55%.              '
+echo '       .!C%@@@@@55555555555555555555@o            '
+echo '     .CC%@@@55555555555555555555555555%._         '
+echo '   $@@55J5555555555JJJJJJJJJJ$5555555555%%        '
+echo '  J5@ CCJ$JJJCCJ(J=!==C=((J((((JJJJJJJJJJ%%       '
+echo ' C%  CCCC((((JJ55$**555(J55==5$JJC(((((=(((=      '
+echo '%  CCCJJ(J55=55@$*""$$@$"$@@@(=5555555$J=JJ$o     '
+echo 'J  C%%JJ5555*MMM(""""$@$ *@@@J*=@555@55555555     '
+echo '   C5%5555@=(@@$*""`"*@@ ""@@@*""@555M5555555@    '
+echo '   $@%555@J!"@@*"``"""*@"```*@@J`""=@5M55@@5555   '
+echo '   @55555B*""$$*"```"""$"````!$@("""=BMM5BB555@   '
+echo '   @%555@@"""=""```"``"*""`````$5*""*=MM5555555   '
+echo '   @J555M=**C@@@@$5.```"`````=JJ====%$=@M55M5555  '
+echo '   @J5@@M=!C@%%**B$%""````````=**@@@=$==@@@M5555  '
+echo '   @J5BBM**@%== *@@$""```````*@  @MM@=%*$MMM5555  '
+echo '   %J5BB$*$=@@@@@@$$``""`````=@@@@MM$$==*BBM5@5@  '
+echo '   $J5BB$"$!$$$@@@==``"``````*@5BM55*(==*@@@5@55  '
+echo '   CC5BBB == ==@M@= ""``````` =J@@MM$ $*`@@@5@5   '
+echo '    CBBBM"`""""""""""""""""""""""   `""**@@@5@@   '
+echo '    C5@@@""""""""""""""""""""""""""""**"$MM@M55   '
+echo '     CBBM=`""```````````````````"`""""""BMM5M5    '
+echo '     (%%B$`"`""`````""*!**!==JC"""`````*@MMBB     '
+echo '      %%%%**"`````"=JJJ$JJJJJJJJ""`````%@MMBB     '
+echo '        %M==***```(CCCCCC==CC==J""```(J$@BBB      '
+echo '          C*******!JCCCCCC=====("*""=$JCMBB       '
+echo '         $`*`````"*!((((!!(((("*!***(=JJ@         '
+echo '     5==**`"````````***```!**``````````$@**.      '
+echo '   ==C**``""``````````!!!=*````````````*=   :     '
+echo '  C` *""`"""``````````!!="````""```````"*((5%5.   '
+echo ' (!  *```""""``````````=!`````""""""""``"==5(  *  '
+echo ' ="  *```""""``````````=!`````""""""""""`CC*    * '
+
+	cat <<EOF
+
+Goal: download an image (or animation) given its name, and its possible
+ extensions. The final image is written in the directory ~/.wmcoincoin/totoz, 
+along with a .desc file containing:
+ * the image name
+ * its dimensions
+ * its mime/type
+
+Usage: wmcoinoin-totoz-get [options] image
+where image is the name of a image/animation WITHOUT its extension (i.e. without .gif or .png etc)
+Options:
+        --siteroot=url       [default: url=$siteroot]
+        --extensions=extlist [default: extlist=$extlist]
+        --verbose
+
+Returns: 0 if successful, nonzero if any failure occured
+
+caution: this shell script is used by wmcoincoin: if you use it on the
+ command line, be sure to url_encode correctly the image name
+ (i.e. replace all non-alphanumeric caracters by '%xx')
+EOF
+	exit $1
+}
+
+dowget()
+{
+  img="$1"
+  fgot=""
+  echo -n "getting $siteroot$img "
+  for ext in $extlist; do
+    echo -n "[$ext] "
+    test -f "$img.$ext" && rm -f "$img.$ext";
+    if curl -s -f $proxy_option -o "$img.$ext" "$siteroot$img.$ext" && test -f "$img.$ext"; then
+      mime=$(file -ib "$img.$ext" 2>/dev/null);
+      if test $? -ne 0; then
+        rm -f "$img.$ext";
+      else
+        fgot="$img.$ext"; break
+      fi
+    fi
+  done
+  if test ! -z "$fgot"; then
+#    h=$(identify "$fgot");
+#    h=$(echo $h | grep -o "[0-9]\+x[0-9]\++[0-9]\++[0-9]\+")
+    # pour les images dont l'origine n'est pas 0,0 , et pour les animations
+    # -> on prend la taille max
+#    h=$(echo $h | sed -e 's/x/ /' -e 's/+/ /g' | awk '{ if (w<$1+$3) {w=$1+$3 }; if (h<$2+$4) {h=$2+$4} } END { print w "x" h; }')
+    h=$(wmcoincoin_player -i "$fgot");
+    if test $? -eq 0; then
+        echo "got $mime $img.$ext ($h)"; 
+        echo "$fgot $h $mime" > "$img.desc";
+        return 0;
+    fi;    
+  else
+    echo " not found.."
+  fi;
+  echo "NOTFOUND" > "$img.desc";
+  test -f "$img.$ext" && rm -f "$img.$ext";
+  return 1;
+}
+
+if test "$#" -eq 0; then 
+    usage 1 1>&2; 
+fi;
+
+verbose=0
+imgname=""
+
+while test "$#" -gt 0; do
+  case "$1" in
+  -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+  *) optarg= ;;
+  esac
+
+  case $1 in
+    --verbose)
+      verbose=1
+      ;;
+    --sitelist)
+      sitelist=$optarg;
+      ;;
+    --)
+      ;;
+    --*)
+      echo "invalid option : $1"
+      break;
+      ;;
+    *)
+      extlist=$(echo $extlist | sed -e 's/[:,]/ /g')
+      dowget $(echo "$1" | sed -e 's/ /%20/'); exit $?
+      ;;
+  esac
+  shift
+done
+if test "$#" -gt 0; then
+  usage 1 1>&2
+fi
+exit 1

@@ -1,0 +1,28 @@
+j. pommier (c0in@altern.org)
+mais aussi (dans un ordre plus ou moins chronologique):
+* Jérome Lambourg (http_win.c, le port cygwin)
+* Laurent Mazet (patch)
+* kadreg (pixmap de fond)
+* Mike Hommey (mode horloge, if-encoded-since, aide précieuse pour les pb de chunk encoding)
+* Josselin Mouette (ralentissement du coincoin, i18n)
+* Gael le Mignot (regexp.c)
+* Frederic Py (ispell)
+* Franck Quélain (commande externe, reprise du pdfm)
+* Loic Restoux (plateau de fruits de mer, patchs divers et variés)
+* Vincent Creuzillet (plop_words) 
+* Benjamin Michotte (option pinnipede.auto_open)
+* Jaimé Ragnagna aka jr-lamoule (idée du wmccc, promotion du wmccc :P)
+* Olivier Jeannet (retro traduction fr, reaccentuation de la page web)
+et d'autres (...) que j'ai oublié car c'est le bordaile dans ma bal
+* gle pour lui faire plaisir parce qu'il a pas proposé de patch mais il a bien aidé à virer pas mal de bugs -- update: gle est l'auteur du patch qui colore le fond du palmi -- reupdate: il a bien réparé cygwin qui était un peu explosé depuis le passage en ipv6
+* woof (compatibilité ipv6, passage à getaddrinfo)
+* choocroot pour son minipatch du wmccc qui corrige le refresh des boutons de couleur
+et aussi de vrais morceaux de wmpinboard, wget, et openssh (fake-*)
+* Dae pour la proxyfication de wmcc-totoz-get et ses nombreux bug-reports
+* 2xplop pour la feuille de style des totoz-bookmarks
+* happypenguin pour le minipatch du backend
+* the files src/md5.[ch] were written by L. Peter Deutsch -- http://libmd5-rfc.sourceforge.net/
+* eolyte (remplacement du script wmcoincoin-totoz-get par un truc plus nettement robuste et moins gruik dans pinnipede_totoz)
+* twolife: plein de bouts de patch pour la compile sur des trucs qui sucent (macosx, cygwin..)
+* MagicalTux: option translit pour iconv
+* Triton ( compat avec la tribune 2.0 de llinfo)

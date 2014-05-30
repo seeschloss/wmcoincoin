@@ -1,0 +1,1898 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: wmcoincoin 2.6.1\n"
+"Report-Msgid-Bugs-To: triton@kumal.info\n"
+"POT-Creation-Date: 2012-08-02 18:16+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/scrollcoin.c:265
+#, c-format
+msgid "setpos out of bounds: %d min=%d, mx=%d\n"
+msgstr ""
+
+#: src/spell_coin.c:189
+#, c-format
+msgid "Fork failed...(%s)\n"
+msgstr ""
+
+#: src/spell_coin.c:210
+#, c-format
+msgid "Exec failed...(%s)\n"
+msgstr ""
+
+#: src/spell_coin.c:334
+#, c-format
+msgid "We send '%s' to ispell\n"
+msgstr ""
+
+#: src/spell_coin.c:337
+#, c-format
+msgid "Error, '%s' was still to send to ispell...\n"
+msgstr ""
+
+#: src/spell_coin.c:367
+msgid "ISPELL answered: '%<MAG %s>' (err=%s)\n"
+msgstr ""
+
+#: src/spell_coin.c:418
+#, c-format
+msgid "spellString: unknown option '0x%02x'\n"
+msgstr ""
+
+#: src/spell_coin.c:419
+#, c-format
+msgid "The complete answer was: '%.512s'\n"
+msgstr ""
+
+#: src/spell_coin.c:420
+#, c-format
+msgid ""
+"With great leniency, wmcoincoin will let ispell alive, just to see what "
+"happens. Don't even think of suiciding the coincoin : THE SHOW MUST GO ON\n"
+msgstr ""
+
+#: src/http_win.c:98
+#, c-format
+msgid "Connected succesfully!\n"
+msgstr ""
+
+#: src/http_win.c:119 src/http_unix.c:144
+#, c-format
+msgid "Connection timed out (timeout=%d sec)!\n"
+msgstr ""
+
+#: src/http_win.c:129
+#, c-format
+msgid "could not set socket to blocking\n"
+msgstr ""
+
+#: src/coin_xutil.c:390
+#, c-format
+msgid "shade_ximage unsupported (bitsperpix=%d) !! Strange...\n"
+msgstr ""
+
+#: src/coin_xutil.c:400
+#, c-format
+msgid ""
+"X11 error detected in a hazardous area:\n"
+"  %s\n"
+msgstr ""
+
+#: src/coin_xutil.c:401
+#, c-format
+msgid "  Protocol request: %d\n"
+msgstr ""
+
+#: src/coin_xutil.c:402
+#, c-format
+msgid "  Resource ID:      0x%lx\n"
+msgstr ""
+
+#: src/coin_xutil.c:403
+#, c-format
+msgid " --> THE SHOW MUST GO ON!\n"
+msgstr ""
+
+#: src/balloon.c:230
+#, c-format
+msgid "hide balloon\n"
+msgstr ""
+
+#: src/http_unix.c:71
+#, c-format
+msgid "Basic connect (can BLOCK THE COINCOIN)...\n"
+msgstr ""
+
+#: src/http_unix.c:177
+#, c-format
+msgid ""
+"Welcome to the forked gethostbyname, everything is experimental, beware the "
+"zombies\n"
+msgstr ""
+
+#: src/http_unix.c:180
+#, c-format
+msgid "Broken pipe: %s\n"
+msgstr ""
+
+#: src/http_unix.c:184
+#, c-format
+msgid ""
+"Ooooops, it looks like there is a throng of zombies out there\n"
+"the fork failed: %s"
+msgstr ""
+
+#: src/http_unix.c:190
+#, c-format
+msgid "son: pipe full (%s)\n"
+msgstr ""
+
+#: src/http_unix.c:192
+#, c-format
+msgid "son: gethostbyname going on...\n"
+msgstr ""
+
+#: src/http_unix.c:194
+#, c-format
+msgid "son: gethostbyname finished.\n"
+msgstr ""
+
+#: src/http_unix.c:200
+#, c-format
+msgid "son: gethostbyname on '%s' failed.\n"
+msgstr ""
+
+#: src/http_unix.c:212
+#, c-format
+msgid "daddy: pipe full (%s), what will do now ?\n"
+msgstr ""
+
+#: src/http_unix.c:236
+#, c-format
+msgid "The son got the pipe full again!\n"
+msgstr ""
+
+#: src/http_unix.c:239
+#, c-format
+msgid "What a fucking pipe! %s\n"
+msgstr ""
+
+#: src/http_unix.c:248
+#, c-format
+msgid "select .. awaiting\n"
+msgstr ""
+
+#: src/http_unix.c:250
+#, c-format
+msgid "select .. interrupted\n"
+msgstr ""
+
+#: src/http_unix.c:252
+#, c-format
+msgid "select .. problem : %s\n"
+msgstr ""
+
+#: src/http_unix.c:263
+#, c-format
+msgid "We're waiting for the son... Come here boy !\n"
+msgstr ""
+
+#: src/http_unix.c:267
+#, c-format
+msgid "Daddy: I couldn't read from my son :-/ (len=%d got '%s') (lasterr=%s)\n"
+msgstr ""
+
+#: src/regexp.c:417
+#, c-format
+msgid "regexp error: %d\n"
+msgstr ""
+
+#: src/regexp.c:430
+#, c-format
+msgid "The regexp [%s] doesn't match the string [%s]\n"
+msgstr ""
+
+#: src/raster.c:157
+#, c-format
+msgid "The visual (depth=%d) is in %s, cool\n"
+msgstr ""
+
+#: src/raster.c:161
+#, c-format
+msgid "Bleh, we are in pseudocolor (depth=%d)...\n"
+msgstr ""
+
+#: src/raster.c:181
+#, c-format
+msgid "Unbelievable, there's even no colors !\n"
+msgstr ""
+
+#: src/raster.c:361
+#, c-format
+msgid ""
+"Unknown colour in the .xpm: '%s'\n"
+"'"
+msgstr ""
+
+#: src/raster.c:410
+#, c-format
+msgid ""
+"dommage, vous avez trouve une pouille dans le 'parseur' de .xpm\n"
+" VOTRE fichier .xpm n'est pas conforme a MON standard xpm\n"
+"err=%d, la ligne qui pose probleme est: '%s'\n"
+" En le reecrivant avec un autre logiciel ca devrait mieux marcher, mais le "
+"mieux c'est sans doute d'envoyer un bug report [ c0in@altern.org ]\n"
+msgstr ""
+
+#: src/raster.c:442
+#, c-format
+msgid "Unable to open '%s' : %s\n"
+msgstr ""
+
+#: src/raster.c:449
+#, c-format
+msgid "Error while reading '%s' !? [%s]\n"
+msgstr ""
+
+#: src/raster.c:463
+#, c-format
+msgid "The '%s' line looks weird\n"
+msgstr ""
+
+#: src/raster.c:471
+#, c-format
+msgid "There are too many lines in '%s' (max=%d) !! \n"
+msgstr ""
+
+#: src/coin_util.c:154
+msgid "[empty]"
+msgstr ""
+
+#: src/keylist.c:94
+msgid "useragent"
+msgstr ""
+
+#: src/keylist.c:95
+msgid "useragent w/o login"
+msgstr ""
+
+#: src/keylist.c:96
+msgid "login"
+msgstr ""
+
+#: src/keylist.c:97
+msgid "word"
+msgstr ""
+
+#: src/keylist.c:98
+msgid "message id"
+msgstr ""
+
+#: src/keylist.c:99
+msgid "thread from id"
+msgstr ""
+
+#: src/msgbox.c:94
+msgid "MESSAGE FROM WMCOINCOIN"
+msgstr ""
+
+#: src/msgbox.c:210
+#, c-format
+msgid "close msgbox\n"
+msgstr ""
+
+#: src/http.c:194
+#, c-format
+msgid "<i>There hasn't been any http error yet</i>"
+msgstr ""
+
+#: src/http.c:199
+#, c-format
+msgid "Last error occured at: <b>%02d:%02d:%02d</b>"
+msgstr ""
+
+#: src/http.c:204
+#, c-format
+msgid "Error: <b><font color=#800000>%s</font></b><br>"
+msgstr ""
+
+#: src/http.c:207
+#, c-format
+msgid "<br>The last error was: %s<br>for the URL:<tt>%s</tt><br>"
+msgstr ""
+
+#: src/http.c:213
+#, c-format
+msgid ""
+"%s<br>%s<br>%s: <tt>%s</tt><br>Host IP: <font color=#0000ff>%s</font><br>%s"
+msgstr ""
+
+#: src/http.c:214
+msgid "<b>There has just been an error !!</b>"
+msgstr ""
+
+#: src/http.c:214
+msgid "The last transfer went fine."
+msgstr ""
+
+#: src/http.c:215
+msgid "faulty URL"
+msgstr ""
+
+#: src/http.c:215
+msgid "We have just downloaded"
+msgstr ""
+
+#: src/http.c:218
+#, c-format
+msgid ""
+"Download going on...<br>URL: <tt>%s</tt><br>IP: <font color=#0000ff>%s</"
+"font><br>"
+msgstr ""
+
+#: src/http.c:220
+#, c-format
+msgid "Resolving name '%s'...<br>"
+msgstr ""
+
+#: src/http.c:336
+#, c-format
+msgid "timeout (t=%d milliseconds)..\n"
+msgstr ""
+
+#: src/http.c:351
+#, c-format
+msgid "net_iread: socket error, res=%d (%s)\n"
+msgstr ""
+
+#: src/http.c:355
+#, c-format
+msgid "net_iread: Timeout...\n"
+msgstr ""
+
+#: src/http.c:423
+#, c-format
+msgid "net_iwrite: Timeout...\n"
+msgstr ""
+
+#: src/http.c:502
+#, c-format
+msgid ""
+"get_host_ip_str_bloq('%s') -> if the network lags, the coincoin can be "
+"blocked here\n"
+msgstr ""
+
+#: src/http.c:620
+#, c-format
+msgid "Unable to create a socket ! (%s) [ip=%s]"
+msgstr ""
+
+#: src/http.c:628
+#, c-format
+msgid "connecting on port %d...\n"
+msgstr ""
+
+#: src/http.c:641
+#, c-format
+msgid "connection failed: %s..\n"
+msgstr ""
+
+#: src/http.c:694
+#, c-format
+msgid "Unable to resolve '%s'"
+msgstr ""
+
+#: src/http.c:789
+msgid "[%<MAG %s>]: %<yel %s>"
+msgstr ""
+
+#: src/http.c:844
+#, c-format
+msgid "http_skip_header has a socket issue ! (%s)"
+msgstr ""
+
+#: src/http.c:865
+#, c-format
+msgid "http_read: request of length %d, pos = %ld, chunk=%d (size %ld)\n"
+msgstr ""
+
+#: src/http.c:870
+#, c-format
+msgid ""
+"Damned, the chunk_encoding has gone down the tubes on the following "
+"request:\n"
+msgstr ""
+
+#: src/http.c:893
+#, c-format
+msgid "error in chunk '%s'\n"
+msgstr ""
+
+#: src/http.c:918
+#, c-format
+msgid "http_read has encountered a socket problem, pos=%d, len=%d !(%s)"
+msgstr ""
+
+#: src/http.c:926
+#, c-format
+msgid "http_read: length finally requested: %d, received: %d, new pos=%ld\n"
+msgstr ""
+
+#: src/http.c:964
+#, c-format
+msgid ""
+"http_get_line: weird, got=0 while reading %d/%d [r->telnet.error=%d, "
+"errmsg='%s']\n"
+msgstr ""
+
+#: src/http.c:970
+#, c-format
+msgid "http_get_line messed up (got=%d): %s!"
+msgstr ""
+
+#: src/http.c:974
+msgid "http_get_line sent (cnt=%d): '%<yel %s>'\n"
+msgstr ""
+
+#: src/http.c:1019
+#, c-format
+msgid "http_send_request/debug, unable to open '%s':%s\n"
+msgstr ""
+
+#: src/http.c:1136
+#, c-format
+msgid "http_get couldn't send its request: %s"
+msgstr ""
+
+#: src/http.c:1140
+#, c-format
+msgid "ok, request sent\n"
+msgstr ""
+
+#: src/http.c:1221
+msgid "Quack ! Missed"
+msgstr ""
+
+#: src/http.c:1234
+#, c-format
+msgid "%s: too big (bsize=%d!), let's cut\n"
+msgstr ""
+
+#: src/http.c:1242
+#, c-format
+msgid "problem while reading %s: %s\n"
+msgstr ""
+
+#: src/http.c:1248
+msgid "%s, read: %<mag %s>\n"
+msgstr ""
+
+#: src/http.c:1299
+#, c-format
+msgid "telnet_get_line has a socket issue ! (%s)"
+msgstr ""
+
+#: src/http.c:1313
+#, c-format
+msgid "telnet_send couldn't send: %s"
+msgstr ""
+
+#: src/troll_detector.c:484
+msgid "troll_detector, initial message : %<YEL %s>\n"
+msgstr ""
+
+#: src/troll_detector.c:682
+msgid ""
+"%<RED this one was too hard> ! (nb_words = %d)\n"
+" txt='%s'\n"
+msgstr ""
+
+#: src/troll_detector.c:686
+#, c-format
+msgid " -> unable to use the words left in a troll, this is the end\n"
+msgstr ""
+
+#: src/troll_detector.c:693
+msgid ""
+"score = %<YEL %d> (sub_score=%<YEL %d>), the following words were used: "
+msgstr ""
+
+#: src/troll_detector.c:728
+msgid "bonus for using capitals: %<YEL %d>\n"
+msgstr ""
+
+#: src/troll_detector.c:735
+msgid "bonus for exclamation marks: %<YEL %d>\n"
+msgstr ""
+
+#: src/troll_detector.c:743
+msgid "bonus for abusive use of weird characters: %<YEL %d>\n"
+msgstr ""
+
+#: src/troll_detector.c:748
+msgid "bonus for abusive use of html tags: %<YEL %d>\n"
+msgstr ""
+
+#: src/troll_detector.c:753
+msgid "bonus for abusive usage of BOLD: %<YEL %d>\n"
+msgstr ""
+
+#: src/troll_detector.c:758
+msgid "%<bld attenuation for using a smiley>\n"
+msgstr ""
+
+#: src/troll_detector.c:761
+msgid ""
+"%<WHT final score: >%<YEL %d>\n"
+"\n"
+msgstr ""
+
+#: src/picohtml.c:245
+#, c-format
+msgid "Bug! calling picohtml(NULL)!"
+msgstr ""
+
+#: src/picohtml.c:246
+msgid "Bug ! appel de picohtml(NULL) !"
+msgstr ""
+
+#: src/picohtml.c:378 src/picohtml.c:388
+#, c-format
+msgid "Allocation of '%s' failed\n"
+msgstr ""
+
+#: src/picohtml.c:385
+#, c-format
+msgid "Allocation of '%s' OK\n"
+msgstr ""
+
+#: src/picohtml.c:396
+msgid "we forget '%<YEL %s>'\n"
+msgstr ""
+
+#: src/picohtml.c:600 src/pinnipede.c:1792
+#, c-format
+msgid "XLoadQueryFont: failed loading font '%s'\n"
+msgstr ""
+
+#: src/picohtml.c:601 src/pinnipede.c:1793
+#, c-format
+msgid "Please choose another font.\n"
+msgstr ""
+
+#: src/picohtml.c:610 src/pinnipede.c:1802
+#, c-format
+msgid "Slanted font '%s' not found -> we're looking for the italic font\n"
+msgstr ""
+
+#: src/picohtml.c:614 src/pinnipede.c:1806 src/pinnipede.c:1832
+msgid "%<RED WARNING>: error while looking for the italic font: '%s'\n"
+msgstr ""
+
+#: src/picohtml.c:615 src/picohtml.c:627 src/picohtml.c:636
+#: src/pinnipede.c:1807 src/pinnipede.c:1819 src/pinnipede.c:1833
+msgid "We'll use the base font.\n"
+msgstr ""
+
+#: src/picohtml.c:626 src/pinnipede.c:1818
+msgid "%<RED WARNING>: error while looking for the bold font: '%s'\n"
+msgstr ""
+
+#: src/picohtml.c:635
+msgid "%<RED WARNING>: error while looking for the courier font: '%s'\n"
+msgstr ""
+
+#: src/picohtml.c:646
+msgid "Now we try sans/12\n"
+msgstr ""
+
+#: src/picohtml.c:648
+msgid "Uuuurg, no sans/12 , I prefer to die\n"
+msgstr ""
+
+#: src/board_util.c:286
+#, c-format
+msgid ""
+"sniff? sniff ? soit vous vous amusez a faire de threads de folie, soit ca "
+"sent le BEUGGUE!\n"
+msgstr ""
+
+#: src/board_util.c:716
+#, c-format
+msgid "get_tok not recognized: (len=%d)'"
+msgstr ""
+
+#: src/board_util.c:733
+#, c-format
+msgid "Hmmm, looks like there's an underpants problem here: %s\n"
+msgstr ""
+
+#: src/board_util.c:913
+#, c-format
+msgid "IPOT(tm) detected"
+msgstr ""
+
+#: src/board_util.c:915
+#, c-format
+msgid "but where is '%s' ?"
+msgstr ""
+
+#: src/board_util.c:919
+#, c-format
+msgid "[IPOT(tm)]"
+msgstr ""
+
+#: src/board_util.c:921
+#, c-format
+msgid "Awww, we turn around and around and around and around..."
+msgstr ""
+
+#: src/board_util.c:929
+#, c-format
+msgid "Hello from %.30s in the boitakon ! (because %s=%.20s)"
+msgstr ""
+
+#: src/board_util.c:933
+#, c-format
+msgid "Hello from %.30s who was eaten by the boitakon"
+msgstr ""
+
+#: src/board_util.c:935
+#, c-format
+msgid ""
+"Hello from %.30s in the boitakon, BUT YOU HAVE JUST FOUND A BUG IN THE "
+"BOITAKON :-("
+msgstr ""
+
+#: src/board_util.c:967
+#, c-format
+msgid "I don't fucking know %s"
+msgstr ""
+
+#: src/pinnipede_widgets.c:964
+#, c-format
+msgid "FILTER UNDEFINED"
+msgstr ""
+
+#: src/pinnipede_widgets.c:1272 src/pinnipede.c:2957
+#, c-format
+msgid "remove %s:'<font color=blue>%.15s</font>' from %s"
+msgstr ""
+
+#: src/pinnipede_widgets.c:1500
+msgid "<folop> I have a 61MB file in /proc, is it normal ?<br>"
+msgstr ""
+
+#: src/pinnipede_widgets.c:1530
+msgid "Bring some help"
+msgstr ""
+
+#: src/pinnipede_widgets.c:1531
+msgid "Bring/hide the scrollcoin"
+msgstr ""
+
+#: src/pinnipede_widgets.c:1532
+msgid ""
+"Enable/disable the balltrap<br>(note that you can also kill all flying ducks "
+"with a right clic on the upper part of the dock applet<br>You can also use "
+"the wmccc to disable duck hunt on some sites (for example<font "
+"color=blue><tt>woof.lu</tt></font>, since the webserver does not enjoy "
+"receiving hundreds of <tt>pan!pan!</tt>in the same second)"
+msgstr ""
+
+#: src/pinnipede_widgets.c:1537
+msgid "Activate/deactivate the pseudo-transparency (may not work)."
+msgstr ""
+
+#: src/pinnipede_widgets.c:1538
+msgid "Change the display mode of the logins/useragents (5 different modes)"
+msgstr ""
+
+#: src/pinnipede_widgets.c:1542
+msgid ""
+"Activate/deactivate the <b>filter</b>. To filter the messages, do a <font "
+"color=#0000ff>Right clic</font> on a word/login/useragent or a clock (to "
+"display a thread). You can also use  <font color=#0000ff>CTRL-S</font> to "
+"perform incremental search on the board content. To remove the filter, just "
+"click here"
+msgstr ""
+
+#: src/pinnipede_widgets.c:1543
+msgid ""
+"Change the plopification type (beware, you will also see the messages in the "
+"boitakon!). <p> To plopify a message, <font color=#0000ff>Right click</font> "
+"on a word/login/useragent/clock (or the zone on the left of the clock to "
+"plopify a thread). To unplopify (or let someone out of the boitakon), just "
+"click on the same place OR right clic on this button and you will have a "
+"list of boitakoned elements.<br>"
+msgstr ""
+
+#: src/pinnipede_widgets.c:1544
+msgid "show only RSS feeds in the pinnipede"
+msgstr ""
+
+#: src/pinnipede_widgets.c:1545
+msgid "show only regular boards in the pinnipede"
+msgstr ""
+
+#: src/pinnipede_widgets.c:1546
+msgid "Launch wmccc (wmcoincoin configuration)"
+msgstr ""
+
+#: src/pinnipede_widgets.c:1549
+msgid "clic here to cancel the current download"
+msgstr ""
+
+#: src/prefs_gestion.c:15
+msgid ""
+"Erreur pour l'option de la ligne de commande '%<GRN -%c>'\n"
+": %s\n"
+msgstr ""
+
+#: src/prefs_gestion.c:26
+msgid "You invoqued wmcoincoin-kde : %<YEL anti KDE-bug mode activated>\n"
+msgstr ""
+
+#: src/prefs_gestion.c:34
+msgid "Home page: %<BLU http:/hules.free.fr/wmcoincoin>\n"
+msgstr ""
+
+#: src/prefs_gestion.c:36
+msgid ""
+"Dock applet pour WindowMaker -- affiche les news de %<GRN D>%<CYA a>%<GRN L>%"
+"<CYA inux>%<GRN F>%<CYA rench>%<GRN P>%<CYA age> (%<BLU http://linuxfr."
+"org>)\n"
+msgstr ""
+
+#: src/prefs_gestion.c:37
+msgid ""
+"OPTIONS (la plupart de ces options peuvent etre activees dans le\n"
+" fichier '%<YEL ~/.wmcoincoin/options>'):\n"
+msgstr ""
+
+#: src/prefs_gestion.c:39
+msgid " %<GRN -h>\t\t: mouaif...\n"
+msgstr ""
+
+#: src/prefs_gestion.c:45
+msgid ""
+" %<GRN -m> %<CYA msg>\t\t: change le message poste sur la tribune (defaut: '%"
+"<grn %s>')\n"
+msgstr ""
+
+#: src/prefs_gestion.c:46
+msgid ""
+" %<GRN -v> %<CYA n>\t\t: verbosite (defaut %<grn %d>) ,%<CYA n>=0,1,2,3\n"
+msgstr ""
+
+#: src/prefs_gestion.c:49
+msgid ""
+" %<GRN -b> %<CYA hexcoul>\t: couleur de fond, en RGB hexa (par defaut: %<grn "
+"%06x>, un magnifique(!) jaune)\n"
+msgstr ""
+
+#: src/prefs_gestion.c:50
+msgid ""
+" %<GRN -c> %<CYA hexcoul>\t: couleur du texte de l'applet, en RGB hexa (par "
+"defaut: %<grn %06x>)\n"
+msgstr ""
+
+#: src/prefs_gestion.c:51
+msgid ""
+" %<GRN -X> %<CYA file.xpm>\t: Fichier pixmap a mettre en fond du dock "
+"(fichier.xpm de 64x64)\n"
+msgstr ""
+
+#: src/prefs_gestion.c:52
+msgid " %<GRN -w> \t\t: utilise le mode windowed plutot que le mode icone\n"
+msgstr ""
+
+#: src/prefs_gestion.c:53
+msgid ""
+"\t\tcette option est necessaire pour utiliser wmcoincoin avec le kicker de "
+"KDE (<3.0)\n"
+msgstr ""
+
+#: src/prefs_gestion.c:54
+msgid ""
+"\t\tmais comme le kicker de KDE 2.1 a un bug qui l'empeche de sauver les "
+"options\n"
+msgstr ""
+
+#: src/prefs_gestion.c:55
+msgid ""
+"\t\tde la ligne de commande d'une session a l'autre, le mieux est "
+"d'invoquer\n"
+msgstr ""
+
+#: src/prefs_gestion.c:56
+msgid ""
+"\t\twmcoincoin sous le nom %<YEL wmcoincoin-kde> (c'est un bete lien "
+"symbolique)\n"
+msgstr ""
+
+#: src/prefs_gestion.c:57
+msgid "\t\tet l'option -w sera automatiquement activee...\n"
+msgstr ""
+
+#: src/prefs_gestion.c:58
+msgid ""
+" %<GRN -B> \t\t: ajoute la bordure de wmcoincoin (pour windowmanager sans "
+"dock)\n"
+msgstr ""
+
+#: src/prefs_gestion.c:59
+msgid ""
+" %<GRN -x> %<CYA x:y>\t\t: essaye de positionner wmcoincoin en (x,y), cette "
+"option\n"
+"\t\tn'est utile que si le windowmanager n'a pas de dock \n"
+"\t\t(utiliser avec l'option %<GRN -B>)\n"
+msgstr ""
+
+#: src/prefs_gestion.c:63
+msgid " %<GRN -H> \t\t: desactive les ballons d'aide\n"
+msgstr ""
+
+#: src/prefs_gestion.c:66
+msgid ""
+" %<GRN -s> %<CYA v>\t\t: vitesse de defilement du trolloscope (1 = rapide, "
+"100 = 1 tres lent)\n"
+"(defaut %<grn %d>)\n"
+msgstr ""
+
+#: src/prefs_gestion.c:71
+msgid ""
+" %<GRN -o> %<CYA fichier>\t: indique le nom du fichier d'options a utiliser "
+"dans le\n"
+"\t\t rep ~/.wmcoincoin (defaut '%<grn %s>')\n"
+msgstr ""
+
+#: src/prefs_gestion.c:73
+msgid " %<GRN -W>\t\t: ouvre le pinnipede des le lancement de wmcoincoin)\n"
+msgstr ""
+
+#: src/prefs_gestion.c:74
+msgid ""
+" %<GRN -l> %<CYA locale>\t: change the default locale (use -l fr to force "
+"wmcoincoin to speak french) (or set LC_MESSAGES properly)\n"
+msgstr ""
+
+#: src/prefs_gestion.c:75
+msgid ""
+" %<GRN -L> %<CYA locale_dir>\t: change the default directory of stored "
+"translations (default: %<grn %s>)\n"
+msgstr ""
+
+#: src/prefs_gestion.c:109
+msgid "Activation of the secret %<YEL debug> mode (dbg=%d)!\n"
+msgstr ""
+
+#: src/prefs_gestion.c:157
+#, c-format
+msgid "the file '%s' is not a directory !!! trash it please\n"
+msgstr ""
+
+#: src/prefs_gestion.c:162
+msgid "creating '%<YEL %s>'..\n"
+msgstr ""
+
+#: src/prefs_gestion.c:164
+msgid ""
+"can't create the directory '%s'\n"
+"[error: '%<red %s>']\n"
+msgstr ""
+
+#: src/prefs_gestion.c:169
+#, c-format
+msgid "There's something strange with the directory '%s' [err=%s]\n"
+msgstr ""
+
+#: src/prefs_gestion.c:186
+#, c-format
+msgid "can't read '%s' : %s\n"
+msgstr ""
+
+#: src/prefs_gestion.c:190
+#, c-format
+msgid "can't write '%s' : %s\n"
+msgstr ""
+
+#: src/prefs_gestion.c:216
+#, c-format
+msgid "ah ben y'a pas le fichier '%s', on va le creer\n"
+msgstr ""
+
+#: src/prefs_gestion.c:221
+#, c-format
+msgid ""
+"\n"
+"desole, demerdez-vous pour copier '%s' dans votre ~/.wmcoincoin ..\n"
+msgstr ""
+
+#: src/prefs_gestion.c:224
+#, c-format
+msgid ""
+"\n"
+"arretez de faire n'importe quoi dans votre ~/.wmcoincoin..\n"
+"\n"
+msgstr ""
+
+#: src/prefs_gestion.c:230
+#, c-format
+msgid ""
+"wmcoincoin a du etre mal installe, je ne trouve pas le fichier '%s' par "
+"defaut dans le rep '%s'...\n"
+msgstr ""
+
+#: src/prefs_gestion.c:234
+#, c-format
+msgid "utilisation du fichier se trouvant dans '%s'\n"
+msgstr ""
+
+#: src/prefs_gestion.c:256
+msgid "using option file '%<yel %s>'\n"
+msgstr ""
+
+#: src/prefs_gestion.c:268
+msgid ""
+"Error during while reading '%s':\n"
+"%<YEL %s>\n"
+msgstr ""
+
+#: src/prefs_gestion.c:480
+#, c-format
+msgid "Error while rereading options [%s]<br>%s"
+msgstr ""
+
+#: src/prefs_gestion.c:491
+msgid "rereading of options '%<YEL %s>' successful\n"
+msgstr ""
+
+#: src/prefs_gestion.c:642
+msgid "You changed the site/proxy, gethostbyname soon in progress\n"
+msgstr ""
+
+#: src/prefs_gestion.c:702
+#, c-format
+msgid "site removed: '%s'\n"
+msgstr ""
+
+#: src/prefs_gestion.c:732
+#, c-format
+msgid "new site added: '%s'\n"
+msgstr ""
+
+#: src/wmcoincoin.c:413
+#, c-format
+msgid ""
+"this url STINKS ! <b>%s</b> (neither ftp://, nor http://)<br>You will have "
+"to launch it by hand (copy to the clipboard with a right click, etc.)"
+msgstr ""
+
+#: src/wmcoincoin.c:424
+#, c-format
+msgid ""
+"You didn't define the external browser in ~/.wmcoincoin/options (%s), no "
+"need to click on the <b>[url]</b>..."
+msgstr ""
+
+#: src/wmcoincoin.c:490
+msgid "Spawning \"%<YEL %s>\"\n"
+msgstr ""
+
+#: src/wmcoincoin.c:516
+#, c-format
+msgid "Can't get window attributes.\n"
+msgstr ""
+
+#: src/wmcoincoin.c:651
+#, c-format
+msgid ""
+"[%s] Ooops, there must have been a little problem, the server answered:<p>%"
+"s<p>%s"
+msgstr ""
+
+#: src/wmcoincoin.c:653
+msgid "Check your cookies !"
+msgstr ""
+
+#: src/wmcoincoin.c:656 src/wmcoincoin.c:671
+#, c-format
+msgid ""
+"[%s] Ooops, there must have been a little problem, the server answered:<p>%s"
+msgstr ""
+
+#: src/wmcoincoin.c:689
+msgid "message posted: '%<YEL %s>\n"
+msgstr ""
+
+#: src/wmcoincoin.c:690
+msgid "    (useragent: '%<CYA %s>\n"
+msgstr ""
+
+#: src/wmcoincoin.c:763
+#, c-format
+msgid "[%s] Damned ! There has been an error<p>%s"
+msgstr ""
+
+#: src/wmcoincoin.c:813
+#, c-format
+msgid ""
+"Fork failed...(%s)..\n"
+" you sux\n"
+msgstr ""
+
+#: src/wmcoincoin.c:826
+#, c-format
+msgid ""
+"Exec of wmccc failed...(%s)..\n"
+" you sux (wmccc not in path?)\n"
+msgstr ""
+
+#: src/wmcoincoin.c:864
+#, c-format
+msgid "Unable to open '%s' for %s the state of the beast [%s]\n"
+msgstr ""
+
+#: src/wmcoincoin.c:864
+msgid "reading"
+msgstr ""
+
+#: src/wmcoincoin.c:864
+msgid "writing"
+msgstr ""
+
+#: src/wmcoincoin.c:881
+#, c-format
+msgid "Unable to open '%s' for writing to save the state of the beast\n"
+msgstr ""
+
+#: src/wmcoincoin.c:914
+#, c-format
+msgid ""
+"If the balltrap is enabled, you can:<br>- launch plastic ducks with <font "
+"color=blue><tt>Left Click</tt></font><br>- quickly kill all ducks with a "
+"<font color=blue><tt>Right Click</tt></font><br>"
+msgstr ""
+
+#: src/wmcoincoin.c:920
+msgid ""
+"<p align=center><b>This is a professionnal <font "
+"color=#a00000><i>Trolloscope</i></font></b></p>It displays symbols "
+"corresponding to the user-agents of the last messages posted on the board. "
+"The relationships between useragent and (colour,symbol) are defined in the "
+"<tt>~/.wmcoincoin/options</tt> file<br><font color=blue><tt>Left Click</tt></"
+"font><tab>: displays the useragent<br><font color=blue><tt>Middle Click</"
+"tt></font><tab>: instant refresh of all boards<br>Note: if you have given "
+"your authentication cookie to wmCoinCoin and if it blinks blue, then someone "
+"just answered to one of your posts. "
+msgstr ""
+
+#: src/wmcoincoin.c:928
+msgid ""
+"When this led is blue, a <b>http transfer</b> is underway. A <b><font "
+"color=red>red</font></b> blinking indicates a problem during the last "
+"transfer.<br><font color=blue><tt>Left Click</tt></font>: shows the last "
+"error message<br>"
+msgstr ""
+
+#: src/wmcoincoin.c:932
+msgid ""
+"This led does no blink anymore.<br>It is blue when the message is being sent "
+"by the palmipede, and green half a second after the effective sending.<br>A "
+"click on this led allows to change the scroll speed of the trolloscope:"
+"<br><font color=blue><tt>Left Click</tt></font><tab>: slower<br><font "
+"color=blue><tt>Right Click</tt></font><tab>: faster<br><font "
+"color=blue><tt>Middle Click</tt></font><tab>: change the trolloscope "
+"resolution"
+msgstr ""
+
+#: src/wmcoincoin.c:939
+msgid ""
+"When this led blinks green, a new article is available.<br><font "
+"color=blue><tt>Left Click</tt></font><tab>: see the article<br><font "
+"color=blue><tt>Right Click</tt></font><tab>: mark all articles as read"
+msgstr ""
+
+#: src/wmcoincoin.c:943
+msgid ""
+"When this led blinks green, you have just received a new message.<br><font "
+"color=blue><tt>Left Click</tt></font>: see the new message with the external "
+"browser 1<br><font color=blue><tt>Middle Click</tt></font>: see the new "
+"message with the external browser 2<br><font color=blue><tt>Right Click</"
+"tt></font>: cancel all new messages"
+msgstr ""
+
+#: src/wmcoincoin.c:948
+msgid ""
+"When the cursor is above this led, the level of the <font "
+"color=#a00000><i>Troll-o-meter</i></font> is displayed.<br><font "
+"color=blue><tt>Left Click</tt></font><tab>: INVOKE THE POWER OF <b>C01N "
+"C01N</b> !<br><font color=blue><tt>Right Click</tt></font><tab>: see the "
+"statistics of the board, and your XP and votes (if you have provided your "
+"authentication cookie)<br><font color=blue><tt>Middle Click</tt></font>: re-"
+"read the <tt>~/.wmcoincoin/options</tt> file"
+msgstr ""
+
+#: src/wmcoincoin.c:953
+msgid ""
+"The time of the last message received on the board, and the number of "
+"seconds that have past since<br><font color=blue><tt>Left Click</tt></font>: "
+"show/hide the <b>palmipede editor</b><br><font color=blue><tt>Right Click</"
+"tt></font>: show/hide the <b>pinnipede teletype</b>"
+msgstr ""
+
+#: src/wmcoincoin.c:959
+msgid "<b><i>DON'T PANIC</i></b>"
+msgstr ""
+
+#: src/wmcoincoin.c:1106
+#, c-format
+msgid "X11 Error. The coincoin is going down for halt NOW!\n"
+msgstr ""
+
+#: src/wmcoincoin.c:1112
+#, c-format
+msgid "X11 IO Error. The coincoin is going down for halt NOW!\n"
+msgstr ""
+
+#: src/wmcoincoin.c:1145
+#, c-format
+msgid "pan ! pan ! ... arg\n"
+msgstr ""
+
+#: src/wmcoincoin.c:1559
+#, c-format
+msgid "Creating the windows icon. Just tell me if it makes your WM crash.\n"
+msgstr ""
+
+#: src/wmcoincoin.c:1727
+#, c-format
+msgid "Couldn't create window\n"
+msgstr ""
+
+#: src/wmcoincoin.c:1739
+#, c-format
+msgid "Couldn't create icon window\n"
+msgstr ""
+
+#: src/wmcoincoin.c:1752
+#, c-format
+msgid "Bad dimensions for the pixmap skin (expected 64x320, found %dx%d)\n"
+msgstr ""
+
+#: src/wmcoincoin.c:1755
+msgid "Unable to load the pixmap '%<grn %s>'\n"
+msgstr ""
+
+#: src/wmcoincoin.c:1834
+#, c-format
+msgid "Couldn't create text property\n"
+msgstr ""
+
+#: src/wmcoincoin.c:1848
+#, c-format
+msgid "Couldn't create graphics context\n"
+msgstr ""
+
+#: src/wmcoincoin.c:1940 src/wmcoincoin.c:1945 src/wmcoincoin.c:1950
+#: src/wmcoincoin.c:1956 src/wmcoincoin.c:1963 src/wmcoincoin.c:1970
+#, c-format
+msgid ""
+"sigaction: erreur %d (%s)\n"
+" essayez de recompiler en faisant un #define SIGNAUX_A_LANCIENNE...\n"
+msgstr ""
+
+#: src/wmcoincoin.c:2090
+msgid "%<GRN wmc2> v.%<WHT %s> [ built on %s ]\n"
+msgstr ""
+
+#: src/wmcoincoin.c:2101
+#, c-format
+msgid "locale used: %s\n"
+msgstr ""
+
+#: src/wmcoincoin.c:2146
+msgid "%<YEL BOARD      >"
+msgstr ""
+
+#: src/wmcoincoin.c:2148
+msgid "%<YEL RSS        >"
+msgstr ""
+
+#: src/wmcoincoin.c:2150
+msgid "%<YEL POP3       >"
+msgstr ""
+
+#: src/wmcoincoin.c:2151 src/wmcoincoin.c:2160
+msgid "%<YEL prrrrrrt    >"
+msgstr ""
+
+#: src/wmcoincoin.c:2155
+msgid "%<YEL tags not encoded  >"
+msgstr ""
+
+#: src/wmcoincoin.c:2157
+msgid "%<YEL tags encoded      >"
+msgstr ""
+
+#: src/wmcoincoin.c:2159
+msgid "%<YEL without underpants>"
+msgstr ""
+
+#: src/wmcoincoin.c:2254
+#, c-format
+msgid "Unable to load font %s , trying iso8859-1\n"
+msgstr ""
+
+#: src/wmcoincoin.c:2258
+#, c-format
+msgid "Unable to load font %s, aborting\n"
+msgstr ""
+
+#: src/pinnipede.c:1765
+msgid ""
+"%<yel impossible to use the pseudo-transparency> (probable solution: "
+"relaunch wmsetbg or its equivalent)\n"
+msgstr ""
+
+#: src/pinnipede.c:1828
+#, c-format
+msgid "Bold slanted font '%s' not found -> we're looking for the italic font\n"
+msgstr ""
+
+#: src/pinnipede.c:2061
+#, c-format
+msgid ""
+"Failed to load the '%s' fonts with size '%d'\n"
+"Let's try with sans/12.\n"
+msgstr ""
+
+#: src/pinnipede.c:2063
+msgid "Uuuurg !! No helvetica, I shoot my nose.\n"
+msgstr ""
+
+#: src/pinnipede.c:2406
+#, c-format
+msgid ""
+"\n"
+"[you posted this message]"
+msgstr ""
+
+#: src/pinnipede.c:2409
+#, c-format
+msgid ""
+"\n"
+"[this message answers to one of yours]"
+msgstr ""
+
+#: src/pinnipede.c:2413
+#, c-format
+msgid ""
+"\n"
+"message 'boxed' because: "
+msgstr ""
+
+#: src/pinnipede.c:2422
+#, c-format
+msgid ""
+"\n"
+"message plopified (level %d) because: "
+msgstr ""
+
+#: src/pinnipede.c:2429
+#, c-format
+msgid ""
+"\n"
+"message plopified (level 3) because the boitakon is hungry"
+msgstr ""
+
+#: src/pinnipede.c:2435 src/pinnipede.c:2437
+msgid "answers"
+msgstr ""
+
+#: src/pinnipede.c:2435 src/pinnipede.c:2437
+msgid "answer"
+msgstr ""
+
+#: src/pinnipede.c:2437
+#, c-format
+msgid "%d %s (and %d plop%s from the boitakon)"
+msgstr ""
+
+#: src/pinnipede.c:2521
+msgid ""
+"<p align=center> Welcome to the <b><font color=#008000>Pinnipede Teletype</"
+"font></b></p>This window was specially designed by the greatest experts to "
+"offer you optimal mouling conditions.<br>Here is a summary of its "
+"functionalities:<br><br><b>To scroll</b>, use the mouse wheel, or 'drag' "
+"while clicking with the middle button. Scrolling is automatic when a new "
+"message appears.<br><br>To bring the <b>button bar</b> or make it disappear, "
+"use the middle clic. <br><br>The available actions on the <b>clock</b> near "
+"each message are:<br><font color=blue>Left Click</font><tab>: opens the "
+"palmipede editor, and inserts a reference to the message<br>If you click on "
+"an <b>[url]</b>, the result will be:<br><font color=blue>Left Click</"
+"font><tab>: opens the url in the external browser (if it has been defined in "
+"the ~/.wmcoincoin/options file). <b>Warning</b>, even if precautions have "
+"been takensince the inominious wmcoincoin 2.0, this kind of things is "
+"generally considered as a security weakness...<br><font color=blue>Middle "
+"Click</font><tab>: opens the url with the second browser (the http.browser2 "
+"option)<br>When the pointer is over a <b>reference to a previous post</b>, "
+"it will be underlined. If you click:<br><font color=blue>Left Click</"
+"font><tab>: brings the referenced message<br>You can use the right clic "
+"everywhere to bring a popup menu, which gives your more choices, such as "
+"putting a message in the boitakon, plopifying, filtering, copying in "
+"clipboard etc.<br>Some basic filtering is available with the help of <font "
+"color=blue>Right Click</font> on a word, login, useragent... Use the blue "
+"button to cancel the filter.<br>If you want to emphasize the messages of a "
+"given user, or those containing a given word, use the  emphasize entry of "
+"the contextual menu.<br>Someone is annoying you ? You have launched a troll "
+"that you don't control ? Then <b>plopify</b> the evil with a <font "
+"color=blue>Right Click/Plopify</font> (or put in boitakon) on his login/"
+"useragent. You can later remove the boitakonned message from the boitakon "
+"with a right clic on the left-most gray button.<br><br>You can take a 'shot' "
+"of the board (the so-called seafood tray), with <font color=blue>Ctrl+Middle "
+"Click</font><br><br>In order to understand the display of the <b>useragents</"
+"b> activated by the dark red button (about fifteen pixels on your left), you "
+"can see the <tt>~/.wmcoincoin/options</tt><br> file (hint: the button has 5 "
+"different positions)<br><br>The pinnipede teletype wishes you a nice mouling."
+msgstr ""
+
+#: src/pinnipede.c:2663 src/pinnipede.c:2682 src/pinnipede.c:2699
+#: src/pinnipede.c:2716 src/pinnipede.c:2732
+#, c-format
+msgid "Activating the filter [%s]\n"
+msgstr ""
+
+#: src/pinnipede.c:2859
+#, c-format
+msgid ""
+"The selected element is the <font color=blue>thread</font> '<font "
+"color=#800000>id=%d</font>'"
+msgstr ""
+
+#: src/pinnipede.c:2872
+#, c-format
+msgid ""
+"The selected element is the <font color=blue>useragent</font> '<font "
+"color=#800000>%s</font>'"
+msgstr ""
+
+#: src/pinnipede.c:2882
+#, c-format
+msgid ""
+"The selected element is the <font color=blue>login</font> '<font "
+"color=#800000>%s</font>'"
+msgstr ""
+
+#: src/pinnipede.c:2888
+#, c-format
+msgid ""
+"The selected element is the <font color=blue>message</font> #id=<font "
+"color=#800000>%d</font>"
+msgstr ""
+
+#: src/pinnipede.c:2896
+#, c-format
+msgid ""
+"The selected element is the <font color=blue>word</font> '<font "
+"color=#800000>%s</font>'"
+msgstr ""
+
+#: src/pinnipede.c:2906
+msgid "<b>plop</b>ify it"
+msgstr ""
+
+#: src/pinnipede.c:2907
+msgid "<b>superplop</b>ify it"
+msgstr ""
+
+#: src/pinnipede.c:2908
+msgid "put in <b>boitakon</b>"
+msgstr ""
+
+#: src/pinnipede.c:2909
+msgid "put in <i>hungry</i> <b>boitakon</b>"
+msgstr ""
+
+#: src/pinnipede.c:2913
+msgid "mark it (categ 0)"
+msgstr ""
+
+#: src/pinnipede.c:2914
+msgid "mark it (categ 1)"
+msgstr ""
+
+#: src/pinnipede.c:2915
+msgid "mark it (categ 2)"
+msgstr ""
+
+#: src/pinnipede.c:2916
+msgid "mark it (categ 3)"
+msgstr ""
+
+#: src/pinnipede.c:2917
+msgid "mark it (categ 4)"
+msgstr ""
+
+#: src/pinnipede.c:2918
+msgid "filter it"
+msgstr ""
+
+#: src/pinnipede.c:2922
+msgid "gogole search"
+msgstr ""
+
+#: src/pinnipede.c:2926
+msgid "wikipedia search"
+msgstr ""
+
+#: src/pinnipede.c:2931
+msgid "copy link in X clipboard"
+msgstr ""
+
+#: src/pinnipede.c:2935
+msgid "copy useragent in X clipboard"
+msgstr ""
+
+#: src/pinnipede.c:2938
+msgid "Try to download the correspounding picture"
+msgstr ""
+
+#: src/pinnipede.c:2939
+msgid "Bookmark this picture"
+msgstr ""
+
+#: src/pinnipede.c:2940
+msgid "Remove this picture from bookmarks"
+msgstr ""
+
+#: src/pinnipede.c:2963
+#, c-format
+msgid "remove %s:'<font color=blue>%.15s</font> from hilight categ %d"
+msgstr ""
+
+#: src/pinnipede.c:2969
+msgid "hide the button bar / tabs bar"
+msgstr ""
+
+#: src/pinnipede.c:2970
+msgid "show the button bar / tabs bar"
+msgstr ""
+
+#: src/pinnipede.c:2973
+msgid "Change colors for this site"
+msgstr ""
+
+#: src/pinnipede.c:2978
+msgid "<b>enable</b> the bigornophone"
+msgstr ""
+
+#: src/pinnipede.c:2980
+msgid "<b>disable</b> the bigornophone"
+msgstr ""
+
+#: src/pinnipede.c:2985
+msgid "<b>enable</b> the secondary bigornophone"
+msgstr ""
+
+#: src/pinnipede.c:2987
+msgid "<b>disable</b> the secondary bigornophone"
+msgstr ""
+
+#: src/palmipede.c:344
+msgid ""
+"%<MAG> FUCK THAT BUG! x=%d y=%d curs_x=%d curs_y=%d,y_scroll=%d,sel_anchor=%"
+"d,sel_head=%d\n"
+msgstr ""
+
+#: src/palmipede.c:561
+msgid ""
+"%<MAG> RAH ENCORE CE BUG! x=%d y=%d curs_x=%d curs_y=%d,y_scroll=%d,"
+"sel_anchor=%d,sel_head=%d\n"
+msgstr ""
+
+#: src/palmipede.c:662
+#, c-format
+msgid "wmcoincoin: Failed to set XA_PRIMARY ownership."
+msgstr ""
+
+#: src/palmipede.c:1331
+msgid ""
+"looks like you fucked your options file, no board has be defined: no noard, "
+"no palmipede"
+msgstr ""
+
+#: src/palmipede.c:2065
+msgid "====> <b>Moment "
+msgstr ""
+
+#: src/palmipede.c:2067
+msgid "_o/* <b>BLAM</b>! "
+msgstr ""
+
+#: src/palmipede.c:2069
+msgid "_o/* <b>paf</b>! "
+msgstr ""
+
+#: src/palmipede.c:2071
+msgid "sale chauve "
+msgstr ""
+
+#: src/palmipede.c:2109
+msgid "[:"
+msgstr ""
+
+#: src/palmipede.c:2638
+#, c-format
+msgid ""
+"<p align=center><b>wmCoinCoin Agent</b></p>Hmmm, it seems that you don't "
+"know what to say, so, if you don't mind,I suggest <font color=blue>%s</font>"
+msgstr ""
+
+#: src/palmipede.c:2648
+msgid "Put here the user-agent"
+msgstr ""
+
+#: src/palmipede.c:2651
+msgid "Fold back the palmipede<p>shortcut: <b>escape</b>"
+msgstr ""
+
+#: src/palmipede.c:2652
+msgid "Edit the user-agent"
+msgstr ""
+
+#: src/palmipede.c:2652
+msgid "Edit the message<p>shortcut: <b>Tab</b>"
+msgstr ""
+
+#: src/palmipede.c:2653
+msgid "Insert italic<p>shortcut: <b>Alt-I</b>"
+msgstr ""
+
+#: src/palmipede.c:2654
+msgid "Insert bold<p>shortcut: <b>Alt-B</b>"
+msgstr ""
+
+#: src/palmipede.c:2655
+msgid "Insert teletype tag<p>shortcut: <b>Alt-T</b>"
+msgstr ""
+
+#: src/palmipede.c:2656
+msgid "Overstrike text<p>shortcut: <b>Alt-S</b>"
+msgstr ""
+
+#: src/palmipede.c:2657
+msgid "Underline text<p>shortcut: <b>Alt-U</b>"
+msgstr ""
+
+#: src/palmipede.c:2659
+msgid "Undo<p>shortcut: <b>Ctrl-Z</b> or <b>Ctrl-_</b>"
+msgstr ""
+
+#: src/palmipede.c:2660
+msgid "Clear"
+msgstr ""
+
+#: src/palmipede.c:2661
+msgid "View the [:totoz] picture bookmark in your browser"
+msgstr ""
+
+#: src/palmipede.c:2662
+msgid "Restore the default user-agent"
+msgstr ""
+
+#: src/palmipede.c:2706
+#, c-format
+msgid " by %s"
+msgstr ""
+
+#: src/palmipede.c:2709
+#, c-format
+msgid "at %02d:%02d:%02d%s%s"
+msgstr ""
+
+#: src/palmipede.c:2711
+#, c-format
+msgid "<b>%d</b> times (first reference at %02d:%02d:%02d%s%s)"
+msgstr ""
+
+#: src/palmipede.c:2713
+#, c-format
+msgid "<b>%d</b> times (the url has left the pinnipede)"
+msgstr ""
+
+#: src/palmipede.c:2715
+#, c-format
+msgid ""
+"<b>°Bloub!°</b> It looks like you are living in the water. This url has "
+"already been posted %s<p>Press Alt-L to scroll to the url in the pinnipede, "
+"(Alt-F is also an option)"
+msgstr ""
+
+#: src/dock.c:498
+#, c-format
+msgid "..NO NEWS"
+msgstr ""
+
+#: src/dock.c:775
+#, c-format
+msgid "coin ?.... COIN ?? couic !\n"
+msgstr ""
+
+#: src/dock.c:882
+msgid "%<YEL Troll-o-meter -> going to level> %<GRN 0.00> (max=1.) !!!\n"
+msgstr ""
+
+#: src/dock.c:1002
+#, c-format
+msgid "Coin !\n"
+msgstr ""
+
+#: src/dock.c:1005
+msgid ""
+"<b>Please</b> fill your options file with a valid site equiped with a "
+"board..."
+msgstr ""
+
+#: src/dock.c:1013
+msgid "This board is read-only"
+msgstr ""
+
+#: src/dock.c:1135
+#, c-format
+msgid "Error while loading file : '%s' [64x64 pixels XPM, please]"
+msgstr ""
+
+#: src/dock.c:1341 src/dock.c:1500
+msgid "No new messages."
+msgstr ""
+
+#: src/board.c:764
+#, c-format
+msgid "[%s] board_remove_old_msg: destroying id=%d (date=%s)\n"
+msgstr ""
+
+#: src/board.c:1503
+#, c-format
+msgid "Welcome to the message from '%.20s' in the boitakon\n"
+msgstr ""
+
+#: src/board.c:1839
+msgid "Original message: '%<CYA %s>'\n"
+msgstr ""
+
+#: src/board.c:1840
+msgid "Decoded message: '%<MAG %s>'\n"
+msgstr ""
+
+#: src/board.c:2035
+msgid ""
+"%<YEL \\o/ Maybe there just has been a race condition in the board backend !"
+"> (id=%d).\n"
+"DON'T PANIC, the coincoin handles this well, it only proves I didn't write\n"
+"this bugfix for coconuts.\n"
+msgstr ""
+
+#: src/board.c:2059
+msgid ""
+"[%<YEL %s>] There is a problem in '%s',  I can't parse it... error:%<YEL %"
+"s>\n"
+msgstr ""
+
+#: src/board.c:2066 src/board.c:2213
+msgid "[%<YEL %s>] Error while downloading '%<YEL %s>' : %<RED %s>\n"
+msgstr ""
+
+#: src/board.c:2203
+msgid ""
+"[%<YEL %s>] There is a problem in '%s', I can't parse it... error:%<YEL %s>\n"
+msgstr ""
+
+#: src/board.c:2261
+msgid "DEBUG: opening '%<RED %s>'\n"
+msgstr ""
+
+#: src/prefs.c:93
+#, c-format
+msgid "[line %d] unable to find an option name"
+msgstr ""
+
+#: src/prefs.c:101
+#, c-format
+msgid "[line %d] missing value for option '%s'"
+msgstr ""
+
+#: src/prefs.c:159
+#, c-format
+msgid ""
+"Invalid option '%s', we were waiting for 2 numbers x and y with a x:y format"
+msgstr ""
+
+#: src/prefs.c:185
+#, c-format
+msgid "wrong style for option %s"
+msgstr ""
+
+#: src/prefs.c:203
+#, c-format
+msgid ""
+"Invalid option '%s': the shading is defined with 2 values x and y comprised "
+"between 0 and 100, with x < y (the greater x, the lighter will be the "
+"display, the smaller y, the more attenuated will be the colours."
+msgstr ""
+
+#: src/prefs.c:211
+#, c-format
+msgid ""
+"Invalid option '%s': you have to specify two RGB colours corresponding the "
+"white and the black"
+msgstr ""
+
+#: src/prefs.c:215
+#, c-format
+msgid ""
+"Invalid option '%s': you have to first specify the type of transparency: "
+"FULL, SHADING or TINTING"
+msgstr ""
+
+#: src/prefs.c:301
+#, c-format
+msgid "Deactivating the proxy"
+msgstr ""
+
+#: src/prefs.c:345
+#, c-format
+msgid ""
+"[%s option] there must be one and only one '%%' character, and it must be "
+"followed by an 's' (it will be replaced by the URL)"
+msgstr ""
+
+#: src/prefs.c:437
+#, c-format
+msgid ""
+"Error for option '%s': a list of words between quotes, separated by commas, "
+"is expected."
+msgstr ""
+
+#: src/prefs.c:475
+#, c-format
+msgid ""
+"Invalid argument for option '%s', word %d, the value of the numerical "
+"argument (%d) must be chosen between %d and %d"
+msgstr ""
+
+#: src/prefs.c:503
+#, c-format
+msgid ""
+"Invalid argument for option '%s', word %d: you have to specify a list of [UA|"
+"LOGIN|ID|etc]:[NUM:]\"a word\" separated with commas\n"
+msgstr ""
+
+#: src/prefs.c:587
+#, c-format
+msgid "miniuarule: '%s' is a wrong regexp: %s"
+msgstr ""
+
+#: src/prefs.c:630
+#, c-format
+msgid "Invalid argument for miniuarule here: '%.20s'\n"
+msgstr ""
+
+#: src/prefs.c:710
+#, c-format
+msgid "Invalid argument for option 'pinnipede.url_replace' here: '%.20s'\n"
+msgstr ""
+
+#: src/prefs.c:839
+msgid "coin ! coin !"
+msgstr ""
+
+#: src/prefs.c:1086
+#, c-format
+msgid "Invalid value for option '%s' (must be between %d and %d)"
+msgstr ""
+
+#: src/prefs.c:1088
+#, c-format
+msgid ""
+"Invalid value for option '%s': must be a value of type on/off, 1/0, true/"
+"false or yes/no"
+msgstr ""
+
+#: src/prefs.c:1091
+#, c-format
+msgid ""
+"Invalid value for option '%s': must be a hexadecimal RGB color, with the "
+"RRGGBB format"
+msgstr ""
+
+#: src/prefs.c:1091
+#, c-format
+msgid "Error, the '%s' option only accepts one colour value"
+msgstr ""
+
+#: src/prefs.c:1095
+#, c-format
+msgid ""
+"Invalid value for option '%s': must be a hexadecimal RGB colour, with the "
+"RRGGBB format (optionally followed by a second colour for the transparency "
+"mode)"
+msgstr ""
+
+#: src/prefs.c:1549
+#, c-format
+msgid "Watch out darling, it's gonnah cut\n"
+msgstr ""
+
+#: src/prefs.c:1550
+#, c-format
+msgid "the option '%s' is valid but not handled, WHAT A SHAME"
+msgstr ""
+
+#: src/prefs.c:1570
+msgid ""
+"I think you're totally dumb with the includes of option files (infinite "
+"recursion ?)\n"
+msgstr ""
+
+#: src/prefs.c:1576
+msgid "You didn't tell me of any filename\n"
+msgstr ""
+
+#: src/prefs.c:1587
+#, c-format
+msgid "Unable to open file '%s' for reading [%s]\n"
+msgstr ""
+
+#: src/prefs.c:1589
+#, c-format
+msgid "Unable to open file '%s' for reading\n"
+msgstr ""
+
+#: src/prefs.c:1611
+#, c-format
+msgid ""
+"line %d: attempt to use a site pref before any 'site:' option has been used\n"
+msgstr ""
+
+#: src/prefs.c:1631
+#, c-format
+msgid "line %d: option '%s' is a site option\n"
+msgstr ""
+
+#: src/prefs.c:1635
+#, c-format
+msgid "line %d: option '%s' can't be used as a site option\n"
+msgstr ""
+
+#: src/prefs.c:1643
+#, c-format
+msgid " [line %d] %s\n"
+msgstr ""
+
+#: src/prefs.c:1648
+#, c-format
+msgid "[line %d] unknown option '%s'"
+msgstr ""
+
+#: src/prefs.c:1736
+msgid ""
+"\n"
+"\n"
+"%<YEL oooooooh !!! you didn't define at least *ONE* site>, you bad boy.\n"
+"i do it for you, but this is the last time\n"
+" plz %<MAG use wmccc to add new sites>\n"
+"\n"
+msgstr ""

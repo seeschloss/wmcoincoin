@@ -1,0 +1,28 @@
+/* XPM */
+static char *icon_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 6 1",
+"  c #000000",
+". c #0055ff",
+"X c #209aff",
+"o c #96ba61",
+"O c #ffb241",
+"+ c #ffff00",
+/* pixels */
+"XXXXXXXXXXXXXXXX",
+"XXXXX++++XXXXXXX",
+"XXXX++++++XXXXXX",
+"XOOO+ ++++XXXXXX",
+"XXOO++++++XXXXXX",
+"XXXX++++++XXXXXX",
+"XXXXX++++XXXXXXX",
+"XXXXXX++XXXXXXXX",
+"XXXXX+++++++XXXX",
+"XXXX++++++++++XX",
+"XXX++++++++++++X",
+"XXX++++++++++++X",
+"...ooooooooooo..",
+"....ooooooooo...",
+".....oooooo.....",
+"................"
+};

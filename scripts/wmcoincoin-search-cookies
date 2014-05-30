@@ -1,0 +1,44 @@
+#!/bin/bash
+#set -x
+usage() {
+    echo "wmcc_search_cookies site_name"
+    exit $1
+}
+
+csearch() {
+  if test -f $2; then
+    lastmod=$(stat -c "%y" "$f" | awk '{ print $1; }')
+    echo ""
+    echo "Searching cookies in $2 (last modified $lastmod):";
+    grep "$1" "$2" | sed -e 's/\(TRUE\|FALSE\)//g' -e 's/"//g' -e 's![/]!!g' -e 's/[\t ]\+/ /g' -e 's/ . / /g' | filter
+  fi
+}
+
+filter() {
+    today=`date +%s`
+    while read line; do
+	echo "$today $line" | awk '{ printf "  %-20s %20s=%-40s",$2,$4,$5; printf " expire dans %4d jours\n",($3-$1)/(3600*24); }'
+    done;
+}
+
+if test "$#" -ne 1; then 
+    usage 1 1>&2; 
+fi;
+
+for f in $(find $HOME/.mozilla/ -name 'cookies.txt'); do csearch "$1" "$f"; done;
+for f in $(find $HOME/.mozilla-firebird/ -name 'cookies.txt'); do csearch "$1" "$f"; done;
+for f in $(find $HOME/.phoenix/ -name 'cookies.txt'); do csearch "$1" "$f"; done;
+for f in $(find $HOME/.galeon/ -name 'cookies.txt'); do csearch "$1" "$f"; done;
+for f in $(find $HOME/.gnome2/ -name 'cookies.txt'); do csearch "$1" "$f"; done;
+csearch "$1" "$HOME/.netscape/cookies"
+csearch "$1" "$HOME/.kde/share/apps/kcookiejar/cookies"
+csearch "$1" "$HOME/.w3m/cookie"
+
+if test -f $HOME/.wmcoincoin/options; then
+    echo "Searching cookies in $2 ~/.wmcoincoin/options:"
+    grep "cookie:" $HOME/.wmcoincoin/options
+fi
+if test -f $HOME/.wmcoincoin/options.auth; then
+    echo "Searching cookies in $2 ~/.wmcoincoin/options.auth:"
+    grep "cookie:" $HOME/.wmcoincoin/options.auth
+fi

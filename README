@@ -1,0 +1,71 @@
+NE LISEZ PAS CE README !!!!!!!!!!!!!!!!!!!!
+il est beaucoup trop vieux, voir plutot http://hules.free.fr/wmcoincoin
+
+
+wmCoinCoin 2.1beta: yet another braindamaged dock applet
+
+-------------------<abstract>---------------------------------
+ prerequis 
+	- rien de particulier (x11,...)
+ compilation: 
+	./configure && make ; su ; make install	
+ avant de lancer:
+	wmcoincoin -h
+--------------------</abstract>--------------------------------
+
+Tout d'abord, ce programme n'a d'interet(!?!) que pour les personnes qui
+cliquent 'refresh' 500 fois par jour sur DaLinuxFrenchPage (http://linuxfr.org)
+
+Il est maintenant capable de fonctionner avec d'autres site que linuxfr.org,
+sous reserve qu'ils tournent sous dacode 1.2 ou mieux.
+
+c'est une dock applet pour windowmaker (http://www.wimdowmaker.org). 
+Ses fonctionnalités::
+ * Affichage de l'heure du dernier post sur la tribune
+ * Affichage défilant des titres des dernières news de http://linuxfr.org
+ * Visionnage rapide du contenu d'une news (sans les commentaires)
+ * Troll-o-metre incorporé de qualité professionnelle.
+ * Troll-o-scope de dernière génération, modele couleur multiprecision 55x21
+ * (NEW!) Palmipède Editor, permet d'editer les messages a envoyer sur la tribune
+ainsi que le useragent.
+ * (NEW!) Estimation du nombre de personnes présentes sur la tribune.
+ * (NEW!) Compatibilité KDE .
+(faire: Menu KDE/Configurer/Ajouter/Extension/Applets Windowmaker),
+ * le pinnipede etc...
+ * non, le coredump ne fait pas partie des fonctionnalites, alors si
+wmcoincoin a tendance a en pondre, faites le moi savoir :)
+
+Pour plus de details, consulter la wmCoinCoinHomePage 
+(http://hules.free.fr/wmcoincoin)
+
+Pour la compilation: les informations classiques sont dans le fichier INSTALL.
+* la libwraster n'est plus necessaire depuis la v2.2beta
+* il n'y a PLUS BESOIN de curl, wmcoincoin s'est doté d'un magnifique module http, que 
+  j'espere a peu pres fonctionnel..
+* un DISPLAY sur au moins 15 bits (eh oui...)
+* un BRAS, muni d'une main prolongée par un périphérique de pointage.
+
+En option: 
+* un cerveau (vraiment pas obligatoire :-)
+
+pour compiler:
+
+[prière à St Isodore, notre Saint Patron]
+
+./configure
+
+[à ce stade, je recommande de faire une offrande a shivah, ça peut aider]
+
+make
+make install
+
+les options utiles de ./configure :
+--prefix chemin (par defaut chemin == /usr/local )
+
+Pour voir les options de wmCoinCoin, executer 'wmcoincoin -h'
+
+[Nouveau (v2.x)]
+* un fichier permettant de stocker les options (utile pour KDE qui ne sauve pas les options de
+ligne de commande d'une session à l'autre) est utilisé: $HOME/wmcoincoin/options
+(un fichier par défaut est crée au premier lancement, vous pouvez ensuite l'éditer)
+Il contient aussi des options supplémentaires permettant de paramètrer le PINNIPEDE TELETYPE.

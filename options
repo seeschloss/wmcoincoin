@@ -1,0 +1,530 @@
+### -*- mode: wmccoptions -*-
+###fichier d'options rcsid=$Id: options,v 1.66 2005/06/11 22:47:39 pouaite Exp $
+
+###vous pouvez decommenter des options et changer leur valeurs
+
+### A LIRE AVANT D'EDITER:
+### il y a trois type d'options:
+### * les options globales qui commence par une lettre, celles-ci affectent wmcoincoin dans 
+### son ensemble.
+### * les options de site, qui commencent par un point. Celles-ci n'affectent que le site en 
+### cours de definition.
+### * les options de site dont on peut definir la valeur par defaut (indiquee ici par '[.]nom_option')
+### si celles-ci sont utilisees sans point, elle affecteront tous les sites declares par la suite
+### (en gros elles definissent une valeur par defaut). Si elle sont utilisees avec le point, alors
+### elle agissent sur le site en cours de definition.
+
+
+### definition d'un nouveau site (le premier mot indique choisit le nom principal du site
+### et les suivants definissent des alias)
+
+### l'option 'site' est marquee obsolete, c'est un alias pour board_site
+#OBSOLETE#site: "dlfp","linuxfr"
+
+### Trois types de site sont disponibles:
+
+### debuter la definition d'une tribune classique
+#board_site: "dlfp", "linuxfr"
+### debuter la definition d'un fil RSS
+#rss_site: "k5"
+### debuter la definition d'un compte mail (pop3)
+#pop_site: "c0in@altern"
+
+### Option obsolete: les cookies doivent desormais etre stockes dans le fichier options.auth
+#OBSOLETE#.http.cookie: session_id=0sDSFdCo1nOF92fPl0p8
+
+### equivalent de l'option '-r' -> url de la page principale
+
+#OBSOLETE#[.]http.site_url: http://linuxfr.org
+#OBSOLETE#[.]http.path_tribune_backend: board/index.xml
+#OBSOLETE#[.]http.path_tribune_add: board
+#OBSOLETE#[.]http.board_post: board[message]=%s
+### les quatre options du dessus sont remplacees par:
+
+### pour essayer de gerer un peu mieux les variations saisonnieres de codage
+### du backend, cette option permet de le preciser 
+### 1 -> backend new style ('<b>' -> '<b>')
+### 2 -> backend old style ('<b>' -> '&lt;b&gt;')
+### 3 -> backend without slip ('<b>' -> ca depend)
+#[.]backend_flavour: 1,2 or 3
+#[.]backend.url: "http://linuxfr.org/board/remote.xml"
+#[.]post.url: "http://linuxfr.org/board/add.php"
+#[.]post.template: message=%s
+
+### pour les RSS dont le champ <description> est rempli de pub
+#[.]rss.ignore_description: off
+
+### active ou desactive une tribune
+#.check_board: on
+
+#[.]http.proxy: proxy:port
+#[.]http.proxy_auth: username:password
+
+### decommenter cette ligne si votre proxy a tendance a cacher comme un salaud
+#[.]http.proxy_use_nocache: on
+
+### decommenter si vous trouvez que ca rame un peu trop, ou bien si vous ne voyez pas
+### apparaitre vos messages dans le pinnipede tout de suite apres avoir poste 
+### (par contre c'est un peu moins gentil avec linuxfr)
+#[.]http.use_if_modified_since: off
+#http.timeout: 40
+
+### mettre ca a 4 pour ne resoudre qu'en addresses ipv4
+### ou a 6 pour n'avoir que de l'ipv6
+### ( 0 => elles sont toutes essayees )
+#http.inet_ip_version: 0
+
+### L'option 'http.browser' permet d'utiliser un navigateur externe, pour
+### lire les commentaires detecte par le flamophone, et pour afficher les [url] du
+### pinnipede teletype.
+
+### ATTENTION, ce genre de commande externe peut etre une source de vulnerabilite,
+### les caracteres bizarres dans les urls sont escapes avant d'etre envoyes
+### au browser externe, mais si le browser est lui-même bugge...
+### Par defaut, aucun browser n'est selectionne (ca peut rassurer les plus paranoiaques)
+### Le %s est remplace par l'url escapee, et la ligne de commande resultante est passee au shell
+
+### ATTENTION AUSSI: si vous lancez le browser par l'intermediaire d'un programme
+### du genre "kstart" (pour ouvrir dans un certain desktop sous kde) faites bien
+### attention: kstart interprête les caracteres comme un goret il faut donc mettre
+### '%s' a la place de %s
+#http.browser: opera %s &
+#http.browser: galeon -n %s &
+#http.browser: konqueror %s &
+#http.browser: netscape %s &
+#http.browser: mozilla %s &
+#http.browser: mozilla -remote openurl\(%s,new-tab\) &
+
+### nouveau (v2.2beta) -> un deuxieme browser, activable en cliquant avec le bouton
+### du milieu au lieu du bouton de gauche
+#http.browser2: xterm -fn 6x13 -bg white -fg black -geometry 120x80 -e w3m %s &
+
+### pour lancer des recherches sur google (ou autre) d'un clic,
+### faire alt+{left|middle} clic sur un mot/login/texte selectionne
+### le %s est remplace par le(s) mot(s) recherche(s)
+### /!\ par defaut cette option n'est pas activee
+#http.gogole_search_url: http://www.google.fr/search?q=%22%s%22
+#http.wikipedia_search_url: http://en.wikipedia.org/wiki/Special:Search?search=%s
+### par defaut le pinnipede est en helvetica, mais je trouve 'verdana' (en taille 11)
+### bien plus jolie. l'inconvenient, c'est qu'elle est plus lente a afficher...          
+### et qu'elle n'est pas dispo sur toutes les distribs
+pinnipede.font_family: unifont
+pinnipede.font_size: 11
+#[.]pinnipede.bg_color: dae6e6
+
+
+### options de transparence
+
+#pinnipede.start_in_transparency_mode: false
+### pour avoir aussi les fenetre d'arriere plan dans la transparence
+### (remarque: ca suce)
+#pinnipede.use_fake_real_transparency: false
+### transparence, complete, utilisez
+#pinnipede.transparency: full
+### transparence avec shading, (indiquez 2 chiffres croissants entre 0 et 100)
+#pinnipede.transparency: shading 20 70
+### transparence avec teinte, (indiquez la couleur du noir puis celle du blanc)
+#pinnipede.transparency: tinting 404020 e0e090
+
+### la plupart des options de couleur acceptent deux valeurs,
+### qui sont la couleur en mode normal, et la couleur
+### en mode transparent
+#[.]pinnipede.fg_color: 303030 d0d0d0
+#[.]pinnipede.clock_color: 004000 ffff80
+#[.]pinnipede.useragent_color: 800000 a0ffa0
+#[.]pinnipede.login_color: ffff00 c0ffc0
+#[.]pinnipede.url_color: 0000ff 80f0ff
+#[.]pinnipede.visited_url_color: 804080 808080
+#[.]pinnipede.trollscore_color: ff0000 ffff00
+#[.]pinnipede.strike_color: 800000
+#[.]pinnipede.clock_style: 
+#[.]pinnipede.login_style: IB
+#[.]pinnipede.useragent_style: I
+
+#pinnipede.emph_color: ffffff 505050
+#pinnipede.sel_bgcolor: ffd700 008080
+#pinnipede.popup_fgcolor: 000050 000050
+#pinnipede.popup_bgcolor: c0d0d0 c0d0d0
+
+#pinnipede.buttonbar.bgcolor: cdcdcd cdcdcd
+#pinnipede.buttonbar_fgcolor: 000000 000000
+#pinnipede.buttonbar_msgcnt_color: 7070af 7070af
+#pinnipede.buttonbar_updlcnt_color: 7070af 7070af
+#pinnipede.buttonbar_progressbar_color: ff0000 ff0000
+
+#pinnipede.hilight.my_msg_color: f07000 f07000
+#pinnipede.hilight.answer_my_msg_color: e0b080 e0b080
+
+### les couleurs pour les differentes categories de mots clefs
+### (0 -> categorie par defaut (en cliquant sur les mots etc),
+### mais vous pouvez en definir d'autres avec l'option
+### pinnipede.hilight_keywords, voir plus bas
+#pinnipede.hilight.keyword_color0: f00080
+#pinnipede.hilight.keyword_color1: ff8080
+#pinnipede.hilight.keyword_color2: f0ff80
+#pinnipede.hilight.keyword_color3: f000ff
+#pinnipede.hilight.keyword_color4: f08000
+#pinnipede.plopify_color: a0a0a0 a0a0a0
+
+#scrollcoin.bg_color:               cdcdcd cdcdcd
+#scrollcoin.bg_light_color:         ffffff ffffff
+#scrollcoin.bg_dark_color:          626262 626262
+#scrollcoin.arrow_normal_color:     0000ff 00ff00
+#scrollcoin.arrow_emphasized_color: 9c99cd 99cd99
+#scrollcoin.bar_color:              9c99cd 99cd99
+#scrollcoin.bar_light_color:        cdceff ceffce
+#scrollcoin.bar_dark_color:         62659c 649c64
+
+### location du pinnipede (sous la forme 'xpos:ypos' )
+#pinnipede.location: 128:64
+### dimension du pinnipede, au format largeur:hauteur
+#pinnipede.dimensions: 300:455
+#pinnipede.buttons: off
+
+### les 5 options suivantes correspondent aux boutons
+### du pinnipede
+#pinnipede.show_tags: on
+#pinnipede.show_seconds: on
+
+### nick_mode-> 0: n'affiche rien, 
+###		1: affiche les useragent raccourcis, 
+###     	2: affiche les logins, 
+###		3: affiche les deux, 
+###		4: affiche useragent ou login
+#pinnipede.nick_mode: 4
+#pinnipede.show_troll_score: on
+
+### pour retrouver un comportement 'classique' des tabs
+#pinnipede.use_classical_tabs: on
+
+### pour que les tabs aient la couleur de fond de leur tribune
+#pinnipede.use_colored_tabs: on
+
+### 1 -> tabs en bas, 2 -> tabs a gauche
+#pinnipede.tabs.position: 1
+
+### liste des elements declenchant la plopification (en plus de ceux
+### que vous pouvez ajouter en faisant shift+right clic dans le pinni)
+### la syntaxe est [LOGIN:|UA:|UA_NOLOGIN:|WORD:][numero de categorie:]"la phrase clef"
+### remarque: le niveau 0 correspond a une plopification normale, le
+### niveau 1 a un superplopification (le message est remplace par 'plop'
+### et le niveau 2 correspond a une Boitakon, les messages du malotru
+### deviennent invisibles
+### le niveau 3 est le niveau ultime de boitakonnage: la boitakon est contagieuse
+### et toutes le thread repondant sera boitakonne
+### remarque: pour l'ua et le login, il faut indiquer l'ua (/le login) complete.
+#pinnipede.plop_keywords: LOGIN:2:"gros boulet",  \
+#                        "communiste", "fasciste" # etc selon le troll saoulant du moment ;)
+
+### liste des element declenchant l'affichage des crochets colores
+### (en dehors de ceux que vous activez en faisant shift+left clic sur un mot/ua/etc)
+### on peut voir ca comme un bigornophone silencieux
+### le numero de categorie determine la couleur du crochet (definie dans
+### l'option pinnipede.hilight.keyword_color0/1/2/3/4)
+#pinnipede.hilight_keywords: LOGIN:1:"penso", \
+#                            UA:2:"poolpy", \ # ecoutez ce que dit poolpy !
+#                            3:"communiste", 3:"fasciste" # si vous aimez les trolls epais
+
+### liste des mots de substitution pour la plopification
+#pinnipede.plop_words: "plop","grouik","prout"
+
+### active ou vire la ligne rouge en pointilles
+#[.]pinnipede.mark_id_gaps: off
+
+### le style de la boitakon
+### off->normal, on->hungry (si le message repond a la boitakon et a un autre message, il passe dans la boite)
+#pinnipede.hungry_boitakon: 1
+
+### listes des remplacements de <b>[url]</b> pour les sites connus
+pinnipede.url_replace: "google." => "[google]"
+pinnipede.url_replace: "yahoo" => "[yahoo]"
+pinnipede.url_replace: "lemonde.fr" => "[lemonde]"
+pinnipede.url_replace: "liberation.fr" => "[libe]"
+pinnipede.url_replace: "journaldunet" => "[jdn]"
+pinnipede.url_replace: "01net.com" => "[01net]"
+pinnipede.url_replace: "forum.hardware" => "[hfr]"
+pinnipede.url_replace: "linuxfr.org/" => "[dlfp]"
+pinnipede.url_replace: "goatse" => "[pas cliquer!]"
+pinnipede.url_replace: "goat.cx" => "[pas cliquer!]"
+pinnipede.url_replace: "minilien" => "[minilien]"
+pinnipede.url_replace: "britney" => "[britney]"
+pinnipede.url_replace: "http://wiki.woof.lu/index.php?url" => "[url]"
+pinnipede.url_replace: "wiki" => "[wiki]"
+pinnipede.url_replace: "wickedweasel" => "[WW]"
+pinnipede.url_replace: "teen" => "[ducul]"
+pinnipede.url_replace: "horse" => "[ducheval]"
+pinnipede.url_replace: "stileproject" => "[stileproject]"
+pinnipede.url_replace: "slashdot.org" => "[/.]"
+pinnipede.url_replace: "kde" => "[kde]"
+pinnipede.url_replace: "gnome" => "[gnome]"
+pinnipede.url_replace: "xfree86" => "[xf86]"
+pinnipede.url_replace: "somethingawful.com" => "[SA]"
+pinnipede.url_replace: "osnews" => "[osnews]"
+pinnipede.url_replace: "zdnet" => "[zdnet]"
+pinnipede.url_replace: "kuro5hin" => "[K5]"
+pinnipede.url_replace: "freshmeat" => "[FM]"
+pinnipede.url_replace: "securityfocus.com" => "[securityfocus]"
+pinnipede.url_replace: "debian" => "[debian]"
+pinnipede.url_replace: "mandrake" => "[mdk]"
+pinnipede.url_replace: "redhat" => "[rh]"
+pinnipede.url_replace: "rpmfind" => "[rpmfind]"
+pinnipede.url_replace: "gentoo" => "[gentoo]"
+pinnipede.url_replace: "microsoft" => "[MS]"
+pinnipede.url_replace: "wmcoincoin" => "[wmcc]"
+pinnipede.url_replace: "pycoincoin" => "[pycc]"
+pinnipede.url_replace: ".jpg" => "[img]"
+pinnipede.url_replace: ".jpeg" => "[img]"
+pinnipede.url_replace: ".png" => "[img]"
+pinnipede.url_replace: ".gif" => "[LeGIFsaiMAL]"
+pinnipede.url_replace: ".swf" => "[flash]"
+pinnipede.url_replace: ".tar.gz" => "[tgz]"
+pinnipede.url_replace: ".tgz" => "[tgz]"
+pinnipede.url_replace: ".rpm" => "[rpm]"
+pinnipede.url_replace: ".deb" => "[deb]"
+pinnipede.url_replace: ".mp3" => "[mp3]"
+pinnipede.url_replace: ".ogg" => "[ogg]"
+pinnipede.url_replace: ".pdf" => "[pdf]"
+pinnipede.url_replace: "ftp://" => "[ftp]"
+pinnipede.url_replace: "dtc" => "[dtc]"
+pinnipede.url_replace: "free.fr" => "[free]"
+pinnipede.url_replace: "dyndns.org" => "[dyndns]"
+
+
+### pour reconnaitre les horloges hh:mm:ssAM/PM du dacode anglais
+#[.]pinnipede.use_AM_PM: off
+
+### ouvre le pinnipede des le lancement du coincoin
+#pinnipede.auto_open: off
+
+
+### cette option remplace l'ancien fichier useragents
+### elle est mieux(c)(tm)
+### les regles sont testees dans l'ordre.
+### on peut matcher 
+###   'ua:' , 'site:', 'login:'
+### et remplacer (apres le '=>')
+###   'ua:' , 'symb:', 'color:'
+### symb et color n'affectent que le trolloscope
+### pour les ua, il s'agit des regex posix en mode etendu (cf man regex)
+### et le remplacement des ua peut faire intervenir des \1, \2 etc (regarder
+### par exemple la regle pour internet explorer)
+### Il faut bien faire la distinction entre 
+###    symb="dtri"  (fixe le symbole sauf si il est prefixe par une regle suivante) 
+### et symb:="dtri" (fixe le symbole definitivement, même si une regle suivante 
+###                  aurait pu le rechanger)
+### (new in 2.5.x) : si aucune regle n'est matchee, les symbole/couleur sont
+### choisis en fonction du nom du site/des ua etc pour avoir qd meme
+### quelque chose d'un peu chattoyant
+board.miniua_rule:   site:"dlfp" => symb="dtri", color="#ff8000"
+board.miniua_rule:   site:"woof" => symb="square", color="#ffff00"
+board.miniua_rule:   site:"glandium" => symb="rutri", color="#0000ff" 
+board.miniua_rule:  login:"kadreg" => color="#80ff00"
+
+board.miniua_rule:  ua:".*[Bb][Oo][Tt].*"  => ua:="un bot!",symb:="circ",color:="#ffffff"
+board.miniua_rule:  ua:".*[Dd][Aa][Ee].*"  => ua:="dae",symb:="cross",color:="#00ff00"
+### pour faire plaisir a jr :°)
+board.miniua_rule:  ua:"^jr-lamoule$"  => ua:="JR",symb:="cross",color:="#00ff80"
+
+
+board.miniua_rule: ua:"^RFC 2549" => ua:="zorel"
+board.miniua_rule: ua:"^MOT-TA02/06.03.1FR MIB/1.2.1$" => ua:="zorel"
+board.miniua_rule: ua:"^wm[Cc]\w*[/ ]?([0-9]\.[0-9.]+\w*) \(palmipede; Linux ([0-9]\.[0-9.]+)mh[0-9]? i686\)$" => ua:="glandium"
+board.miniua_rule: ua:"Vaio-powered" => ua:="glandium"
+board.miniua_rule: ua:"^wm[Cc]\w*[/ ]?([0-9]\.[0-9.]+\w*) - olo" => ua:="olo"
+
+
+board.miniua_rule: ua:"Mozilla/4.73 \(compatible; MSIE 5.0; BeOS R5.0.4;I\) Opera 3.6" => ua:="mmu"
+
+board.miniua_rule: ua:"py[Cc]\w*[/ ]?([0-9]\.[0-9.]+\w*)" => ua="pycc/\1", color:="#ff8000"
+board.miniua_rule: ua:"wm[Cc]\w*[/ ]?([0-9]\.[0-9.]+\w*)" => ua="wmcc/\1", color:="#80ff00"
+board.miniua_rule: ua:"coincoin.net ([0-9.]+)" => ua="cc.net/\1"
+
+### Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020
+board.miniua_rule:  ua:"Mozilla/5.0.* Linux ([^;]+).*; rv:([[:alnum:].]+)\)" => ua:="Moz\2/Lnx\1"
+
+### Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.1b) Gec
+board.miniua_rule:  ua:"Mozilla/5.0.*; Windows ([^;]+).*; rv:([0-9.]+)" => ua:="Moz\2/Win\1"
+
+### Mozilla/5.0 Galeon/1.2.5 (X11; Linux ppc; U;) Gecko/0
+### Mozilla/5.0 Galeon/1.2.5 (X11; Linux i686; U;) Gecko/20020610 Debian/1.2.5-1 [ IPv4 ]
+board.miniua_rule:  ua:"Mozilla/5.0 Galeon/([0-9.]+).*Linux ([^;]+)" => ua:="Galeon\1/\2"
+### Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en-US; rv:1.0.1) Ge
+board.miniua_rule: ua:"Mozilla/5.0.*; .*OS X.*rv:([0-9.]+)" => ua:="Moz\1/OSX"
+
+###Mozilla/4.0 (compatible; MSIE 5.0; Windows XP) Opera 6.02  
+board.miniua_rule:  ua:"Mozilla/4.0.*Windows ([[:alnum:]]*).*Opera ([0-9.]+)" => ua:="Opera\2/Win\1"
+
+###Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)
+board.miniua_rule:  ua:"Mozilla/4.0 \(compatible; MSIE ([0-9.]+).*NT ([0-9.]+)" => ua:="IE\1/NT\2"
+
+### Mozilla/4.7 [fr] (WinNT; I)
+board.miniua_rule: ua:"Mozilla/([0-9.]+)+.*\(([^;]+); [UI]\)" => ua:="NS\1/\2"
+board.miniua_rule: ua:".*Win.*" => color:="#0080ff"
+board.miniua_rule: ua:".*Linux.*" => color:="#80ff80"
+
+### Options relatives au spell checker
+### Active/desactive le spellchecker
+#spell.enable: True
+### spell checker compatible ispell (ispell, aspell, ...)
+#spell.cmd: ispell
+### Dictionnaire associe (french, english ....)
+#spell.dict: french
+
+### indiquez la locale du dacode ("fr" si il vous cause en francais, "en" si il
+### cause en anglais etc.. 
+#[.]locale: fr
+
+### mettre iso8859-15 pour avoir le support de l'euro (il faut avoir installe ces fontes !)
+#font.encoding: iso8859-1
+
+### delai enntre deux verifications de la tribune (en secondes)
+#[.]tribune.delay: 30
+
+### en cas d'inactivite prolongee, le coincoin va augmenter le delai entre deux mises a jour
+### de la tribune et des news (au bout de 5min il le double, apres 20min il est multiplie par 10, et
+### par 40 apres 1h30 d'inactivite)
+### l'option 'tribunenews.max_refresh_delay' permet d'imposer un delai max entre deux mis a jour, en minutes
+### (par defaut 30 minutes au max), une valeur de 0 desactive completement le ralentissement des refresh
+### en fonction de l'activite
+#tribunenews.max_refresh_delay: 30
+
+### l'option 'tribunenews.switch_off_coincoin_delay' permet de fixer le delai d'inactivite au bout duquel 
+### le coincoin passe automatiquement en mode horloge et cesse toute activite (plus de refresh etc..)
+### (par defaut, 1440 minutes = 1 jour, une valeur de 0 desactive cette fonctionnalite)
+#tribunenews.switch_off_coincoin_delay: 1440
+
+### permet de desactiver l'auto-refresh sur la tribune (genre pour limiter le nb de hits
+### sur le proxy de la boite quand on a 15 tribunes dans le coincoin)
+### options OBSOLETE (gere directement par le pinni)
+#OBSOLETE#[.]board.auto_refresh: on
+
+### active la reconnaissance auto des mots du style [:totoz]
+### pour afficher l'image correspondante trouvee dans les smileys de totoz.eu
+### le d/l d'une image est assure par wmcc-totoz-get
+### l'affichage par wmcoincoin_player
+#board.enable_hfr_pictures: on
+
+### active le d/l automatique des images inconnues. Attention c'est potentiellement 
+### dangeureux (un script execute automatiquement, des bugs possibles, un maichant 
+### qui rode et paf)
+#board.auto_dl_pictures: on
+
+
+#balltrap.enable: off
+#balltrap.max_ducks: 12
+
+### on peut aussi desactiver le balltrap pour certains sites
+#.balltrap.enable: on
+
+### nombre maximum de messages qui sont conserves en memoire (et affichables dans le pinnipede
+### teletype). Ne lui donnez pas une valeur extravagante (genre 10000), wmcoincoin n'a pas ete concu pour ca !
+#[.]tribune.max_messages: 400
+
+#tribune.troll_detector: off
+
+### commande externe executee pour chaque nouveau message
+### les argument sont soigneusement quotes avant de passer la commande a executer au shell
+### neanmoins il faut rester conscient QUE C'EST DANGEREUX.
+###  $l -> login
+###  $m -> message
+###  $u -> useragent
+###  $i -> #id du message
+###  $t -> timestamp
+###  $s -> troll_score
+###  $r -> obsolete message type (do not use)
+###  $R -> message type ( bit 0: message posted by you, bit 1: answer to one of your messages, bit 2: message selected by a keyword, bit 3: plopified/boitakoned message)
+###  $v -> wmcc version
+###  $h -> remote host
+### for example, to hear a duck sound each time you get an answer:
+#tribune.post_cmd: (if [ $(($R & 2)) -ne 0 ]; then echo $l msg=$m; play ~/coin.wav & fi)
+#tribune.post_cmd_enabled: on
+#tribune.post_cmd2:
+#tribune.post_cmd2_enabled: on
+
+### nom du fichier dans lequel sont sauves les scrinechotes de la tribune
+#tribune.archive: ~/wmcc_tribune_shot.html
+
+#[.]tribune.wiki_emulation: http://wiki.woof.lu/index.php?
+
+### les couleurs sont en hexadecimal ( '00000' = noir, 'ff0000' = rouge, '00ff00' = vert ...)
+
+#dock.bg_color: ffb12b
+#dock.bg_pixmap: /chemin/vers/un/fichier.xpm (de dimensions 64x64)
+#dock.skin_pixmap: /chemin/vers/un/fichier.xpm, du même format que 'coin.xpm'
+### couleur du texte defilant
+#dock.fg_color: 000000
+
+### jouer sur les deux options suivantes pour faire fonctionner wmcoincoin avec d'autres
+### windowmanagers que WindowMaker (par exemple, sous kwm/KDE, il faut 'dock.iconwin: False')
+### (en ligne de commande, ce sont les options '-B' et -w')
+#dock.draw_border: False
+#dock.iconwin: True
+### une alternative est d'activer l'autoswallow, dans le cas l'applet est 
+### directement embarquee dans le pinnipede
+#dock.auto_swallow: False
+
+### il est possible de desactiver l'antialiasing pour toutes les fontes utilisees par wmcc
+### a utiliser si l'aa rame trop..
+#dock.disable_xft_antialiasing: True
+
+### les versions < 2.4.6 avaient cette option a true -- dans ce cas, le palmipede
+### gere le focus lui-meme (pas toujours bien)
+#palmipede.override_wmanager: False
+
+### changement de site actif avec la roulette dans le palmi
+#palmipede.enable_scroll_wheel_for_boulets: False
+
+### ces petits ballons d'aide peuvent être casse-couilles
+#dock.use_balloons: True
+
+### la fonte des ballons d'aide et des messages
+#dock.balloons.font_family: helvetica
+#dock.balloons.font_size: 10
+
+### quand draw_border est activee, cette option permet de position la fenetre (format 'xpos:ypos')
+### (equivalent de l'option '-x'
+#dock.pos: 0:400
+
+### pour demarrer le coincoin en mode horloge
+#dock.start_in_boss_mode: on
+
+### niveau de verbosite a partir duquel le coincoin râle
+#verbosity.underpants: 0
+#verbosity.http: 1
+
+### ce nom apparaitra au debut de tous vos posts
+#[.]palmipede.username: plop
+
+### specifier le userlogin permet de mieux reconnaitre vos posts (si vous avez l'habitude 
+### de poster en authentifie (sinon la reconnaissance est moins fiable)
+#[.]palmipede.userlogin: C0mPuT0r
+
+### si il y a une occurenre de '$u', '$v', '$s', '$r' et/ou '$m', elles seront
+###  remplaces par les valeurs suivantes:
+###  $u -> votre username (indique dans l'option 'palmipede.username')
+###  $v -> version du canard
+###  $s -> system name (Linux, ...)
+###  $r -> system release
+###  $m -> machine (i686,...)
+#[.]palmipede.useragent: my name is $u and i love you
+#palmipede.default_message: je ne suis pas du tout d'accord avec toi
+
+### longueurs maximales des messages et du useragent
+### (ces longueurs sont fixees par le site -- elles peuvent varier)
+#[.]palmipede.msg_max_length: 255
+#[.]palmipede.useragent_max_length: 60
+
+### various deprecated options
+#OBSOLETE#news.font_family:
+#OBSOLETE#news.font_size:
+#OBSOLETE#[.]check_news:
+#OBSOLETE#[.]check_comments:
+#OBSOLETE#[.]news.delay:
+#OBSOLETE#[.]http.path_end_news_url:
+#OBSOLETE#[.]tribune.backend_type: 
+#OBSOLETE#[.]backend_type: 
+#OBSOLETE#[.]http.path_myposts:
+#OBSOLETE#pinnipede.fortune_font_size:
+#OBSOLETE#pinnipede.show_fortune:
+#OBSOLETE#[.]http.path_news_backend:
+#OBSOLETE#[.]news.max_age:

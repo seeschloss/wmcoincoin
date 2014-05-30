@@ -1,0 +1,23 @@
+
+Prérequis
+---------
+ * Xcode
+ * X11
+ * Fink :
+   - gettext-dev
+   - pkgconfig
+   - gtk+2-dev glib2-dev atk1 pango1-xft2-dev
+   - imlib2
+
+
+MacOS 10.3
+----------
+CPPFLAGS="-I/sw/include" LDFLAGS="-L/sw/lib" ./configure && make && sudo make install
+
+MacOS 10.4 + Xcode 2.0
+----------
+CC=gcc-3.3 CPPFLAGS="-I/sw/include" LDFLAGS="-L/sw/lib" ./configure && make && sudo make install
+
+MacOS 10.4 + Xcode 2.1
+----------
+CPPFLAGS="-I/sw/include" LDFLAGS="-L/sw/lib" ./configure && make && sudo make install
