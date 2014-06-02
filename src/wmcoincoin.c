@@ -618,62 +618,6 @@ wmcc_log_http_request(Site *s, HttpRequest *r)
   }
 }
 
-/* cette gruikerie vous est offerte par lordoric(c)(tm) */
-/*
- * Tente de formater potablement un message d'erreur retourné par le serveur
- * C'est de la bricole pour linuxfr, hein !
- * ( et ne pas oublier le free() sur le joli_message, oui c'est crados )
- */
-char *formate_erreur( char *tribune, char *message_ignoble )
-{
-  char *debut, *fin, *erreur;
-  int taille;
-  char *joli_message = NULL;
-  int content = 0;
-  
-  debut = strstr( message_ignoble, "<div class=\"menubar\">" );
-  
-  if ( NULL != debut ) 
-    {
-      // Chouette, c'est bien le template de linuxfr
-      debut = strstr( debut, "</div>" ) + 6;
-      if ( NULL != debut ) {	
-        fin = strstr( debut, "<div" );
-        if ( NULL != fin ) {
-          taille = MIN(fin - debut,99999); // pour éviter le petit-suicide du coincoin dans str_printf
-          erreur = strdup( debut );
-          erreur[taille] = 0;	 // j'ai honte
-          
-          if ( NULL != strstr( erreur, "XP >=" )	)
-            {
-              printf("erreur=%s\nlen=%d", erreur,(int)strlen(erreur));
-              
-              joli_message = str_printf( _("[%s] Ooops, there must have been a little problem, "
-                                           "the server answered:<p>%s<p>%s"), tribune, erreur,
-                                         _("Check your cookies !") );
-            } else {
-            printf("erreur=%s\nlen=%d", erreur,(int)strlen(erreur)); fflush(stdout);
-              joli_message = str_printf( _("[%s] Ooops, there must have been a little problem, "
-                                           "the server answered:<p>%s"), tribune, erreur );
-            }
-          
-          // Ca a marche \o/
-          content = 1;
-        }
-      }
-    }
-  
-  /*  if ( ! content && strstr(message_ignoble, "Redirection vers http://www.nofrag.com"))
-    content = 1;
-  else printf("message ignoble=%s\n",message_ignoble);
-  */
-  if ( ! content ) {
-    joli_message = str_printf( _("[%s] Ooops, there must have been a little problem, "
-                                 "the server answered:<p>%s"), tribune, message_ignoble );	
-  }
-  return joli_message;
-}
-
 /* 
    poste le message sur la tribune -- en tant que fonction 'lente' 
    cette fonction est executée par la boucle principale
@@ -736,22 +680,6 @@ exec_coin_coin(Dock *dock, int sid, const char *ua, const char *msg_)
   BLAHBLAH(1,myprintf("request sent, status=%<YEL %d> (%d)\n", r.telnet.error, flag_cancel_task));
   wmcc_log_http_request(site, &r);
   if (http_is_ok(&r)) {
-    /* trimer servira a nettoyer les reponses pas vides de zorel< son espace est chiant */
-    unsigned char *reponse, *trimer; 
-
-    reponse = http_read_all(&r, site->prefs->site_name);
-    trimer = reponse;
-    /* nettoyage des caracteres blancs : espace, tab, CR et LF */
-    while ((*trimer == ' ') ||
-           (*trimer == '\r') ||
-           (*trimer == '\t') ||
-           (*trimer == '\n')) trimer++;
-    if ( *trimer != 0 ) {
-			char *s;
-      s = formate_erreur( site->prefs->site_name, reponse ); 
-      if (s) { msgbox_show(dock, s); free(s); }
-      free(reponse);
-    }
     if (!site->prefs->user_cookie && r.new_cookie) {
         site->prefs->user_cookie = strdup(r.new_cookie);
 	char *p;
