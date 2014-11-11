@@ -13,7 +13,8 @@ void
 on_bottom1_activate                    (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-
+  (void) menuitem;
+  (void) user_data;
 }
 
 
@@ -21,6 +22,7 @@ void
 on_left1_activate                      (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-
+  (void) menuitem;
+  (void) user_data;
 }
 
