@@ -183,7 +183,7 @@ board_find_id(const Board *board, int id)
 static board_msg_info *
 board_find_md5_rec(board_msg_info *it, md5_byte_t md5[16]) {
   board_msg_info *it2;
-  if (it->ri && memcmp(md5, it->ri->md5, sizeof md5) == 0) return it;
+  if (it->ri && memcmp(md5, it->ri->md5, sizeof *md5) == 0) return it;
   else if (it->left && (it2=board_find_md5_rec(it->left, md5))) return it2;
   else if (it->right && (it2=board_find_md5_rec(it->right, md5))) return it2;
   return NULL;
