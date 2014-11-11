@@ -599,7 +599,11 @@ pv_tmsgi_parse(Pinnipede *pp, Board *board, board_msg_info *mi, int with_seconds
   attr = 0;
 
   if (pv->is_plopified == 3) p = "plop"; /* bienvenue dans le monde de la hard plopification */
+#ifdef NO_BITFIELDS
   assert(pv->is_plopified <= 3);
+#else
+  ;
+#endif
 
   has_initial_space = 1;
   while (p) {
