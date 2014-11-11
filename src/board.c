@@ -750,12 +750,12 @@ board_build_tree(Board *board)
 static void
 board_remove_old_msg(Board *board)
 {
-  board_msg_info *it, *pit;
+  board_msg_info *it;
   int cnt;
   int removed = 0;
 
   cnt = 0;
-  it = board->msg; pit = NULL;
+  it = board->msg;
   while (it) {
     cnt++;
     it = it->next;
@@ -1340,7 +1340,7 @@ board_msg_info *
 board_log_msg(Board *board, char *ua, char *login, char *stimestamp, char *_message, int id, 
               const unsigned char *my_useragent)
 {
-  board_msg_info *nit, *pit, *ppit, *it;
+  board_msg_info *nit, *pit, *it;
   board_msg_info *g_it, *pg_it;
   char *message = NULL;
   Boards *boards = board->boards;
@@ -1378,12 +1378,10 @@ board_log_msg(Board *board, char *ua, char *login, char *stimestamp, char *_mess
   */
   nit = board->msg;
   pit = NULL;
-  ppit = NULL;
   while (nit) {
     if (nit->id.lid > id) {
       break;
     }
-    ppit = pit;
     pit = nit;
     nit = nit->next;
   }

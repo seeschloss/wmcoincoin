@@ -1516,9 +1516,6 @@ dock_handle_button_press(Dock *dock, XButtonEvent *xbevent)
 static void
 dock_handle_button_press_horloge_mode(Dock *dock, XButtonEvent *xbevent)
 {
-  int x,y;
-  x = xbevent->x; y = xbevent->y;
-  
   if (xbevent->button == Button1 && (xbevent->state & ControlMask)) {
     dock_unset_horloge_mode(dock);
   }

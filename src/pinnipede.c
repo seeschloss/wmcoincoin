@@ -673,10 +673,9 @@ pv_tmsgi_parse(Pinnipede *pp, Board *board, board_msg_info *mi, int with_seconds
     }
     if (add_word) {
       int is_ref;
-      board_msg_info *ref_mi = NULL;
 
       if ((attr & PWATTR_LNK) == 0) {
-        ref_mi = check_for_horloge_ref(board->boards, mi->id, s,attr_s, PVTP_SZ, &is_ref, NULL);
+        check_for_horloge_ref(board->boards, mi->id, s,attr_s, PVTP_SZ, &is_ref, NULL);
         if (is_ref) {
           attr |= PWATTR_REF;
         }
@@ -1088,7 +1087,6 @@ pp_draw_line(Dock *dock, Pixmap lpix, PostWord *pw,
 {
   Pinnipede *pp = dock->pinnipede;
   int pl;
-  int old_pos;
   unsigned long pixel; //, old_pixel;
   CCColorId color;
   int y;
@@ -1167,7 +1165,6 @@ pp_draw_line(Dock *dock, Pixmap lpix, PostWord *pw,
 
   pixel = 0L;
   y = ccfont_ascent(pp->fn_base)-1;
-  old_pos = 0;
   if (pw) {
     CCFontId fn;
     pl = pw->ligne;
@@ -1305,7 +1302,6 @@ pp_draw_line(Dock *dock, Pixmap lpix, PostWord *pw,
 	XDrawLine(dock->display, lpix, dock->NormalGC, pw->xpos, y-ccfont_height(fn)/2, x1, y-ccfont_height(fn)/2);
       }
       pw->attr &= ~PWATTR_TMP_EMPH;
-      old_pos = pw->xpos + pw->xwidth;
       pw = pw->next;
     }
   }
@@ -1361,7 +1357,7 @@ pp_refresh(Dock *dock, Drawable d, PostWord *pw_ref)
   Boards *boards = dock->sites->boards;
 
   int l;
-  board_msg_info *ref_mi, *caller_mi;
+  board_msg_info *ref_mi;
   unsigned char ref_comment[200];
   int ref_in_window = 0; /* mis a 1 si le message souligné par pw_ref est affiché parmi
 			    les autres messages. sinon, on l'affiche en haut, dans une petite fenetre */
@@ -1406,7 +1402,6 @@ pp_refresh(Dock *dock, Drawable d, PostWord *pw_ref)
     }
   }
 
-  caller_mi = NULL;
   ref_mi = NULL;
   nb_anti_ref = 0;
   

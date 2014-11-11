@@ -204,14 +204,12 @@ get_host_ip_str_nonbloq(const char *hostname, int port) {
   }
   default: { /* pôpa */
     int got, cstat;
-    time_t time_debut;
     int iplist_sz = 20, iplist_len=0, iplist_ok = 0;
 
     iplist = malloc(iplist_sz); assert(iplist); iplist[0] = 0;
     if (close(tube[1]) == -1) {
       fprintf(stderr, _("daddy: pipe full (%s), what will do now ?\n"), strerror(errno)); close(tube[0]);
     }
-    time_debut = time(NULL);
     while (1) {
       int retval;
       if (flag_cancel_task) break;

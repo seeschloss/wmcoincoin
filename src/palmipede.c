@@ -1720,10 +1720,10 @@ void
 editw_set_kbfocus(Dock *dock, EditW *ew, int get_it)
 {
   Window focwin;
-  int revert_to, pp_focus;
+  int revert_to;/* , pp_focus; */
   if (Prefs.palmipede_override_redirect) {
     XGetInputFocus(dock->display, &focwin, &revert_to);
-    pp_focus = (pp_ismapped(dock) && focwin == pp_get_win(dock));
+    /* pp_focus = (pp_ismapped(dock) && focwin == pp_get_win(dock)); */
     if (get_it && ew->mapped/* && !pp_focus*/)
       XSetInputFocus(dock->display, ew->win, RevertToPointerRoot, CurrentTime);
     else /*if (!get_it) {
@@ -2294,10 +2294,9 @@ void
 editw_handle_keyrelease(Dock *dock, EditW *ew, XEvent *event)
 {
   KeySym ksym;
-  int klen;
   unsigned char buff[4];
 
-  klen = XLookupString(&event->xkey, (char*)buff, sizeof(buff), &ksym, NULL);
+  XLookupString(&event->xkey, (char*)buff, sizeof(buff), &ksym, NULL);
   if (ksym == XK_Return || ksym == XK_KP_Enter) {
     if (dock_red_button_check(dock)) {
       editw_hide(dock, ew);

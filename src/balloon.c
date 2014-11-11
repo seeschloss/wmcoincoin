@@ -255,10 +255,10 @@ balloon_show(Dock *dock, int x, int y, int h, int w, const char *text, int bwidt
   int bx, by;
   Balloon *b = dock->balloon;
   int xiscr;
-  int sx,sy,sw,sh;
+  int sx,sy,sw/* ,sh */;
   xiscr = MAX(dock_find_xiscreen_num(dock,x,y),0);
   sx = dock->xiscreen[xiscr].x_org; sw = dock->xiscreen[xiscr].width;
-  sy = dock->xiscreen[xiscr].y_org; sh = dock->xiscreen[xiscr].height;
+  sy = dock->xiscreen[xiscr].y_org; /* sh = dock->xiscreen[xiscr].height; */
   if (b->mapped) {
     balloon_hide(dock);
   }

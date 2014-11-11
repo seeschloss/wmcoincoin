@@ -161,13 +161,11 @@ wordlist_cleanup(Word *wlst)
 static Word *
 decoupe_bloc(unsigned char *start, unsigned char *end, int in_tag)
 {
-  int n;
   unsigned char *s, *tagstart, *tagend;
   Word *wl;
   
   assert(start); assert(end);
 
-  n = end - start;
   if (start == end) return NULL;
   wl = NULL;
 

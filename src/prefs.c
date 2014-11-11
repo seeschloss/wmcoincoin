@@ -525,12 +525,11 @@ string_to_miniuarule(unsigned char *str, MiniUARule *r) {
   cnt = 0;
   do {
     enum { MATCH_UA, MATCH_LOGIN, MATCH_SITE, REPL_UA, REPL_COL, REPL_SYMB, TOKERR } tok_type;
-    int separ_ok = 0;
     int i;
     s_tok = s; /* juste pour pouvoir signaler sur que element s'est produit l'erreur */
-    if (strncmp(s, "=>", 2) == 0 && rule_section == 1) { separ_ok = 1; rule_section = 0; s += 2; }
-    else if (s == str) separ_ok = 1;
-    else if (*s == ',') { separ_ok = 1; s++; }
+    if (strncmp(s, "=>", 2) == 0 && rule_section == 1) { rule_section = 0; s += 2; }
+    else if (s == str) ;
+    else if (*s == ',') s++;
     else goto erreur;
 
     while (*s && *s <= ' ') s++;
