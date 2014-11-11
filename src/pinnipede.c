@@ -4006,7 +4006,8 @@ pp_handle_keypress(Dock *dock, XEvent *event)
 int
 pp_handle_keyrelease(Dock *dock, XEvent *event)
 {
-  dock = 0; event = 0;
+  (void) dock;
+  (void) event;
   return 0;
 }
 

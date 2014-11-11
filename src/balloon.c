@@ -181,7 +181,7 @@ balloon_draw_frame(Display *dpy, Pixmap pix, GC gc, int x, int y, int w, int h, 
   }
   XFillPolygon(dpy, pix, gc, pt, 3, Convex, CoordModeOrigin);
   */
-  side=0;
+  (void) side;
 }
 
 static void
@@ -219,7 +219,8 @@ balloon_makepixmap(Dock *dock, Balloon *b, int bx, int by, int width, int height
 
     *mask = bitmap;
     *pix = pixmap;
-    bx = by = 0;
+    (void) bx;
+    (void) by;
 }
 
 void
