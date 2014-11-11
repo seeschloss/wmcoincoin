@@ -91,7 +91,7 @@ pp_totoz_register_img(Pinnipede *pp, char *imgname, int status) {
     pp_totoz_state_cnt++;
 
     BLAHBLAH(1, myprintf("new image registered: '%<YEL %s>'\n", imgname));
-    unsigned i, cavachier = 0; 
+    int i, cavachier = 0;
     for (i=0; i < pp->totoz->nb_img; ++i) {
       //printf(" %c %08x %s\n", (i == imgi) ? '!' : ' ', pp->totoz->img[i].hash, pp->totoz->img[i].name);
       if (i != imgi && strcmp(imgname, pp->totoz->img[i].name)==0) {
