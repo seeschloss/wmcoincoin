@@ -5,5 +5,5 @@ LIBS = `imlib2-config --libs`  `pkg-config --libs x11`
 
 wmcoincoin_player_SOURCES = fmalloc.c giffunc.c gifread.c wmcoincoin_player.c gif.h
 
-INCLUDES = -I. `imlib2-config --cflags`
+AM_CPPFLAGS = -I. `imlib2-config --cflags`
 

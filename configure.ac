@@ -240,6 +240,8 @@ case $host_os in
          * ) CYGWIN=no; EXEEXT="";;
 esac
 
+AC_USE_SYSTEM_EXTENSIONS
+
 dnl internationalization macros
 ALL_LINGUAS="fr"
 AM_GNU_GETTEXT
@@ -463,14 +465,14 @@ if test "x$ac_cv_have_struct_addrinfo" = "xyes" ; then
 	AC_DEFINE(HAVE_STRUCT_ADDRINFO,1,[struct addrinfo])
 fi
 
-AC_CACHE_CHECK([for execinfo.h and backtrace], ac_have_backtrace, [
+AC_CACHE_CHECK([for execinfo.h and backtrace], ac_cv_have_backtrace, [
         AC_TRY_COMPILE(
                 [ #include <execinfo.h>       
                 ],
                 [ void* trace[256]; int n = backtrace(trace, 256); ],
-                [ ac_have_backtrace="yes" ],
-                [ ac_have_backtrace="no"  ])])
-if test "x$ac_have_backtrace" = "xyes"; then
+                [ ac_cv_have_backtrace="yes" ],
+                [ ac_cv_have_backtrace="no"  ])])
+if test "x$ac_cv_have_backtrace" = "xyes"; then
         AC_DEFINE(HAVE_BACKTRACE,1,[glibc backtrace function])
 fi;     
 

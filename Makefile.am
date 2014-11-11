@@ -96,7 +96,7 @@ ACLOCAL_AMFLAGS = -I m4
 MAINT_CHARSET = latin1
 
 # pour faire plaisir à woof :°)
-prefix=$(DESTDIR)@prefix@
+#prefix=$(DESTDIR)@prefix@
 
 SUBDIRS = intl  m4  po src scripts platypus
 EXTRA_DIST = config.rpath  MACOSX xpms/porte.h xpms/editwin_minib.xcf xpms/editwin_minib.xpm \
@@ -125,6 +125,6 @@ nightly: dist
 	(cd ..; ./up.sh ./wmcoincoin-cvs.tar.gz download/devel)
 
 pkgdata_DATA = options README wmcoincoin.spec xpms/bracket.xpm  xpms/logo.xpm xpms/badnews.xpm \
-	xpms/totoz.xpm pixmaps/cbronson.jpg pixmaps/logoh.png pixmaps/logo.xpm xpms/icon.xpm
+	xpms/totoz.xpm pixmaps/cbronson.jpg pixmaps/logoh.png xpms/icon.xpm
 
 CLEANFILES = stamp-h
