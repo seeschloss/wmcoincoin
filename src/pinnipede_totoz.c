@@ -502,7 +502,8 @@ pp_totoz_get_image(Dock *dock, unsigned char *imgname) {
         } else {
           fclose(f);
           cmd = str_printf("echo \"%s.%s\" `wmcoincoin_player -i \"%s\"` \"%s\" > \"%s\"", imgfname, extlist[i], pathimg, mimelist[i], pathdesc);
-          system(cmd);
+          if (system(cmd) == -1)
+            myfprintf(stderr, "%s failed\n", cmd);
           free(cmd);
           pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_FOUND);
           pp_totoz_update_status(dock, imgname);

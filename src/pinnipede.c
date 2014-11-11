@@ -4255,7 +4255,8 @@ pp_restore_state(Dock *dock, FILE *f) {
       int i;
       pp->nb_visited_links = nlnk;
       for (i=0; i < pp->nb_visited_links; i++) {
-	fscanf(f, "%d\n", &pp->visited_links[i]);
+        if (fscanf(f, "%d\n", &pp->visited_links[i]) == EOF)
+          myfprintf(stderr, "fscanf() failed\n");
       }
     }
     pp_tabs_restore_state(dock,f);

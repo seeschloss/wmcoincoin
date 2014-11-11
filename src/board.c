@@ -367,7 +367,8 @@ void board_restore_state(FILE *f, Board *board) {
     board->time_shift_max = tmax;
     board->time_shift = t;
   }
-  fscanf(f, "last_viewed_id=%d", &board->last_viewed_id);
+  if (fscanf(f, "last_viewed_id=%d", &board->last_viewed_id) == EOF)
+    myfprintf(stderr, "fscanf() failed\n");
   if (board_is_rss_feed(board) || board_is_pop3(board)) {
     board->last_viewed_id = -1; /* on dispose d'une liste de md5 */
     release_md5_array(board);
@@ -1638,7 +1639,8 @@ board_call_external_(Board *board, int last_id, char *cmd) {
     subs[9] = qhost;
     shift_cmd = str_multi_substitute(cmd, keys, subs, 10);
     BLAHBLAH(2, myprintf("post_cmd: /bin/sh -c %<YEL %s>\n", shift_cmd));
-    system(shift_cmd);
+    if (system(shift_cmd) == -1)
+      myfprintf(stderr, "%s failed\n", shift_cmd);
 
     free(shift_cmd);
     free(qlogin);
