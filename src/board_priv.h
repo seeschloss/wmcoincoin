@@ -17,6 +17,7 @@
 #define BOARD_MSG_MAX_LEN 15000 /* on peut y arriver avec un bon gros message plein de [][][][]... */
 #define BOARD_LOGIN_MAX_LEN 60
 
+void convert_to_utf8(const char *src_encoding, char **psrc);
 void release_md5_array(Board *b);
 md5_and_time *find_md5_in_md5_array(md5_byte_t md5[16], md5_and_time *m);
 void board_decode_message(Board *board, char *dest, const char *src);
