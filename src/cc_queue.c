@@ -1,7 +1,7 @@
-#include <sys/types.h>
-#include <sys/wait.h>
 #include "coincoin.h"
 #include "site.h"
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <libintl.h>
 #define _(String) gettext (String)
 
