@@ -568,7 +568,7 @@ editw_erase(EditW *ew)
 int
 editw_insert_string(EditW *ew, const unsigned char *str)
 {
-  unsigned char *s = strdup(str);
+  char *s = strdup(str);
   convert_to_iso8859("UTF-8", &s);
   int ls,lb,lrest,ldec;
   int tronq;
