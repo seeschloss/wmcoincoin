@@ -2377,7 +2377,7 @@ pp_check_survol(Dock *dock, PostWord *pw, int force_refresh)
   Boards *boards = dock->sites->boards;
   char survol[1024];
   char *p;
-  int survol_hash;
+  intptr_t survol_hash;
   int is_a_ref = 0;
 
   survol[0] = 0;
@@ -2454,7 +2454,7 @@ pp_check_survol(Dock *dock, PostWord *pw, int force_refresh)
     p = survol;
     while (*p) { survol_hash += (((unsigned)*p) * 253) + 23; p++; }
   } else {
-    survol_hash = (int)pw; // pourquoi pas...
+    survol_hash = (intptr_t)pw; // pourquoi pas...
   }
   
   //  survol_hash = (int)pw; // ca c'est pas bon, on fait trop de refresh
