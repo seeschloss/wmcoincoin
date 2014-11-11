@@ -244,7 +244,6 @@ int ccfont_text_width_utf8(CCFontId fid, char *str, int len) {
   XGlyphInfo ext;
   if (len == -1) len = strlen(str);
   XftTextExtents8(display, ccfonts[fid]->xfn, str, len, &ext);
-  int plop = ext.width;
   XftTextExtentsUtf8(display, ccfonts[fid]->xfn, str, len, &ext);
   return ext.width;
 }

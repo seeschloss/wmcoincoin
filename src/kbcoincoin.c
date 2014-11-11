@@ -54,7 +54,7 @@ kb_xim_lookup_key(XKeyEvent *event, unsigned idx)
       rlen = Xutf8LookupString(ic, event, buf, buf_len, &kb_state()->ksym, &status);
     }
   }
-  unsigned i;
+  //unsigned i;
   switch (status) {
     case XLookupNone:
       //printf("XLookupNone\n");
