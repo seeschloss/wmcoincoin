@@ -1002,7 +1002,7 @@ dock_red_button_check(Dock *dock) {
       BLAHBLAH(1,printf(_("Coin !\n")));
 
       if (dock->coin_coin_site_id == -1) {
-	msgbox_show(dock, _("<b>Please</b> fill your options file with a valid site equiped with a board..."));
+	msgbox_show(dock, _("<b>Please</b> fill your options file with a valid site equipped with a board..."));
       } else {
 	s = sl_find_site_id(dock->sites, dock->coin_coin_site_id);
 	if (s && s->board) {

@@ -865,7 +865,7 @@ void check_balloons(Dock *dock)
           balloon_test(dock,x,y,iconx,icony,0,dock->leds.led[1].xpos, dock->leds.led[1].ypos, 9, 4,
                        _("This led does no blink anymore.<br>" //blinks when you have just sent a message on the board, and it is waiting for its delivery.<br>"
                          "It is blue when the message is being sent by the palmipede, and green half a second after the effective sending.<br>"
-                         "A click on this led allows to change the scroll speed of the trolloscope:<br>"
+                         "A click on this led allows one to change the scroll speed of the trolloscope:<br>"
                          "<font color=blue><tt>Left Click</tt></font><tab>: slower<br>"
                          "<font color=blue><tt>Right Click</tt></font><tab>: faster<br>"
                          "<font color=blue><tt>Middle Click</tt></font><tab>: change the trolloscope resolution"));
