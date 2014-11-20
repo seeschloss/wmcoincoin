@@ -1273,14 +1273,13 @@ void strbuf_free(strbuf *sb) {
 
 /* ben voila.. fionalement je l'ai faite, du coup faudrait updater url au coiffeur */
 int split_url(const char *url, SplittedURL *d) {
-  char *p, *p2, *start, *end;
+  char *p, *p2, *start;
   strncpy(d->data, url, 1000); d->data[999] = 0;
   str_trim(d->data);
   p = d->data;
   if (strlen(d->data) == 0) return -1;
   if (p[0] == '"' && p[strlen(d->data)-1] == '"') { p++; d->data[strlen(d->data)-1] = 0; }
   start = p;
-  end = d->data + strlen(d->data);
   p = strstr(p, "://"); if (!p) return -1;
   *p = 0;
   if (strcasecmp(start, "http") == 0) {

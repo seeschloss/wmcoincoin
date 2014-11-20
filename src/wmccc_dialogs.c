@@ -101,7 +101,7 @@ static void wmccc_initialize_dialog(wmccc_dialog_t dlg) {
   if (!isinit[dlg]) {
     g_signal_connect ((gpointer) getdlg(dlg), "response",
                       G_CALLBACK (wmccc_dialog_response_cb),
-                      (gpointer)dlgstack.sz);
+                      GINT_TO_POINTER(dlgstack.sz));
   }
   if (dlg != DLG_EDIT_OPTIONS && 
       my_lookup_widget(w, "apply_bt") && (dlgstack.sz > 1 || glob.wmcc_pid == 0)) {    
@@ -218,7 +218,7 @@ void wmccc_run_dialog(wmccc_dialog_t dlg, gboolean hide_parent) {
   
   g_signal_connect ((gpointer) getdlg(dlg), "response",
                     G_CALLBACK (wmccc_dialog_response_cb),
-                    (gpointer)dlgstack.sz);
+                    GINT_TO_POINTER(dlgstack.sz));
   dlgstack.lst[dlgstack.sz++] = dlg;
   gtk_widget_show(getdlg(dlg));
 }

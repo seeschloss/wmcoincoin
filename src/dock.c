@@ -1002,7 +1002,7 @@ dock_red_button_check(Dock *dock) {
       BLAHBLAH(1,printf(_("Coin !\n")));
 
       if (dock->coin_coin_site_id == -1) {
-	msgbox_show(dock, _("<b>Please</b> fill your options file with a valid site equiped with a board..."));
+	msgbox_show(dock, _("<b>Please</b> fill your options file with a valid site equipped with a board..."));
       } else {
 	s = sl_find_site_id(dock->sites, dock->coin_coin_site_id);
 	if (s && s->board) {
@@ -1516,9 +1516,6 @@ dock_handle_button_press(Dock *dock, XButtonEvent *xbevent)
 static void
 dock_handle_button_press_horloge_mode(Dock *dock, XButtonEvent *xbevent)
 {
-  int x,y;
-  x = xbevent->x; y = xbevent->y;
-  
   if (xbevent->button == Button1 && (xbevent->state & ControlMask)) {
     dock_unset_horloge_mode(dock);
   }

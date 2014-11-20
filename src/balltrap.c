@@ -225,7 +225,7 @@ void balltrap_animate(Dock *dock) {
     d_next = d->next;
     d->age++;
     if (!duck_is_dead(d)) {
-      float angle = 0, speed = 3 /* vitess mini */, vx, vy;
+      float angle = 0, speed = 3 /* vitess mini */, vx = 0, vy = 0;
       int k;
       for (k=0; k < DUCK_NCX; ++k) {
         angle += d->angle_ampli[k]*sin(d->angle_phase[k]+t*k);

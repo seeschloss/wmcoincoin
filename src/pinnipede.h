@@ -238,6 +238,9 @@ struct _Pinnipede {
   Pixmap miniduck_pixmap;
 };
 
+void ccfont_draw_string_utf8(CCFontId fid, CCColorId cid, Drawable d, int x, int y, char *str, int len);
+int ccfont_text_width_utf8(CCFontId fid, char *str, int len);
+int ccfont_text_xbox_utf8(CCFontId fid, char *str, int len, short *pxstart, short *pxoff);
 int filter_msg_info(const board_msg_info *mi, const struct _PinnipedeFilter *filter);
 int count_all_id_filtered(Boards *boards, struct _PinnipedeFilter *filter);
 id_type get_first_id_filtered(Boards *boards, struct _PinnipedeFilter *filter);

@@ -814,15 +814,15 @@ http_skip_header(HttpRequest *r)
 	                           [; expires=<date>][; domain=<domain_name>]
 	                           [; path=<some_path>][; secure][; httponly] */
 	    char *garbage;
-		if (garbage = strcasestr(buff+11, "expires=")) {
+                if ((garbage = strcasestr(buff+11, "expires="))) {
 			r->new_cookie = strndup(buff+11, garbage - buff - 11);
-		} else if (garbage = strcasestr(buff+11, "domain=")) {
+		} else if ((garbage = strcasestr(buff+11, "domain="))) {
 			r->new_cookie = strndup(buff+11, garbage - buff - 11);
-		} else if (garbage = strcasestr(buff+11, "path")) {
+		} else if ((garbage = strcasestr(buff+11, "path"))) {
 			r->new_cookie = strndup(buff+11, garbage - buff - 11);
-		} else if (garbage = strcasestr(buff+11, "secure")) {
+		} else if ((garbage = strcasestr(buff+11, "secure"))) {
 			r->new_cookie = strndup(buff+11, garbage - buff - 11);
-		} else if (garbage = strcasestr(buff+11, "httponly")) {
+		} else if ((garbage = strcasestr(buff+11, "httponly"))) {
 			r->new_cookie = strndup(buff+11, garbage - buff - 11);
 		} else {
 			r->new_cookie = strdup(buff+11);

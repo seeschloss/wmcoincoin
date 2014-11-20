@@ -392,9 +392,8 @@ scrollcoin_handle_button_release(ScrollCoin *sc, XButtonEvent *ev, Drawable d)
 int
 scrollcoin_handle_motion(ScrollCoin *sc, XMotionEvent *ev, Drawable d)
 {
-  int mx, my;
+  int my;
 
-  mx = ev->x;
   my = ev->y;
   if (sc->dragging && (ev->state & Button1Mask)) {
     int decal;

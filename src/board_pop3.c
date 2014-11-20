@@ -35,10 +35,8 @@ static void unhtml_body(char *txt) {
 
 char* copy_text_between_angles(const char *src, char *dest, size_t dest_sz) {
   char *a, *b;
-  size_t n;
   a = strchr(src, '<'); if (!a) return NULL;
   b = strchr(a, '>'); if (!b) return NULL;
-  n = MIN(dest_sz, (size_t)(b-a+1));
   memmove(dest, a, dest_sz);
   if ((size_t)(b-a+1) < dest_sz) dest[b-a+1] = 0;
   else dest[dest_sz-1] = 0;

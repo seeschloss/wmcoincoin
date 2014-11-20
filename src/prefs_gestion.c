@@ -778,7 +778,7 @@ wmcc_prefs_relecture(Dock *dock, int whatfile)
     /* MISE A JOUR DU COINCOIN */
     if (reset_dock_pix) { 
       if ((errmsg=dock_build_pixmap_porte(dock))) {
-	fprintf(stderr, errmsg);
+	fprintf(stderr, "%s", errmsg);
       }
       close_palmi = 1;
     }

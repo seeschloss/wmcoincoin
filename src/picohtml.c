@@ -226,7 +226,7 @@ picohtml_parse(PicoHtml *ph, const char *buff, int width)
 
   /* valable pour la ligne en cours de traitement,
      utilises pour la justification finale */
-  int xpos_debut_ligne;
+  //int xpos_debut_ligne;
   PicoHtmlItem *it_debut_ligne;
 
   int htext, space_width, parag_skip, line_skip, parag_align, next_parag_align;
@@ -269,7 +269,7 @@ picohtml_parse(PicoHtml *ph, const char *buff, int width)
   x = 0; //- parag_skip;
   y = 0; //parag_skip;
 
-  xpos_debut_ligne = x;
+  //xpos_debut_ligne = x;
   cur_color = ph->default_color;
   while (*p) {
     flag_item_to_add = 0;
@@ -405,7 +405,7 @@ picohtml_parse(PicoHtml *ph, const char *buff, int width)
     if (new_parag) {
       x = ph->parag_indent;
       y += parag_skip;
-      xpos_debut_ligne = x;
+      //xpos_debut_ligne = x;
       if (parag_align != NORMAL) {
 	//	justif_ligne(ph, it_debut_ligne, xpos_debut_ligne, width, parag_align);
 	justif_ligne(it_debut_ligne, width, parag_align);
@@ -439,7 +439,7 @@ picohtml_parse(PicoHtml *ph, const char *buff, int width)
       if (new_parag) {
 	x = ph->parag_indent;
 	y += parag_skip;
-	xpos_debut_ligne = x;
+	//xpos_debut_ligne = x;
 	parag_align = next_parag_align;
       }
 
@@ -456,7 +456,7 @@ picohtml_parse(PicoHtml *ph, const char *buff, int width)
 	else
 		x = 0;
 	y += line_skip; 
-	xpos_debut_ligne = x;
+	//xpos_debut_ligne = x;
 	it_debut_ligne = picohtml_additem(ph, tok, len, attrib, x, y, cur_fn, cur_color, cur_link, special_attr);
 	x += w;
       } else {

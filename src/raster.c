@@ -449,7 +449,9 @@ RGBACreatePixmapFromXpmFile(RGBAContext *ctx, char *xpm_file, int *w, int *h)
       fprintf(stderr, _("Error while reading '%s' !? [%s]\n"), xpm_file, strerror(errno));
     }
 
-    l[0] = 0; fgets(l, LEN_MAX, f);
+    l[0] = 0;
+    if (!fgets(l, LEN_MAX, f))
+      fprintf(stderr, "fgets() failed: %s\n", strerror(errno));
     
     /* on ne prend en compte QUE LES LIGNES QUI COMMENCE PAR '"' et QUI SE TERMINENT PAR '",' */
     

@@ -209,12 +209,11 @@ int new_options_from_string(const char *s) {
 /* Function to open a dialog box displaying the message provided. */
 void quick_message(gchar *message_fmt, ...) {
   va_list ap;
-  GtkWidget *label;
   char s[1024];
   va_start(ap, message_fmt);
   vsnprintf(s,1024,message_fmt,ap);
   va_end(ap);
-  label = messagebox_dialog("messagebox_label"); 
+  messagebox_dialog("messagebox_label");
   gtk_label_set_text(GTK_LABEL(messagebox_dialog("messagebox_label")), s);
   gtk_dialog_run (GTK_DIALOG(messagebox_dialog(NULL)));
 }

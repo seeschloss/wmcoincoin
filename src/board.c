@@ -367,7 +367,8 @@ void board_restore_state(FILE *f, Board *board) {
     board->time_shift_max = tmax;
     board->time_shift = t;
   }
-  fscanf(f, "last_viewed_id=%d", &board->last_viewed_id);
+  if (fscanf(f, "last_viewed_id=%d", &board->last_viewed_id) == EOF)
+    myfprintf(stderr, "fscanf() failed\n");
   if (board_is_rss_feed(board) || board_is_pop3(board)) {
     board->last_viewed_id = -1; /* on dispose d'une liste de md5 */
     release_md5_array(board);
@@ -750,12 +751,12 @@ board_build_tree(Board *board)
 static void
 board_remove_old_msg(Board *board)
 {
-  board_msg_info *it, *pit;
+  board_msg_info *it;
   int cnt;
   int removed = 0;
 
   cnt = 0;
-  it = board->msg; pit = NULL;
+  it = board->msg;
   while (it) {
     cnt++;
     it = it->next;
@@ -1340,7 +1341,7 @@ board_msg_info *
 board_log_msg(Board *board, char *ua, char *login, char *stimestamp, char *_message, int id, 
               const unsigned char *my_useragent)
 {
-  board_msg_info *nit, *pit, *ppit, *it;
+  board_msg_info *nit, *pit, *it;
   board_msg_info *g_it, *pg_it;
   char *message = NULL;
   Boards *boards = board->boards;
@@ -1378,12 +1379,10 @@ board_log_msg(Board *board, char *ua, char *login, char *stimestamp, char *_mess
   */
   nit = board->msg;
   pit = NULL;
-  ppit = NULL;
   while (nit) {
     if (nit->id.lid > id) {
       break;
     }
-    ppit = pit;
     pit = nit;
     nit = nit->next;
   }
@@ -1640,7 +1639,8 @@ board_call_external_(Board *board, int last_id, char *cmd) {
     subs[9] = qhost;
     shift_cmd = str_multi_substitute(cmd, keys, subs, 10);
     BLAHBLAH(2, myprintf("post_cmd: /bin/sh -c %<YEL %s>\n", shift_cmd));
-    system(shift_cmd);
+    if (system(shift_cmd) == -1)
+      myfprintf(stderr, "%s failed\n", shift_cmd);
 
     free(shift_cmd);
     free(qlogin);

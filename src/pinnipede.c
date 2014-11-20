@@ -599,7 +599,11 @@ pv_tmsgi_parse(Pinnipede *pp, Board *board, board_msg_info *mi, int with_seconds
   attr = 0;
 
   if (pv->is_plopified == 3) p = "plop"; /* bienvenue dans le monde de la hard plopification */
+#ifdef NO_BITFIELDS
   assert(pv->is_plopified <= 3);
+#else
+  ;
+#endif
 
   has_initial_space = 1;
   while (p) {
@@ -673,10 +677,9 @@ pv_tmsgi_parse(Pinnipede *pp, Board *board, board_msg_info *mi, int with_seconds
     }
     if (add_word) {
       int is_ref;
-      board_msg_info *ref_mi = NULL;
 
       if ((attr & PWATTR_LNK) == 0) {
-        ref_mi = check_for_horloge_ref(board->boards, mi->id, s,attr_s, PVTP_SZ, &is_ref, NULL);
+        check_for_horloge_ref(board->boards, mi->id, s,attr_s, PVTP_SZ, &is_ref, NULL);
         if (is_ref) {
           attr |= PWATTR_REF;
         }
@@ -1088,7 +1091,6 @@ pp_draw_line(Dock *dock, Pixmap lpix, PostWord *pw,
 {
   Pinnipede *pp = dock->pinnipede;
   int pl;
-  int old_pos;
   unsigned long pixel; //, old_pixel;
   CCColorId color;
   int y;
@@ -1167,7 +1169,6 @@ pp_draw_line(Dock *dock, Pixmap lpix, PostWord *pw,
 
   pixel = 0L;
   y = ccfont_ascent(pp->fn_base)-1;
-  old_pos = 0;
   if (pw) {
     CCFontId fn;
     pl = pw->ligne;
@@ -1305,7 +1306,6 @@ pp_draw_line(Dock *dock, Pixmap lpix, PostWord *pw,
 	XDrawLine(dock->display, lpix, dock->NormalGC, pw->xpos, y-ccfont_height(fn)/2, x1, y-ccfont_height(fn)/2);
       }
       pw->attr &= ~PWATTR_TMP_EMPH;
-      old_pos = pw->xpos + pw->xwidth;
       pw = pw->next;
     }
   }
@@ -1361,7 +1361,7 @@ pp_refresh(Dock *dock, Drawable d, PostWord *pw_ref)
   Boards *boards = dock->sites->boards;
 
   int l;
-  board_msg_info *ref_mi, *caller_mi;
+  board_msg_info *ref_mi;
   unsigned char ref_comment[200];
   int ref_in_window = 0; /* mis a 1 si le message souligné par pw_ref est affiché parmi
 			    les autres messages. sinon, on l'affiche en haut, dans une petite fenetre */
@@ -1406,7 +1406,6 @@ pp_refresh(Dock *dock, Drawable d, PostWord *pw_ref)
     }
   }
 
-  caller_mi = NULL;
   ref_mi = NULL;
   nb_anti_ref = 0;
   
@@ -2378,7 +2377,7 @@ pp_check_survol(Dock *dock, PostWord *pw, int force_refresh)
   Boards *boards = dock->sites->boards;
   char survol[1024];
   char *p;
-  int survol_hash;
+  intptr_t survol_hash;
   int is_a_ref = 0;
 
   survol[0] = 0;
@@ -2455,7 +2454,7 @@ pp_check_survol(Dock *dock, PostWord *pw, int force_refresh)
     p = survol;
     while (*p) { survol_hash += (((unsigned)*p) * 253) + 23; p++; }
   } else {
-    survol_hash = (int)pw; // pourquoi pas...
+    survol_hash = (intptr_t)pw; // pourquoi pas...
   }
   
   //  survol_hash = (int)pw; // ca c'est pas bon, on fait trop de refresh
@@ -4007,7 +4006,8 @@ pp_handle_keypress(Dock *dock, XEvent *event)
 int
 pp_handle_keyrelease(Dock *dock, XEvent *event)
 {
-  dock = 0; event = 0;
+  (void) dock;
+  (void) event;
   return 0;
 }
 
@@ -4260,7 +4260,8 @@ pp_restore_state(Dock *dock, FILE *f) {
       int i;
       pp->nb_visited_links = nlnk;
       for (i=0; i < pp->nb_visited_links; i++) {
-	fscanf(f, "%d\n", &pp->visited_links[i]);
+        if (fscanf(f, "%d\n", &pp->visited_links[i]) == EOF)
+          myfprintf(stderr, "fscanf() failed\n");
       }
     }
     pp_tabs_restore_state(dock,f);

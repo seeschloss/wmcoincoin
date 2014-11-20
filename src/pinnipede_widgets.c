@@ -64,7 +64,7 @@ pp_tabs_set_pos_horiz(Pinnipede *pp)
 {
   int cnt;
   
-  int tab_max_w,tab_min_w, tab_w, tabs_min_w=-1, tabs_max_w=-1, tabs_w=-1;
+  int tab_max_w,tab_min_w, tab_w, tabs_min_w=-1, tabs_w=-1;
   int x,y;
 
   pp->zmsg_y1 = 0;
@@ -80,7 +80,6 @@ pp_tabs_set_pos_horiz(Pinnipede *pp)
   tab_min_w = 40;
   tab_max_w = 100;
   tabs_min_w = pp->nb_tabs * tab_min_w;
-  tabs_max_w = pp->nb_tabs * tab_max_w;
   tab_w = MIN(MAX(pp->win_width / pp->nb_tabs, tab_min_w), tab_max_w);
   tabs_w = pp->nb_tabs * tab_w;
 
@@ -721,7 +720,7 @@ pp_tabs_pressed_tab(Dock *dock)
 static void pp_tabs_handle_motion(Dock *dock, XMotionEvent *ev) {
   Pinnipede *pp = dock->pinnipede;
   PinnipedeTab *pt;
-  int refresh = 0;
+  /* int refresh = 0; */
   ppt_survol_actions survol_part;
   //static int flag = 0;
   pt = pp_tabs_at_xy(dock, ev->x, ev->y, &survol_part);
@@ -737,7 +736,7 @@ static void pp_tabs_handle_motion(Dock *dock, XMotionEvent *ev) {
     pp->survol_tab = pt; 
     pp->survol_tab_part = survol_part;
     pp_widgets_refresh(dock);
-    refresh = 1;
+    /* refresh = 1; */
   }
   /*if (refresh) {
     pp_update_and_redraw(dock,get_last_id_filtered(dock->sites->boards, &pp->filter), 100,0,1);
@@ -933,13 +932,11 @@ pp_minib_refresh(Dock *dock)
 {
   Pinnipede *pp = dock->pinnipede;
   Boards *boards = dock->sites->boards;
-  SitePrefs *main_prefs; 
   Site *main_site;
   int i,x,y;
 
   int x_minib;
 
-  main_prefs = pp->active_tab->site->prefs;
   main_site = pp->active_tab->site;
 
   if (pp->use_minibar == 0) return;

@@ -89,7 +89,10 @@ file_byte_getter(Gif_Reader *grr)
 static void
 file_block_getter(uint8_t *p, uint32_t s, Gif_Reader *grr)
 {
-  fread(p, 1, s, grr->f);
+	size_t bytes_read;
+
+	bytes_read = fread(p, 1, s, grr->f);
+	assert(bytes_read == s && !ferror(grr->f));
 }
 
 static uint32_t
