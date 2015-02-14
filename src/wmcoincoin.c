@@ -2022,7 +2022,7 @@ int main(int argc, char **argv)
 
   _dock = dock; /* la vilaine variable globale (pour les sighandlers) */
 
-  myprintf(_("%<GRN wmc2> v.%<WHT %s> [ built on %s ]\n"),VERSION, __DATE__);
+  myprintf(_("%<GRN wmc2> v.%<WHT %s>\n"),VERSION);
 
   /* contruit un useragent qui ignore la partie terminale du numero de version
      ( '2.3.6f' --> '2.3.6') */
