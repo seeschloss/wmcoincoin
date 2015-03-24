@@ -1853,243 +1853,19 @@ http_get_line_and_convert(HttpRequest *r, char *s, size_t sz, const char *encodi
   return cnt;
 }
 
-int 
-regular_board_update_old(Board *board, char *path) {
-  HttpRequest r;
-  int http_err_flag = 0;
-  char *errmsg = NULL;
-  char s[16384]; /* must be large enough to handle very long lines
-		    (especially with broken backends, yes it happens sometimes) */
-
-  const char *board_sign_post = "<post";
-  const char *board_sign_time = "time=";
-  const char *board_sign_info = "<info>";
-  const char *board_sign_msg = "<message>";
-  const char *board_sign_login = "<login>";
-  const char *my_useragent = board->coin_coin_useragent;
-  wmcc_init_http_request_with_cookie(&r, board->site->prefs, path);
-  /* Triton> D'abord, c'est plus propre que Accept: * / *
-             ensuite ca evite de recuperer un truc gzippe par le serveur web
-             parce que ce boulet de zorel< ne pense qu'a lui -__-'
-   */
-  r.accept = strdup("text/xml");
-  if (board->site->prefs->use_if_modified_since) { r.p_last_modified = &board->last_modified; }
-  http_request_send(&r);
-  wmcc_log_http_request(board->site, &r);
-
-  /* 
-     première ligne : on essaye de chopper l'encoding -- du coup, ça devrait assurer une
-     relative compatibilité avec les tribunes en UTF-8 ou autre.
-  */
-  if (http_get_line_trim(&r, s, 16384)) {
-    XMLBlock xmlb;
-    int pos;
-    clear_XMLBlock(&xmlb);
-    if ((pos = get_XMLBlock(s, strlen(s), "?xml", &xmlb))>=0) {
-      XMLAttr *a;
-      int found = 0;
-      if (board->encoding) free(board->encoding);
-      for (a = xmlb.attr; a; a = a->next) {
-        if (str_case_startswith(a->name, "encoding")) {
-          board->encoding = str_ndup(a->value,a->value_len);
-          BLAHBLAH(1,printf("%s: found encoding: value = '%s'\n", board->site->prefs->site_name, board->encoding));
-          found = 1;
-          break;
-        }
-      }
-      if (!found) board->encoding = strdup("UTF-8"); /* defaut si pas d'encoding specifie */
-    }
-    destroy_XMLBlock(&xmlb);
-  }
-
-
-  if (http_is_ok(&r)) {
-    int roll_back_cnt = 0;
-    while (http_get_line_and_convert(&r, s, 16384,board->encoding) > 0 && http_is_ok(&r)) {
-      if (strncasecmp(s,board_sign_post, strlen(board_sign_post)) == 0 && strstr(s, board_sign_time)) {
-        md5_byte_t md5[16]; md5_state_t md5_state;
-	char stimestamp[15];
-	char ua[BOARD_UA_MAX_LEN];
-	char msg[BOARD_MSG_MAX_LEN];
-	char login[BOARD_LOGIN_MAX_LEN];
-	int id;
-	char *p;
-
-
-        md5_init(&md5_state);
-	p = strstr(s, board_sign_time) + strlen(board_sign_time);
-        while (*p && (isspace(*p) || *p == '"')) ++p;
-	strncpy(stimestamp, p, 14); stimestamp[14] = 0;
-        md5_append(&md5_state,stimestamp,14);
-        /* de nombreux coincoins sont morts sur le champ d'honneur, ci-dessous un petit bugfix à leur mémoire.
-           Qu'ils reposent en paix */
-        if (strlen(stimestamp) < 14) { fprintf(stderr,"timestamp POURRI: '%s'\n",stimestamp); errmsg = "slip woof?"; goto err; }
-	p = strstr(s, "id=");
-	if (p == NULL) { errmsg = "id="; goto err; }
-	id = atoi(p+4);
-	if (id < 0) { errmsg="id sgn"; goto err; }
-
-        //printf("id=%d , last=%d\n",id,board->last_post_id);
-
-	if (board_find_id(board,id) && roll_back_cnt == 0) {
-	  /*	  break;
-            Rollback bugfix
-
-	    il semblerait qu'il arrive parfois une sorte de race condition dans le backend (lors de posts multiples dans la
-	    même seconde) :  à l'instant t, le backend contient les ids {n, n-1, n-2, ..}, et à l'instant t+1 
-	    il reçoit le message n+1 en DEUXIEME POSITION: {n, n+1, n-1, n-2,...} du coup si le coincoin avait fait son
-	    update entre t et t+1, il va rater le message n+1, puisque lors de la prochaine update, la lecture du backend 
-	    s'arrêtera sur le message n, déjà connu.
-
-	    solution: on fait un rollback lorsqu'il y un trou dans les id des 3 derniers messages
-	  */
-	  int need_roll_back = 0;
-
-	  /* on regarde (comme un boeuf) si les message id-1, id-2 et id-3 ont bien été reçus */
-	  if (id > 1 && board->msg) {
-	    if (board_find_id(board, id-1) == NULL) need_roll_back = 2;
-	    if (id > 2 && board->msg->next) {
-	      if (board_find_id(board, id-2) == NULL) need_roll_back = 3;
-	      if (id > 3 && board->msg->next->next) {
-		if (board_find_id(board, id-3) == NULL) need_roll_back = 4;
-	      }
-	    }
-	  }
-	  if (need_roll_back == 0) {
-	    break; /* ça roule, cassos */
-	  } else {
-	    /* il manque un message, soit il provient de la tribune des modérateurs et est donc inaccessible,
-	       soit il y a effectivement eu une race condition dans dacode */
-	    
-	    roll_back_cnt = 3;
-	  }
-	}
-
-	if (http_get_line_and_convert(&r, s, 16384, board->encoding) <= 0) { errmsg="httpgetline(info)"; goto err; }
-
-	if (strncasecmp(s, board_sign_info,strlen(board_sign_info))) { errmsg="infosign"; goto err; }
-	if (strncasecmp("</info>", s+strlen(s)-7,7)) { errmsg="</info>"; goto err; }
-	s[strlen(s)-7] = 0; /* vire le /info */
-	p = s + strlen(board_sign_info);
-
-        //myprintf("UA = '%<GRN %s>'\n", p);
-        md5_append(&md5_state,p,strlen(p));
-
-        convert_to_ascii(ua, p, BOARD_UA_MAX_LEN);
-
-	if (http_get_line_and_convert(&r, s, 16384, board->encoding) <= 0) { errmsg="httpgetline(message)"; goto err; }
-
-	if (strncasecmp(s, board_sign_msg,strlen(board_sign_msg))) { errmsg="messagesign"; goto err; }
-	
-	//	myprintf("message: '%<YEL %s>'\n\n", s); 
-
-	// il arrive que le post tienne sur plusieurs lignes (je sais pas pourquoi) 
-	{
-	  int l;
-	  l = strlen(s);
-	  while (strncasecmp("</message>", s+l-10,10)) {
-	    if (http_get_line_and_convert(&r, s+l, 16384 - l, board->encoding) <= 0) {
-	      errmsg="</message>"; goto err; 
-	    }
-	    l = strlen(s);
-	  }
-	}
-
-	
-
-	s[strlen(s)-10] = 0; /* vire le </message> */
-	p = s + strlen(board_sign_msg);
-
-        md5_append(&md5_state,p,strlen(p));
-
-	/* nettoyage des codes < 32 dans le message */
-	{
-	  int i = 0;
-
-	  while (i < BOARD_MSG_MAX_LEN && p[i]) {
-	    if ((unsigned char)p[i] < ' ') p[i] = ' ';
-	    i++;
-	  }
-	}
-
-	/* attention, les '&lt;' deviennent '\t<' et les '&amp;lt;' devienne '<' */
-	board_decode_message(board, msg, p);
-
-	if (http_get_line_and_convert(&r, s, 16384, board->encoding) <= 0) { errmsg="httpgetline(login)"; goto err; }
-	if (strncasecmp(s, board_sign_login,strlen(board_sign_login))) { errmsg="messagesign_login"; goto err; }
-	if (strncasecmp("</login>", s+strlen(s)-8,8)) { errmsg="</login>"; goto err; }
-
-	s[strlen(s)-8] = 0; 
-	p = s + strlen(board_sign_login);
-
-        md5_append(&md5_state,p,strlen(p));
-
-	if (strcasecmp(p, "Anonyme") != 0) {
-	  convert_to_ascii(login, p, BOARD_LOGIN_MAX_LEN);
-	} else {
-	  login[0] = 0;
-	}
-
-	if (roll_back_cnt == 0 || board_find_id(board,id) == NULL) {
-	  if (roll_back_cnt) {
-	    myprintf(_("%<YEL \\o/ Maybe there just has been a race condition in the board backend !> (id=%d).\n"
-		     "DON'T PANIC, the coincoin handles this well, it only proves I didn't write\n"
-		     "this bugfix for coconuts.\n"), id);
-	  }
-          md5_finish(&md5_state,md5);
-	  flag_updating_board++;
-	  if (!board_log_msg(board, ua, login, stimestamp, msg, id, my_useragent)->in_boitakon) {
-            board->nb_msg_at_last_check++;
-            if (id > board->last_viewed_id) {
-              board->nb_msg_since_last_viewed++;
-            }
-          }
-	  flag_updating_board--;
-	}
-
-	BLAHBLAH(1, myprintf("[%<YEL %s>] board_update: last_post_time=%5s - last_post_id=%d\n",
-			   board->site->prefs->site_name, board->last_post_time, id));
-	if (roll_back_cnt > 1) roll_back_cnt--;
-	else if (roll_back_cnt == 1) break;
-      }
-    }
-    if (!http_is_ok(&r)) { http_err_flag = 1; }
-  err:
-    if (errmsg) {
-      myfprintf(stderr, _("[%<YEL %s>] There is a problem in '%s',  I can't parse it... "
-			  "error:%<YEL %s>\n"),
-		board->site->prefs->site_name,
-		board->site->prefs->backend_url, errmsg);
-    }
-  } else {
-    http_err_flag = 1;
-    myfprintf(stderr, _("[%<YEL %s>] Error while downloading '%<YEL %s>' : %<RED %s>\n"), 
-	      board->site->prefs->site_name, board->site->prefs->backend_url, http_error());
-  }
-  http_request_close(&r);
-  return http_err_flag;
-}
-
-int 
-regular_board_update(Board *board, char *path) {
-  HttpRequest r;
+int
+regular_board_update_xml(Board *board, HttpRequest *r) {
   int http_err_flag = 0;
   char *errmsg = NULL;
   char s[16384]; /* must be large enough to handle very long lines
 		    (especially with broken backends, yes it happens sometimes) */
   const char *my_useragent = board->coin_coin_useragent;
-  wmcc_init_http_request_with_cookie(&r, board->site->prefs, path);
-  /* Triton> Pour les commentaires, il faut voir au dessus */
-  r.accept = strdup("text/xml");
-  if (board->site->prefs->use_if_modified_since) { r.p_last_modified = &board->last_modified; }
-  http_request_send(&r);
-  wmcc_log_http_request(board->site, &r);
 
   /* 
      première ligne : on essaye de chopper l'encoding -- du coup, ça devrait assurer une
      relative compatibilité avec les tribunes en UTF-8 ou autre.
   */
-  if (http_get_line_trim(&r, s, 16384)) {
+  if (http_get_line_trim(r, s, 16384)) {
     XMLBlock xmlb;
     int pos;
     clear_XMLBlock(&xmlb);
@@ -2111,13 +1887,13 @@ regular_board_update(Board *board, char *path) {
   }
 
   strbuf sb; strbuf_init(&sb, "");
-  while (http_is_ok(&r) && !errmsg) {
+  while (http_is_ok(r) && !errmsg) {
     XMLBlock post; clear_XMLBlock(&post);
     int ok = 0;
 
     sb.len = 0; /* petit coup de flemme : ça va chier si on 
                    enchaine les posts sur une même ligne */
-    while (http_get_line_and_convert(&r, s, sizeof s,board->encoding) > 0 && http_is_ok(&r) && sb.len < 500000) {
+    while (http_get_line_and_convert(r, s, sizeof s,board->encoding) > 0 && http_is_ok(r) && sb.len < 500000) {
       strbuf_cat(&sb, s);
       if (get_XMLBlock(sb.str, sb.len, "post", &post)>=0) {
         ok = 1;
@@ -2208,15 +1984,139 @@ regular_board_update(Board *board, char *path) {
   }
   strbuf_free(&sb);
 
-  if (!http_is_ok(&r)) { 
+  if (!http_is_ok(r)) { 
     http_err_flag = 1;
     myfprintf(stderr, _("[%<YEL %s>] Error while downloading "
                         "'%<YEL %s>' : %<RED %s>\n"), 
 	      board->site->prefs->site_name, 
               board->site->prefs->backend_url, http_error());
   }
-  http_request_close(&r);
+  http_request_close(r);
   return http_err_flag;
+}
+
+int
+regular_board_update_tsv(Board *board, HttpRequest *r) {
+  int http_err_flag = 0;
+  char *errmsg = NULL;
+  char s[16384]; /* must be large enough to handle very long lines */
+  const char *my_useragent = board->coin_coin_useragent;
+
+  while (http_get_line(r, s, 16384) > 0 && http_is_ok(r)) {
+    int id;
+    char stimestamp[15];
+    char ua[BOARD_UA_MAX_LEN];
+    char msg[BOARD_MSG_MAX_LEN];
+    char login[BOARD_LOGIN_MAX_LEN];
+    stimestamp[0] = ua[0] = msg[0] = login[0] = 0; id = -1;
+
+    int offset;
+    unsigned int length;
+    offset = 0;
+
+    length = strcspn(s, "\t");
+    if (length) {
+      char field[15];
+      strncpy(field, s, length);
+      id = atoi(field);
+      offset += length + 1;
+    } else {
+      errmsg = "no id!";
+      offset++;
+    }
+
+    length = strcspn(s + offset, "\t");
+    if (length) {
+      unsigned l = MIN((sizeof stimestamp)-1, length);
+      strncpy(stimestamp, s + offset, l); stimestamp[l] = 0;
+      offset += length + 1;
+    } else {
+      errmsg = "no timestamp!";
+      offset++;
+    }
+
+    length = strcspn(s + offset, "\t");
+    if (length) {
+      unsigned l = MIN((sizeof ua)-1, length);
+      strncpy(ua, s + offset, l); ua[l] = 0;
+      offset += length + 1;
+    } else {
+      offset++;
+    }
+
+    length = strcspn(s + offset, "\t");
+    if (length) {
+      unsigned l = MIN((sizeof login)-1, length);
+      strncpy(login, s + offset, l); login[l] = 0;
+      offset += length + 1;
+    } else {
+      offset++;
+    }
+
+    length = strcspn(s + offset, "\t");
+    if (length) {
+      unsigned l = MIN((sizeof msg)-1, length);
+      strncpy(msg, s + offset, l); msg[l] = 0;
+      offset += length + 1;
+    }
+
+    BLAHBLAH(3, myprintf("got new post: %s\n", msg));
+
+    if (!errmsg && strlen(stimestamp) < 14) {
+      fprintf(stderr, "timestamp POURRI: '%s'\n", stimestamp);
+    }
+
+    if (board_find_id(board, id)) break;
+
+    if (!errmsg) { /* encore une victoire de xmlcoincoin */
+      flag_updating_board++;
+      if (!board_log_msg(board, ua, login, stimestamp,
+                         msg, id, my_useragent)->in_boitakon) {
+        board->nb_msg_at_last_check++;
+        if (id > board->last_viewed_id) {
+          board->nb_msg_since_last_viewed++;
+        }
+      }
+      flag_updating_board--;
+      BLAHBLAH(1, myprintf("[%<YEL %s>] board_update: "
+                           "last_post_time=%5s - last_post_id=%d\n",
+                           board->site->prefs->site_name, 
+                           board->last_post_time, id));
+    } else {
+      myfprintf(stderr, _("[%<YEL %s>] There is a problem in '%s', "
+                          "I can't parse it... error:%<YEL %s>\n"),
+                board->site->prefs->site_name,
+                board->site->prefs->backend_url, errmsg);
+    }
+  }
+
+  if (!http_is_ok(r)) { 
+    http_err_flag = 1;
+    myfprintf(stderr, _("[%<YEL %s>] Error while downloading "
+                        "'%<YEL %s>' : %<RED %s>\n"), 
+	      board->site->prefs->site_name, 
+              board->site->prefs->backend_url, http_error());
+  }
+  http_request_close(r);
+  return http_err_flag;
+}
+
+int 
+regular_board_update(Board *board, char *path) {
+  HttpRequest r;
+  wmcc_init_http_request_with_cookie(&r, board->site->prefs, path);
+  /* Triton> Pour les commentaires, il faut voir au dessus */
+  r.accept = strdup("text/tab-separated-values, text/xml");
+  if (board->site->prefs->use_if_modified_since) { r.p_last_modified = &board->last_modified; }
+  http_request_send(&r);
+  wmcc_log_http_request(board->site, &r);
+
+  if (r.content_type && strncmp(r.content_type, "text/tab-separated-values", 25) == 0) {
+    fprintf(stderr, "parsing backend %s\n", r.content_type);
+	  return regular_board_update_tsv(board, &r);
+  } else {
+	  return regular_board_update_xml(board, &r);
+  }
 }
 
 

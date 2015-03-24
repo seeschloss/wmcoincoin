@@ -128,6 +128,8 @@ typedef struct {
 
   char * new_cookie; /* la requête a renvoyé un Set-Cookie */
 
+  char * content_type; /* Content-Type de la réponse */
+
   char * post;
 } HttpRequest;
 

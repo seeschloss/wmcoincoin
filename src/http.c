@@ -809,6 +809,11 @@ http_skip_header(HttpRequest *r)
 	    r->post_id = atoi(buff+10);
 	    BLAHBLAH(Prefs.verbosity_http,printf("post id: %d\n", r->post_id));
 	  }
+	  if (strncmp(buff, "Content-Type:", 13) == 0) {
+	    r->content_type = strdup(buff+13);
+		str_trim(r->content_type);
+	    BLAHBLAH(Prefs.verbosity_http,printf("content type: %s\n", r->content_type));
+	  }
 	  if (strncmp(buff, "Set-Cookie:", 11) == 0) {
 	    /* Format: Set-Cookie: <name>=<value>[; <name>=<value>]...
 	                           [; expires=<date>][; domain=<domain_name>]
@@ -952,7 +957,7 @@ http_get_line(HttpRequest *r, char *s, int sz)
       if (s[i] == '\n' || s[i] == 0) {
 	s[i] = 0; break;
       }
-      if ((unsigned char)s[i] >= (unsigned char)' ') {
+      if ((unsigned char)s[i] >= (unsigned char)' ' || (unsigned char)s[i] == '\t') {
 	i++;
 	if (i >= sz) i = sz-1; /* pas cool */
       }
