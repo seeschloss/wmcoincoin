@@ -2017,7 +2017,8 @@ regular_board_update_tsv(Board *board, HttpRequest *r) {
     length = strcspn(s, "\t");
     if (length) {
       char field[15];
-      strncpy(field, s, length);
+      unsigned l = MIN((sizeof field)-1, length);
+      strncpy(field, s, l); field[l] = 0;
       id = atoi(field);
       offset += length + 1;
     } else {
