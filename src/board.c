@@ -2058,6 +2058,17 @@ regular_board_update_tsv(Board *board, HttpRequest *r) {
     if (length) {
       unsigned l = MIN((sizeof msg)-1, length);
       strncpy(msg, s + offset, l); msg[l] = 0;
+
+      char *p = str_ndup(s + offset, l); assert(p);
+      unsigned int i;
+      /* nettoyage des codes < 32 dans le message */
+      for (i=0; i < l; ++i) {
+        if ((unsigned char)p[i] < ' ') 
+          p[i] = ' ';
+      }
+      board_decode_message(board, msg, p);
+      free(p);
+
       offset += length + 1;
     }
 
