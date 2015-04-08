@@ -860,6 +860,7 @@ wmcc_prefs_set_default(GeneralPrefs *p) {
   ASSIGN_STRING_VAL(p->wikipedia_search_url, "http://fr.wikipedia.org/wiki/Special:Search?search=%s&go=Go");
   p->enable_troll_detector = 1;
   p->board_auto_dl_pictures = 0;
+  p->board_sfw_pictures = 0;
   p->board_enable_hfr_pictures = 0;
 
   p->disable_xft_antialiasing = 0;
@@ -1151,6 +1152,9 @@ wmcc_prefs_validate_option(GeneralPrefs *p, SitePrefs *sp, SitePrefs *global_sp,
     } break;
     case OPT_board_auto_dl_pictures: {
       CHECK_BOOL_ARG(p->board_auto_dl_pictures);
+    } break;
+    case OPT_board_sfw_pictures: {
+      CHECK_BOOL_ARG(p->board_sfw_pictures);
     } break;
     case OPT_board_enable_hfr_pictures: {
       CHECK_BOOL_ARG(p->board_enable_hfr_pictures);

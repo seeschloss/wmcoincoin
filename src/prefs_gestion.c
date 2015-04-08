@@ -512,6 +512,7 @@ wmcc_prefs_relecture(Dock *dock, int whatfile)
     G_STR_OPT_COPY(browser2_cmd);
 
     G_INT_OPT_COPY(enable_troll_detector);
+    G_INT_OPT_COPY(board_sfw_pictures);
     G_INT_OPT_COPY(board_auto_dl_pictures);
     G_INT_OPT_COPY(board_enable_hfr_pictures);
 

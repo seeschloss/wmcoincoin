@@ -216,6 +216,7 @@ typedef struct _GeneralPrefs{
 
   /* options totozeuses */
   int board_auto_dl_pictures;
+  int board_sfw_pictures;
   int board_enable_hfr_pictures;
 
   BiColor sc_bg_color, sc_bg_light_color, sc_bg_dark_color, 

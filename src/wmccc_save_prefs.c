@@ -147,6 +147,7 @@ prefs_write_to_file(GeneralPrefs *p, FILE *f) {
   G_SAVEINT(OPT_tribunenews_switch_off_coincoin_delay, switch_off_coincoin_delay);
   G_SAVEBOOL(OPT_tribune_troll_detector, enable_troll_detector);
 #ifdef HAVE_WMCOINCOIN_PLAYER  
+  G_SAVEBOOL(OPT_board_sfw_pictures, board_sfw_pictures);
   G_SAVEBOOL(OPT_board_auto_dl_pictures, board_auto_dl_pictures);
   G_SAVEBOOL(OPT_board_enable_hfr_pictures, board_enable_hfr_pictures);
 #endif
