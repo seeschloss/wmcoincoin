@@ -67,7 +67,7 @@ dnl   Revision 1.25  2003/03/12 21:09:35  pouaite
 dnl   mega patch de gle + micro fix du referer
 dnl
 dnl   Revision 1.24  2003/03/11 23:40:32  pouaite
-dnl   rajout fake-getaddrinfo .. si �a compile alors cygwin remarche (pas test�)
+dnl   rajout fake-getaddrinfo .. si ça compile alors cygwin remarche (pas testé)
 dnl
 dnl   Revision 1.23  2003/03/06 20:24:08  pouaite
 dnl   cygwin remarche, ou pas
@@ -79,7 +79,7 @@ dnl   Revision 1.21  2003/03/02 16:45:22  pouaite
 dnl   autoconferies
 dnl
 dnl   Revision 1.20  2003/03/02 14:41:21  pouaite
-dnl   ce commit est d�di� � la m�moire de jacques martin
+dnl   ce commit est dédié à la mémoire de jacques martin
 dnl
 dnl   Revision 1.19  2003/02/28 19:08:42  pouaite
 dnl   trucs divers
@@ -97,7 +97,7 @@ dnl   Revision 1.15  2003/01/11 14:10:06  pouaite
 dnl   fix du palmi pour xf 4.3
 dnl
 dnl   Revision 1.14  2002/12/20 17:40:48  pouaite
-dnl   ornythorinque en gel�e
+dnl   ornythorinque en gelée
 dnl
 dnl   Revision 1.13  2002/12/20 15:49:51  pouaite
 dnl   prout 2.4.2b ?
@@ -127,7 +127,7 @@ dnl   Revision 1.5  2002/09/08 14:28:44  pouaite
 dnl   bugfixes salutaires
 dnl
 dnl   Revision 1.4  2002/09/07 16:21:15  pouaite
-dnl   �a va releaser en douce
+dnl   ça va releaser en douce
 dnl
 dnl   Revision 1.3  2002/09/03 22:42:17  pouaite
 dnl   coin
@@ -148,7 +148,7 @@ dnl   Revision 1.28  2002/06/26 22:19:48  pouaite
 dnl   ptit fix pour la tribune de f-cpu + patch de lordoric
 dnl
 dnl   Revision 1.27  2002/06/23 14:01:36  pouaite
-dnl   ouups, j'avais flingu� les modifs depuis la v2.3.8b
+dnl   ouups, j'avais flingué les modifs depuis la v2.3.8b
 dnl
 dnl   Revision 1.26  2002/06/23 10:44:05  pouaite
 dnl   i18n-isation of the coincoin(kwakkwak), thanks to the incredible jjb !
@@ -172,16 +172,16 @@ dnl   Revision 1.19  2002/04/26 23:25:38  pouaite
 dnl   v2.3.7b
 dnl
 dnl   Revision 1.18  2002/04/23 23:16:29  pouaite
-dnl   \o/ j'ai enfin r�ussi � chopper le bug mysterieux de l'autoscroll du pinni \o/
+dnl   \o/ j'ai enfin réussi à chopper le bug mysterieux de l'autoscroll du pinni \o/
 dnl
 dnl   Revision 1.17  2002/04/14 23:24:21  pouaite
 dnl   re-fix pour kde ..
 dnl
 dnl   Revision 1.16  2002/04/09 00:28:19  pouaite
-dnl   quelques modifs faites dans un �tat d'h�b�tude avanc� /!\ travaux en cours /!\
+dnl   quelques modifs faites dans un état d'hébétude avancé /!\ travaux en cours /!\
 dnl
 dnl   Revision 1.15  2002/03/18 22:46:49  pouaite
-dnl   1 ou 2 bugfix mineurs, et surtout suppression de la dependance avec la libXpm .. un premier pas vers wmc� en 8bits
+dnl   1 ou 2 bugfix mineurs, et surtout suppression de la dependance avec la libXpm .. un premier pas vers wmc² en 8bits
 dnl
 dnl   Revision 1.14  2002/03/10 16:07:10  pouaite
 dnl   pseudo transp basique dans le pinnipede (en cours..)
@@ -193,7 +193,7 @@ dnl   Revision 1.12  2002/03/08 23:53:40  pouaite
 dnl   derniers bugfixes pour la v2.3.6
 dnl
 dnl   Revision 1.11  2002/03/05 21:04:28  pouaite
-dnl   bugfixes suite � l'upgrade de dlfp [et retour au comportement � l'ancienne du clic sur les horloges pour les moules ronchonnes]
+dnl   bugfixes suite à l'upgrade de dlfp [et retour au comportement à l'ancienne du clic sur les horloges pour les moules ronchonnes]
 dnl
 dnl   Revision 1.10  2002/02/24 22:13:56  pouaite
 dnl   modifs pour la v2.3.5 (selection, scrollcoin, plopification, bugfixes)
@@ -205,7 +205,7 @@ dnl   Revision 1.8  2002/01/20 20:53:22  pouaite
 dnl   bugfix configure.in && http_win.c pour cygwin + 2-3 petis trucs
 dnl
 dnl   Revision 1.7  2002/01/13 20:38:31  pouaite
-dnl   fix du configure.in qui detecte cygwin a tors et � travers avec les v. recentes de autoconf
+dnl   fix du configure.in qui detecte cygwin a tors et à travers avec les v. recentes de autoconf
 dnl
 dnl   Revision 1.6  2002/01/10 09:03:07  pouaite
 dnl   integration du patch de glandium (requetes http/1.1 avec header 'If-Modified-Since' --> coincoin plus gentil avec dacode)
@@ -214,16 +214,16 @@ dnl   Revision 1.5  2002/01/03 22:15:31  pouaite
 dnl   patch top moumoute de glandium pour la gestion du wiki
 dnl
 dnl   Revision 1.4  2001/12/17 18:11:07  pouaite
-dnl   attention ch�rie �a va releaser
+dnl   attention chérie ça va releaser
 dnl
 dnl   Revision 1.3  2001/12/16 01:43:33  pouaite
 dnl   filtrage des posts, meilleure gestion des posts multiples
 dnl
 dnl   Revision 1.2  2001/12/02 18:32:05  pouaite
-dnl   update suite � la modif sur http.c et a la generation automatique de src/default*.h
+dnl   update suite à la modif sur http.c et a la generation automatique de src/default*.h
 dnl
 
-AC_INIT(wmcoincoin, 2.6.2, triton@kumal.info)
+AC_INIT(wmcoincoin, 2.6.1, triton@kumal.info)
 AC_CONFIG_SRCDIR([src/wmcoincoin.c])
 
 AC_PREREQ(2.52)
@@ -239,8 +239,6 @@ case $host_os in
   *cygwin* ) CYGWIN=yes; EXEEXT=".exe";;
          * ) CYGWIN=no; EXEEXT="";;
 esac
-
-AC_USE_SYSTEM_EXTENSIONS
 
 dnl internationalization macros
 ALL_LINGUAS="fr"
@@ -286,7 +284,7 @@ dnl  fi
   AC_CHECK_CC_FLAG([-rdynamic],LDFLAGS)
   AC_CHECK_CC_FLAG([-Wno-pointer-sign],CFLAGS)
 else
-          echo "Vous n'utilisez pas gcc .. attention coincoin peut avoir quelque bugs si les char ne sont pas sign�s"
+          echo "Vous n'utilisez pas gcc .. attention coincoin peut avoir quelque bugs si les char ne sont pas signés"
 fi
 
 YELLOW="\\033\\1331;33m"
@@ -405,7 +403,7 @@ AC_CHECK_FUNCS(uname)
 
 
 dnl NOTE POUR PLUS TARD:
-dnl en l'an de grace 2005, le 23 mai, je, soussign� pouaite, ai pris
+dnl en l'an de grace 2005, le 23 mai, je, soussigné pouaite, ai pris
 dnl la decision de commenter les quatre AC_DEFINE du dessous, sur le 
 dnl conseil de la moule nommee "twolife" (qui est un macqueux tiger-ophile).
 
@@ -465,14 +463,14 @@ if test "x$ac_cv_have_struct_addrinfo" = "xyes" ; then
 	AC_DEFINE(HAVE_STRUCT_ADDRINFO,1,[struct addrinfo])
 fi
 
-AC_CACHE_CHECK([for execinfo.h and backtrace], ac_cv_have_backtrace, [
+AC_CACHE_CHECK([for execinfo.h and backtrace], ac_have_backtrace, [
         AC_TRY_COMPILE(
                 [ #include <execinfo.h>       
                 ],
                 [ void* trace[256]; int n = backtrace(trace, 256); ],
-                [ ac_cv_have_backtrace="yes" ],
-                [ ac_cv_have_backtrace="no"  ])])
-if test "x$ac_cv_have_backtrace" = "xyes"; then
+                [ ac_have_backtrace="yes" ],
+                [ ac_have_backtrace="no"  ])])
+if test "x$ac_have_backtrace" = "xyes"; then
         AC_DEFINE(HAVE_BACKTRACE,1,[glibc backtrace function])
 fi;     
 
