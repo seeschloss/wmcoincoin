@@ -2125,6 +2125,8 @@ regular_board_update(Board *board, char *path) {
 
   if (r.content_type && strncmp(r.content_type, "text/tab-separated-values", 25) == 0) {
     fprintf(stderr, "parsing backend %s\n", r.content_type);
+      board->encoding = strdup("UTF-8");
+	  /* le standard impose l'UTF-8 pour les backends TSV */
 	  return regular_board_update_tsv(board, &r);
   } else {
 	  return regular_board_update_xml(board, &r);
