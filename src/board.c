@@ -2078,7 +2078,9 @@ regular_board_update_tsv(Board *board, HttpRequest *r) {
       fprintf(stderr, "timestamp POURRI: '%s'\n", stimestamp);
     }
 
-    if (board_find_id(board, id)) break;
+    if (board_find_id(board, id)) {
+      continue;
+    }
 
     if (!errmsg) { /* encore une victoire de xmlcoincoin */
       flag_updating_board++;
