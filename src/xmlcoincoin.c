@@ -43,7 +43,7 @@ isxmlchar(unsigned char c) {
   return (isalnum(c) || strchr("_.-:?",c));
 }
 
-/* bonjour je viens de d�couvrir les namespace en xml .. */
+/* bonjour je viens de découvrir les namespace en xml .. */
 int
 XMLBlock_search_tag(char *start, char *end, char *tagdescr, XMLBlock *b) {
   int ok = 0;
@@ -88,7 +88,7 @@ get_XMLBlock(char *data_start, int data_len, char *tagdescr, XMLBlock *b) {
   int self_closed = 0;
   destroy_XMLBlock(b);
   /* on cherche le debut, sai pas compliquai */
-  /* update: enfin si, avec les namespace �a devient tout de suite 
+  /* update: enfin si, avec les namespace ça devient tout de suite 
      un peu plus complliquai */
   
   if (XMLBlock_search_tag(data_start, data_end, tagdescr, b)) return -1;
@@ -118,6 +118,13 @@ get_XMLBlock(char *data_start, int data_len, char *tagdescr, XMLBlock *b) {
     ALLOC_OBJ(b->attr, XMLAttr);
     memcpy(b->attr, &attr, sizeof(XMLAttr));
   }
+
+  // en fait je suis pas sûr de pourquoi le while au-dessus s'est terminé
+  // mais sai pas grave, sa marchent
+  if (*p == '/') {
+    self_closed = 1;
+  }
+
   /* on est content */
   if (!self_closed) {
     while(b->content < data_end && isspace(*b->content)) b->content++;
@@ -149,7 +156,9 @@ get_XMLBlock(char *data_start, int data_len, char *tagdescr, XMLBlock *b) {
             if (!p || p >= data_end) return -9;
             p += 1;
           } else ++lev;
-        } else if (p[0] == '/' && p[1] == '>') --lev;
+        } else if (p[0] == '/' && p[1] == '>') {
+            --lev;
+        }
         if (lev == 0) break;
         ++p;
       }
@@ -171,5 +180,7 @@ get_XMLBlock(char *data_start, int data_len, char *tagdescr, XMLBlock *b) {
       //print_XMLBlock(b);
       return p+1 - data_start;
     } else return -4;
-  } else return b->content - data_start;
+  } else {
+    return b->content - data_start;
+  }
 }

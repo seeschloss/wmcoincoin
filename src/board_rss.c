@@ -281,7 +281,13 @@ rss_board_update(Board *board, char *path) {
   do {
     int pos_next_item;
     pos_next_item = get_XMLBlock(p, strlen(p), "item", &xmlb);
+    if (pos_next_item < 0) {
+        BLAHBLAH(1, myprintf("couldn't find <item>, looking for <entry>\n"));
+        pos_next_item = get_XMLBlock(p, strlen(p), "entry", &xmlb);
+    }
+
     if (pos_next_item >= 0) {
+      BLAHBLAH(1, myprintf("found something, either item or entry\n"));
       XMLBlock b2;
       char *title, *link, *description, *msg, *author, *comments_url, *pubdate, *fake_ua;
       char msgd[BOARD_MSG_MAX_LEN];
@@ -295,17 +301,37 @@ rss_board_update(Board *board, char *path) {
       clear_XMLBlock(&b2);
       if (get_XMLBlock(xmlb.content, xmlb.content_len, "title", &b2) &&  b2.content_len) {
         title = str_ndup(b2.content, b2.content_len);
-        //printf("found title: '%s'\n", title);        
+        BLAHBLAH(1, myprintf("found title: '%s'\n", title));
       }
-      if (get_XMLBlock(xmlb.content, xmlb.content_len, "link", &b2) &&  b2.content_len) {
-        link = str_ndup(b2.content, b2.content_len);
-        //printf("found link: '%s'\n", link);
+      if (get_XMLBlock(xmlb.content, xmlb.content_len, "link", &b2)) {
+        if (b2.content_len) {
+          link = str_ndup(b2.content, b2.content_len);
+          BLAHBLAH(1, myprintf("found link: '%s'\n", link));
+        } else {
+          XMLAttr *a;
+          for (a = b2.attr; a; a = a->next) {
+            if (str_case_startswith(a->name, "href")) {
+              link = str_ndup(a->value, a->value_len);
+              BLAHBLAH(1,printf("found link: value = '%s'\n", link));
+              break;
+            }
+          }
+        }
       }
-      if (!board->site->prefs->rss_ignore_description &&
-          get_XMLBlock(xmlb.content, xmlb.content_len, "description", &b2) &&  b2.content_len) {
-        description = str_ndup(b2.content, b2.content_len);
+      if (!board->site->prefs->rss_ignore_description) {
+        if (get_XMLBlock(xmlb.content, xmlb.content_len, "description", &b2) &&  b2.content_len) {
+          description = str_ndup(b2.content, b2.content_len);
+        } else if (get_XMLBlock(xmlb.content, xmlb.content_len, "content", &b2) &&  b2.content_len) {
+          description = str_ndup(b2.content, b2.content_len);
+        } else if (get_XMLBlock(xmlb.content, xmlb.content_len, "summary", &b2) &&  b2.content_len) {
+          description = str_ndup(b2.content, b2.content_len);
+        }
       }
       if (get_XMLBlock(xmlb.content, xmlb.content_len, "author", &b2) &&  b2.content_len) {
+        author = str_ndup(b2.content, b2.content_len);
+        //printf("found author: '%s'\n", author);
+      }
+      if (get_XMLBlock(xmlb.content, xmlb.content_len, "name", &b2) &&  b2.content_len) {
         author = str_ndup(b2.content, b2.content_len);
         //printf("found author: '%s'\n", author);
       }
@@ -314,6 +340,9 @@ rss_board_update(Board *board, char *path) {
       }
       /* format date: http://www.w3.org/TR/NOTE-datetime */
       if (get_XMLBlock(xmlb.content, xmlb.content_len, "pubDate", &b2) &&  b2.content_len) {
+        pubdate = str_ndup(b2.content, b2.content_len);
+      }
+      if (get_XMLBlock(xmlb.content, xmlb.content_len, "published", &b2) &&  b2.content_len) {
         pubdate = str_ndup(b2.content, b2.content_len);
       }
       if (pubdate == NULL && get_XMLBlock(xmlb.content, xmlb.content_len, "*:date", &b2) &&  b2.content_len) {
@@ -340,10 +369,13 @@ rss_board_update(Board *board, char *path) {
 
       /* c'est trop la merde avec les decalages horaires.. */
       if (pubdate) {
+              BLAHBLAH(1,printf("found date: value = '%s'\n", pubdate));
         if (str_to_time_t(pubdate, &timestamp)) {
           time_t_to_tstamp(timestamp, stimestamp);
-          BLAHBLAH(3,myprintf("converted %<YEL %s> to %<YEL %s> !\n", pubdate, stimestamp));
-        } else BLAHBLAH(0, printf("could not convert '%s' to a valid date..\n", pubdate));
+          BLAHBLAH(1,myprintf("converted %<YEL %s> to %<YEL %s> !\n", pubdate, stimestamp));
+        } else {
+          BLAHBLAH(1,myprintf("could not convert '%s' to a valid date..\n", pubdate));
+        }
       }
 
       timestamp = MIN(timestamp, temps_debut);
@@ -359,11 +391,25 @@ rss_board_update(Board *board, char *path) {
       }
 
       msg = NULL;
-      if (title && link) msg = str_cat_printf(msg, "{&lt;a href=&quot;%s&quot;&gt;&lt;u&gt;&lt;b&gt;%s&lt;/b&gt;&lt;/u&gt;&lt;/a&gt;}", link, title);
-      else if (title) msg = str_cat_printf(msg, "{&lt;b&gt;%s&lt;/b;&gt}", title);
-      else if (link) msg = str_cat_printf(msg, "{&lt;a href=&quot;%s&quot;&gt;[News]&lt;/a&gt;}", link);
-      if (description) msg = str_cat_printf(msg, " %s", description);
-      if (comments_url) msg = str_cat_printf(msg, " &lt;a href=&quot;%s&quot;&gt;[comments]&lt;/a&gt;", comments_url);
+      if (title && link) {
+        msg = str_cat_printf(msg, "{<a href=\"%s\"><b>%s</b></a>}", link, title);
+        BLAHBLAH(1, myprintf("formatting title with link\n"));
+      } else if (title) {
+        msg = str_cat_printf(msg, "{<b>%s</b>}", title);
+        BLAHBLAH(1, myprintf("formatting title without link\n"));
+      } else if (link) {
+        msg = str_cat_printf(msg, "{<a href=\"%s\">[News]</a>}", link);
+        BLAHBLAH(1, myprintf("formatting link without title\n"));
+      }
+
+      if (description) {
+        msg = str_cat_printf(msg, " %s", description);
+      }
+
+      if (comments_url) {
+        msg = str_cat_printf(msg, " <a href=\"%s\">[comments]</a>", comments_url);
+      }
+
       if (msg) {
         md5_byte_t md5[16];
         md5_state_t ms; md5_init(&ms);
@@ -378,7 +424,8 @@ rss_board_update(Board *board, char *path) {
           md5_and_time *m = find_md5_in_md5_array(md5,board->oldmd5);
           if (m && strlen(m->tstamp) == 14) {
             was_already_viewed = m->viewed;
-            strcpy(stimestamp, m->tstamp); str_to_time_t(stimestamp, &timestamp);
+            strcpy(stimestamp, m->tstamp);
+            str_to_time_t(stimestamp, &timestamp);
             BLAHBLAH(1, myprintf("the news '%<GRN %s>' was found in the cache!\n", title));
           }
         }

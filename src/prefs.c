@@ -1739,13 +1739,13 @@ wmcc_prefs_read_options(GeneralPrefs *p, const char *filename, int verbatim)
     myfprintf(stderr, _("\n\n%<YEL oooooooh !!! you didn't define at least *ONE* site>, you bad boy.\ni do it for you, but this is the last time\n plz %<MAG use wmccc to add new sites>\n\n"));
     wmcc_prefs_add_site(p, &global_sp, "\"linuxfr\"", BACKEND_TYPE_BOARD);
     p->site[0]->backend_flavour = BACKEND_FLAVOUR_ENCODED;
-    ASSIGN_STRING_VAL(p->site[0]->post_url, "http://linuxfr.org/board/add.html");
-    ASSIGN_STRING_VAL(p->site[0]->post_template, "message=%s&section=1");
+    ASSIGN_STRING_VAL(p->site[0]->post_url, "http://linuxfr.org/board");
+    ASSIGN_STRING_VAL(p->site[0]->post_template, "board[message]=%s");
     wmcc_prefs_add_site(p, &global_sp, "\"news\"", BACKEND_TYPE_RSS);
-    ASSIGN_STRING_VAL(p->site[1]->backend_url, "http://linuxfr.org/backend.rss");
+    ASSIGN_STRING_VAL(p->site[1]->backend_url, "http://linuxfr.org/news.atom");
     p->site[1]->pp_bgcolor = 0xe7d74c;
     wmcc_prefs_add_site(p, &global_sp, "\"journaux\"", BACKEND_TYPE_RSS);
-    ASSIGN_STRING_VAL(p->site[2]->backend_url, "http://linuxfr.org/backend-journaux.rss");
+    ASSIGN_STRING_VAL(p->site[2]->backend_url, "http://linuxfr.org/journaux.atom");
     p->site[2]->pp_bgcolor = 0xd8ac85;
   }
   if (error == NULL) error = wmcc_prefs_read_options_auth(p,filename);
