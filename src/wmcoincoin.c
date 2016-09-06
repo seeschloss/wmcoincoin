@@ -570,6 +570,7 @@ wmcc_init_http_request(HttpRequest *r, SitePrefs *sp, char *url)
   if (split_url(url,&su)) assert(0);
   
   r->type = HTTP_GET;
+  r->url = strdup(url);
   r->telnet.host = strdup(su.host);
   r->telnet.port = su.port;
   r->host_path = NULL;

@@ -90,6 +90,7 @@ typedef struct {
   TelnetSession telnet;
   /*char *host;
     int port;*/
+  char *url;
   char *host_path;
 
   char *proxy_name;
@@ -146,6 +147,8 @@ int telnet_is_ok(TelnetSession *ts);
 
 void http_request_init(HttpRequest *r);
 void http_request_send(HttpRequest *r);
+void http_request_send_curl(HttpRequest *r);
+void http_request_send_old(HttpRequest *r);
 void http_request_close(HttpRequest *r);
 int  http_read(HttpRequest *r, char *buff, int max_len);
 int http_get_line(HttpRequest *r, char *s, int sz);

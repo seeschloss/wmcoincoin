@@ -304,9 +304,11 @@ dnl AC_CHECK_LIB(Xpm, XpmCreatePixmapFromData,,
 dnl  AC_MSG_ERROR(The XPM library is required but wasn't found.),
 dnl  $X_LIBS -lX11 -lXext)
 
+dnl maintenant on a besoin de curl
+PKG_CHECK_MODULES(libcurl, [libcurl])
 
-LIBS="${X_PRE_LIBS} ${X_LIBS} -lX11 -lXext -lXmu ${LIBS} ${X_EXTRA_LIBS} -lfreetype"
-CFLAGS="$CFLAGS $X_CFLAGS"
+LIBS="${X_PRE_LIBS} ${X_LIBS} -lX11 -lXext -lXmu ${LIBS} ${X_EXTRA_LIBS} ${libcurl_LIBS} -lfreetype"
+CFLAGS="$CFLAGS $X_CFLAGS $libcurl_CFLAGS"
 dnl  -I/usr/include/X11/Xft -I/usr/include/freetype2"
 
 dnl le PKG_CONFIG_PATH pour cygwin qui est un peu con
