@@ -1083,6 +1083,9 @@ create_global_pinnipede_options_dialog (void)
   GtkWidget *hbox32;
   GtkWidget *enable_troll_detector;
   GtkWidget *enable_troll_detector_fb;
+  GtkWidget *hbox2;
+  GtkWidget *pp_show_sec_mode;
+  GtkWidget *pp_show_sec_mode_fb;
   GtkWidget *label16;
   GtkWidget *hbox36;
   GtkWidget *image15;
@@ -1335,7 +1338,7 @@ create_global_pinnipede_options_dialog (void)
 
   hbox32 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox32);
-  gtk_box_pack_start (GTK_BOX (vbox6), hbox32, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox6), hbox32, TRUE, TRUE, 0);
 
   enable_troll_detector = gtk_check_button_new_with_mnemonic (_("Enable the troll-detector "));
   gtk_widget_show (enable_troll_detector);
@@ -1344,6 +1347,18 @@ create_global_pinnipede_options_dialog (void)
   enable_troll_detector_fb = gtk_label_new (_("enable_troll_detector"));
   gtk_widget_show (enable_troll_detector_fb);
   gtk_box_pack_start (GTK_BOX (hbox32), enable_troll_detector_fb, FALSE, FALSE, 0);
+
+  hbox2 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox2);
+  gtk_box_pack_start (GTK_BOX (vbox6), hbox2, FALSE, FALSE, 0);
+
+  pp_show_sec_mode = gtk_check_button_new_with_mnemonic (_("Show seconds even when unnecessary "));
+  gtk_widget_show (pp_show_sec_mode);
+  gtk_box_pack_start (GTK_BOX (hbox2), pp_show_sec_mode, FALSE, FALSE, 0);
+
+  pp_show_sec_mode_fb = gtk_label_new (_("pp_show_sec_mode"));
+  gtk_widget_show (pp_show_sec_mode_fb);
+  gtk_box_pack_start (GTK_BOX (hbox2), pp_show_sec_mode_fb, FALSE, FALSE, 0);
 
   label16 = gtk_label_new (_("<b>Global settings</b>"));
   gtk_widget_show (label16);
@@ -1615,6 +1630,9 @@ create_global_pinnipede_options_dialog (void)
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, hbox32, "hbox32");
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, enable_troll_detector, "enable_troll_detector");
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, enable_troll_detector_fb, "enable_troll_detector_fb");
+  GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, hbox2, "hbox2");
+  GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, pp_show_sec_mode, "pp_show_sec_mode");
+  GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, pp_show_sec_mode_fb, "pp_show_sec_mode_fb");
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, label16, "label16");
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, hbox36, "hbox36");
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, image15, "image15");

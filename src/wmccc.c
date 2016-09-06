@@ -785,6 +785,7 @@ static int prepare_or_finalize_conf_dialog_(GtkWidget *dialog, int finalize) {
   PFC_TOGGLE_BUTTON_S(mark_id_gaps);
   PFC_TOGGLE_BUTTON_G(auto_swallow);
   PFC_TOGGLE_BUTTON_G(enable_troll_detector);
+  PFC_TOGGLE_BUTTON_G(pp_show_sec_mode);
   PFC_TOGGLE_BUTTON_G(board_enable_hfr_pictures);
   PFC_TOGGLE_BUTTON_G(board_auto_dl_pictures);
   PFC_TOGGLE_BUTTON_G(board_sfw_pictures);
