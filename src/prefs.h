@@ -131,8 +131,6 @@ typedef struct _SitePrefs {
   char *user_cookie;
   char *user_login; /* le login (optionnel, peut etre NULL), utilisé pour la reconnaissance des messages que vous avez posté */
 
-  char *pop3_user, *pop3_pass;
-
   int rss_ignore_description; /* pour les feeds RSS dont le champ descriptions est rempli de pub */
   /* quelques couleurs qui dépendent du site visité */
   BiColor pp_fgcolor, pp_tstamp_color, pp_useragent_color, 

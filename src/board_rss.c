@@ -219,7 +219,7 @@ rss_board_update(Board *board, char *path) {
   http_request_send(&r);
   if (!http_is_ok(&r)) { http_request_close(&r);return 1; }
   wmcc_log_http_request(board->site, &r);
-  rsstxt = http_read_all(&r, path);
+  //rsstxt = http_read_all(&r, path);
   http_request_close(&r);
   if (!http_is_ok(&r)) goto ratai;
   if (!rsstxt || !http_is_ok(&r)) return 1; /* "not modified" */

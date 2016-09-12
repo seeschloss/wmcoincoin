@@ -498,9 +498,8 @@ pp_totoz_get_image(Dock *dock, unsigned char *imgname) {
         myfprintf(stderr, "pp_totoz_get_image : Impossible d'ouvrir/creer %s : %s\n", pathimg, strerror(errno));
         pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_NOTFOUND);
       } else {
-        while( (lu = http_read(&r, buf, 1500)) > 0 && !r.telnet.error && !ferror(f) )
-          fwrite(buf, lu, 1, f);        
-        if ( r.telnet.error || ferror(f) ) {
+        fwrite(r.response_data, r.response_size, 1, f);
+        if ( ferror(f) ) {
           fclose(f);
           myfprintf(stderr, "Erreur lors du telechargement du fichier %s\n", pathimg);
           pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_NOTFOUND);

@@ -72,9 +72,6 @@ time_t http_err_time = 0;
 static char http_last_url[HTTP_LAST_ERR_URL_SZ] = "";
 static char http_used_ip[100] = "xxx.xxx.xxx.xxx";
 
-static char base64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-
 typedef struct _HostEntry {
   char *host_name;
   char *numeric_host; /* resolved host name, if more than one answer, the entries are separated by a '|' */
@@ -134,65 +131,201 @@ http_url_encode(const char *string, int use_plus)
 }
 
 
-int http_is_ok(HttpRequest *r) { return r->telnet.error == 0; }
-
-/*
-  renvoie le descripteur de fichier vers les donnees renvoyees ,
-  descripteur a fermer par un close(d)
-*/
 size_t
-_http_request_send_curl_write_callback(void *contents, size_t size, size_t nmemb, void *userp)
+_http_request_send_curl_header_callback(void *contents, size_t size, size_t nmemb, void *userp)
 {
+  ALLOW_X_LOOP; ALLOW_ISPELL; 
+
   size_t realsize = size * nmemb;
-  //struct MemoryStruct *mem = (struct MemoryStruct *)userp;
   HttpRequest *r = (HttpRequest *)userp;
 
-  /*
-  mem->memory = realloc(mem->memory, mem->size + realsize + 1);
-  if(mem->memory == NULL) {
+  r->header_data = realloc(r->header_data, r->header_size + realsize + 1);
+  if(r->header_data == NULL) {
     printf("not enough memory (realloc returned NULL)\n");
     return 0;
   }
 
-  memcpy(&(mem->memory[mem->size]), contents, realsize);
-  mem->size += realsize;
-  mem->memory[mem->size] = 0;
-  */
+  memcpy(&(r->header_data[r->header_size]), contents, realsize);
+  r->header_size += realsize;
+  r->header_data[r->header_size] = 0;
+
+  global_http_download_cnt += realsize;
+
+  ALLOW_X_LOOP; ALLOW_ISPELL; 
 
   return realsize;
 }
 
-#include <curl/curl.h>
+size_t
+_http_request_send_curl_write_callback(void *contents, size_t size, size_t nmemb, void *userp)
+{
+  ALLOW_X_LOOP; ALLOW_ISPELL; 
+
+  size_t realsize = size * nmemb;
+  HttpRequest *r = (HttpRequest *)userp;
+
+  r->response_data = realloc(r->response_data, r->response_size + realsize + 1);
+  if(r->response_data == NULL) {
+    printf("not enough memory (realloc returned NULL)\n");
+    return 0;
+  }
+
+  memcpy(&(r->response_data[r->response_size]), contents, realsize);
+  r->response_size += realsize;
+  r->response_data[r->response_size] = 0;
+
+  global_http_download_cnt += realsize;
+
+  ALLOW_X_LOOP; ALLOW_ISPELL; 
+
+  return realsize;
+}
+
 void
 http_request_send(HttpRequest *r)
 {
-  CURL *curl;
-  CURLcode res;
-
-  /* In windows, this will init the winsock stuff */
   curl_global_init(CURL_GLOBAL_ALL);
 
-  /* get a curl handle */ 
-  curl = curl_easy_init();
-  if(curl) {
-    curl_easy_setopt(curl, CURLOPT_URL, r->url);
+  r->curl = curl_easy_init();
+  if(r->curl) {
+    curl_easy_setopt(r->curl, CURLOPT_URL, r->url);
+    printf("Url %s\n", r->url);
 
-  	if (r->type == HTTP_POST) {
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS,r->post);
+    if (r->type == HTTP_POST) {
+      curl_easy_setopt(r->curl, CURLOPT_POSTFIELDS, r->post);
+    }
+
+    if (r->cookie) {
+      curl_easy_setopt(r->curl, CURLOPT_COOKIE, r->cookie);
+    }
+
+    if (r->referer) {
+      curl_easy_setopt(r->curl, CURLOPT_REFERER, r->referer);
+    }
+
+    if (r->user_agent) {
+      curl_easy_setopt(r->curl, CURLOPT_USERAGENT, r->user_agent);
+    }
+
+    struct curl_slist *list = NULL;
+    if (r->accept) {
+      char *accept = malloc(8 + strlen(r->accept));
+      snprintf(accept, 8 + strlen(r->accept), "Accept: %s", r->accept);
+      list = curl_slist_append(list, accept);
+      free(accept);
+    }
+    curl_easy_setopt(r->curl, CURLOPT_HTTPHEADER, list);
+
+    curl_easy_setopt(r->curl, CURLOPT_HEADERFUNCTION, _http_request_send_curl_header_callback);
+    curl_easy_setopt(r->curl, CURLOPT_HEADERDATA, (void *)r);
+    curl_easy_setopt(r->curl, CURLOPT_WRITEFUNCTION, _http_request_send_curl_write_callback);
+    curl_easy_setopt(r->curl, CURLOPT_WRITEDATA, (void *)r);
+
+    int still_running;
+    CURLM *multi_handle;
+    multi_handle = curl_multi_init();
+    curl_multi_add_handle(multi_handle, r->curl);
+    curl_multi_perform(multi_handle, &still_running);
+
+    do {
+      struct timeval timeout;
+      int rc; /* select() return code */ 
+      CURLMcode mc; /* curl_multi_fdset() return code */ 
+
+      fd_set fdread;
+      fd_set fdwrite;
+      fd_set fdexcep;
+      int maxfd = -1;
+
+      long curl_timeo = -1;
+
+      FD_ZERO(&fdread);
+      FD_ZERO(&fdwrite);
+      FD_ZERO(&fdexcep);
+
+      timeout.tv_sec = 1;
+      timeout.tv_usec = 0;
+
+      curl_multi_timeout(multi_handle, &curl_timeo);
+      if(curl_timeo >= 0) {
+        timeout.tv_sec = curl_timeo / 1000;
+        if(timeout.tv_sec > 1)
+          timeout.tv_sec = 1;
+        else
+          timeout.tv_usec = (curl_timeo % 1000) * 1000;
+      }
+
+      mc = curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
+
+      if(mc != CURLM_OK) {
+        fprintf(stderr, "curl_multi_fdset() failed, code %d.\n", mc);
+        break;
+      }
+
+      if(maxfd == -1) {
+        struct timeval wait = { 0, 100 * 1000 }; /* 100ms */ 
+        rc = select(0, NULL, NULL, NULL, &wait);
+      }
+      else {
+        rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
+      }
+      ALLOW_X_LOOP; ALLOW_ISPELL; 
+
+      switch(rc) {
+        case -1:
+          if (errno != EINTR) {
+            /* select error */ 
+            break;
+          }
+        case 0: /* timeout */ 
+        default: /* action */ 
+          curl_multi_perform(multi_handle, &still_running);
+          break;
+      }
+    } while(still_running);
+
+    if (r->error != CURLE_OK) {
+      fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(r->error));
+	} else {
+      long sizep;
+      curl_easy_getinfo(r->curl, CURLINFO_REQUEST_SIZE, &sizep);
+
+      global_http_upload_cnt += sizep;
+
+      char *line_end;
+      char *line = r->header_data;
+
+      while (line_end = strchr(line, '\n')) {
+	    if (strncmp(line, "Last-Modified: ", 15) == 0) {
+	      if (*r->p_last_modified) {
+            free(*r->p_last_modified);
+            *r->p_last_modified = NULL;
+          }
+	      *r->p_last_modified = strdup(line + 15);
+        }
+        if (strncmp(line, "Transfer-Encoding: chunked", 26) == 0) {
+          r->is_chunk_encoded = 1;
+          r->chunk_num = -1;
+        }
+        if (strncmp(line, "Content-Length:", 15) == 0) {
+          r->content_length = atoi(line+15);
+          BLAHBLAH(Prefs.verbosity_http, printf("content length: %d\n", r->content_length));
+        }
+        if (strncmp(line, "X-Post-Id:", 10) == 0) {
+          r->post_id = atoi(line+10);
+          BLAHBLAH(Prefs.verbosity_http, printf("x-post-id: %d\n", r->post_id));
+        }
+        if (strncmp(line, "Content-Type:", 13) == 0) {
+          r->content_type = strdup(line+13);
+          str_trim(r->content_type);
+          BLAHBLAH(Prefs.verbosity_http, printf("content type: %s\n", r->content_type));
+        }
+
+        line = line_end + 1;
+      }
 	}
 
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, _http_request_send_curl_write_callback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)r);
-
-    /* Perform the request, res will get the return code */ 
-    res = curl_easy_perform(curl);
-    /* Check for errors */ 
-    if(res != CURLE_OK)
-      fprintf(stderr, "curl_easy_perform() failed: %s\n",
-          curl_easy_strerror(res));
-
-    /* always cleanup */ 
-    curl_easy_cleanup(curl);
+    curl_slist_free_all(list);
   }
   curl_global_cleanup();
 }
@@ -231,7 +364,21 @@ http_request_init(HttpRequest *r) {
       r->proxy_port = 3128;
     }
   }
-  telnet_session_init(&r->telnet);
+}
+
+char *
+http_error(HttpRequest *r) {
+  return r->response_size == 0 ? "error" : "";
+}
+
+int
+http_read(HttpRequest *r, char *buff, int len) {
+  memcpy(buff, r->response_data, r->response_size);
+  return r->response_size;
+}
+
+int http_is_ok(HttpRequest *r) {
+  return r->error == 0;
 }
 
 void http_request_close (HttpRequest *r) {
@@ -243,7 +390,50 @@ void http_request_close (HttpRequest *r) {
   FREE_STRING(r->cookie);
   FREE_STRING(r->accept); /* Triton> Accept: header/http */
   FREE_STRING(r->post);
+  FREE_STRING(r->response_data);
   r->content_length = -1;
-  telnet_session_close(&r->telnet);
+  r->response_size = -1;
+  curl_easy_cleanup(r->curl);
+}
+
+char*
+http_complete_error_info()
+{
+  char s[2048];
+  char s_err[1024];
+  char s_heure[80];
+
+  if (flag_http_transfert == 0) {
+    if (http_err_time == 0) {
+      snprintf(s_heure, 80, _("<i>There hasn't been any http error yet</i>"));
+    } else {
+      struct tm *t;
+      t = localtime(&http_err_time);
+      
+      snprintf(s_heure, 80, _("Last error occured at: <b>%02d:%02d:%02d</b>"),
+	       t->tm_hour, t->tm_min, t->tm_sec);
+    }
+
+    if (flag_http_error) {
+      snprintf(s_err, 1024, _("Error: <b><font color=#800000>%s</font></b><br>"), http_last_err_msg);
+    } else {
+      if (http_err_time) {
+	snprintf(s_err, 1024, _("<br>The last error was: %s<br>for the URL:<tt>%s</tt><br>"),
+		 http_last_err_msg, http_last_err_url);
+      } else {
+	s_err[0] = 0;
+      }
+    }
+    snprintf(s, 2048, _("%s<br>%s<br>%s: <tt>%s</tt><br>Host IP: <font color=#0000ff>%s</font><br>%s"),
+	     flag_http_error ? _("<b>There has just been an error !!</b>") : _("The last transfer went fine."),
+	     s_heure, flag_http_error ? _("faulty URL") : _("We have just downloaded"), http_last_url, http_used_ip, s_err);
+  } else {
+    if (flag_gethostbyname == 0) {
+      snprintf(s, 2048, _("Download going on...<br>URL: <tt>%s</tt><br>IP: <font color=#0000ff>%s</font><br>"), http_last_url, http_used_ip);
+    } else {
+      snprintf(s, 2048, _("Resolving name '%s'...<br>"), http_last_url);
+    }
+  }
+  return strdup(s);
 }
 

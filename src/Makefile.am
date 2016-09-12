@@ -108,7 +108,7 @@ wmcoincoin_SOURCES = cc_queue.c plopup.c \
 	totoz_bookmark.c \
         palmipede.c \
 	dock.c dock.h \
-        board_priv.h board.c board_rss.c board_pop3.c \
+        board_priv.h board.c board_rss.c \
 	site.c site.h \
 	balltrap.c balltrap.h \
         keylist.c keylist.h \

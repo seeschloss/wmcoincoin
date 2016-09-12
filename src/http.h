@@ -74,6 +74,7 @@
 #  endif
 //# endif
 #endif
+#include <curl/curl.h>
 #include "global.h"
 
 typedef struct {
@@ -87,7 +88,7 @@ typedef struct {
 typedef struct {
   /* input members */
   enum { HTTP_GET, HTTP_POST} type;
-  TelnetSession telnet;
+  CURL *curl;
   /*char *host;
     int port;*/
   char *url;
@@ -115,10 +116,10 @@ typedef struct {
   /*SOCKET     fd;*/
 
   int        content_length;
-  /*int        error;*/
+  int        error;
 
   int        response; /* 404, 200, 502 etc.. */
-  /*int        tic_cnt_tstamp;*/ /* -1 si le resolv n'a pas marché, 
+  int        tic_cnt_tstamp; /* -1 si le resolv n'a pas marché, 
 				sinon contient la valeur de wmcc_tic_cnt
 				à l'instant ou le connect a été tenté */
 
@@ -132,10 +133,16 @@ typedef struct {
   char * content_type; /* Content-Type de la réponse */
 
   char * post;
+
+  char * header_data;
+  size_t header_size;
+
+  char * response_data;
+  size_t response_size;
 } HttpRequest;
 
 void net_init();
-char *http_error();
+char *http_error(HttpRequest *r);
 char *http_complete_error_info(); /* renvoie une chaine allouée, ATTENTION */
 
 void telnet_session_init(TelnetSession *ts);

@@ -696,7 +696,6 @@ void board_restore_state(FILE *f, Board *board);
 void board_set_viewed(Board *board, int id);
 int board_is_rss_feed(Board *b);
 int board_is_regular_board(Board *b);
-int board_is_pop3(Board *b);
 int board_can_post_messages(Board *b);
 RSSBonusInfo *rss_find_from_link(Boards *boards, char *link);
 RSSBonusInfo *rss_find_from_id(Boards *boards, id_type id); /* slow */

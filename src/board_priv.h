@@ -26,7 +26,6 @@ board_msg_info *board_log_msg(Board *board, char *ua, char *login,
                               const unsigned char *my_useragent);
 RSSBonusInfo *rss_register(Boards *boards, md5_byte_t mimd5[16], char *link, board_msg_info *mi);
 int rss_board_update(Board *board, char *path);
-int pop3_board_update(Board *board, char *path);
 void prelog_clear();
 void prelog_add(char *ua, char *login, time_t tstamp, char *message, char *link, md5_byte_t md5[16], int already_viewed);
 void prelog_commit(Board *board);

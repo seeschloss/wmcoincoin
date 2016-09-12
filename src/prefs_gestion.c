@@ -648,8 +648,6 @@ wmcc_prefs_relecture(Dock *dock, int whatfile)
       SP_STR_OPT_COPY(post_url);
       SP_STR_OPT_COPY(post_template);
       SP_STR_OPT_COPY(user_cookie);
-      SP_STR_OPT_COPY(pop3_user);
-      SP_STR_OPT_COPY(pop3_pass);
       SP_STR_OPT_COPY(user_login);
       //SP_INT_OPT_COPY(board_auto_refresh);
 

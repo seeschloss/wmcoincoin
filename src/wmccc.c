@@ -764,8 +764,6 @@ static int prepare_or_finalize_conf_dialog_(GtkWidget *dialog, int finalize) {
   PFC_SPIN_BUTTON_S(board_check_delay);
   PFC_TEXT_ENTRY_S(user_cookie);
   PFC_TEXT_ENTRY_S(user_login);
-  PFC_TEXT_ENTRY_S(pop3_user);
-  PFC_TEXT_ENTRY_S(pop3_pass);
   PFC_TEXT_ENTRY_S(user_agent);
   PFC_TEXT_ENTRY_S(proxy_name);
   PFC_SPIN_BUTTON_S(proxy_port);

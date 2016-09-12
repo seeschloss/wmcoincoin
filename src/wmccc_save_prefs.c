@@ -119,9 +119,6 @@ auth_prefs_write_to_file(GeneralPrefs *p, FILE *f) {
       g_free(ck);
       s = s2 ? s2+1 : NULL;
     }
-    if (sp->backend_type == BACKEND_TYPE_POP && !str_is_empty(sp->pop3_user)) {
-      fprintf(f, "\"%s\" user: \"%s\" pass:\"%s\"\n", sp->all_names[0], sp->pop3_user, sp->pop3_pass);
-    }
   }
 }
 

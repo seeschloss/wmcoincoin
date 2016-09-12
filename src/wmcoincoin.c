@@ -571,8 +571,6 @@ wmcc_init_http_request(HttpRequest *r, SitePrefs *sp, char *url)
   
   r->type = HTTP_GET;
   r->url = strdup(url);
-  r->telnet.host = strdup(su.host);
-  r->telnet.port = su.port;
   r->host_path = NULL;
   for (i=0; i < su.path_len; ++i) r->host_path = str_cat_printf(r->host_path, "/%s", su.path[i]);
   if (r->host_path == NULL) r->host_path = strdup("/");
@@ -601,11 +599,11 @@ wmcc_init_http_request_with_cookie(HttpRequest *r, SitePrefs *sp, char *url)
 void
 wmcc_log_http_request(Site *s, HttpRequest *r)
 {
-  if (r->telnet.tic_cnt_tstamp != -1) {
+  if (r->tic_cnt_tstamp != -1) {
     int i,cnt=0;
     float sum =0.;
     s->http_ping_stat_buf[s->http_ping_stat_i] = 
-      (wmcc_tic_cnt - r->telnet.tic_cnt_tstamp)*0.001*WMCC_TIMER_DELAY_MS;
+      (wmcc_tic_cnt - r->tic_cnt_tstamp)*0.001*WMCC_TIMER_DELAY_MS;
     s->http_ping_stat_i = (s->http_ping_stat_i+1)%NB_HTTP_PING_STAT;
     for (i = 0; i < NB_HTTP_PING_STAT; ++i) {
       int ii = (s->http_ping_stat_i+i)%NB_HTTP_PING_STAT;
@@ -678,8 +676,10 @@ exec_coin_coin(Dock *dock, int sid, const char *ua, const char *msg_)
   r.user_agent = strdup(ua);
   r.post = str_printf(site->prefs->post_template, urlencod_msg);  free(urlencod_msg);
 
+  BLAHBLAH(1,myprintf("Post: %s\n", r.post));
+
   http_request_send(&r);
-  BLAHBLAH(1,myprintf("request sent, status=%<YEL %d> (%d)\n", r.telnet.error, flag_cancel_task));
+  BLAHBLAH(1,myprintf("request sent, status=%<YEL %d> (%d)\n", http_error(&r), flag_cancel_task));
   wmcc_log_http_request(site, &r);
   if (http_is_ok(&r)) {
     if (!site->prefs->user_cookie && r.new_cookie) {
@@ -696,7 +696,7 @@ exec_coin_coin(Dock *dock, int sid, const char *ua, const char *msg_)
  } else if (r.response >= 400 && r.response != 406) { /* 406 c'est du bête "Not Acceptable", on s'en fout */
     char *s;
     /* si la reponse n'est pas un 302 Found */
-    s = str_printf(_("[%s] Damned ! There has been an error<p>%s"), site->prefs->site_name, http_error());
+    s = str_printf(_("[%s] Damned ! There has been an error<p>%s"), site->prefs->site_name, http_error(&r));
     msgbox_show(dock, s);
     free(s);
     site->http_error_cnt++;
@@ -2052,8 +2052,6 @@ int main(int argc, char **argv)
   wmcc_prefs_initialize(argc, argv, &Prefs);
   
   dock->sites = sl_create();
-
-  net_init();
 
   ccqueue_build();
 

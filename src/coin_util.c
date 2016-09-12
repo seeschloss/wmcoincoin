@@ -1286,10 +1286,6 @@ int split_url(const char *url, SplittedURL *d) {
     d->type = HTTP_URL; d->port = 80;
   } else if (strcasecmp(start, "https") == 0) {
     d->type = HTTPS_URL; d->port = 80;
-  } else if (strcasecmp(start, "pop") == 0 || strcasecmp(d->data, "pop3") == 0) {
-    d->type = POP3_URL; d->port = 110;
-  } else if (strcasecmp(start, "apop") == 0 || strcasecmp(d->data, "apop3") == 0) {
-    d->type = APOP_URL; d->port = 110;
   } else if (strcasecmp(start, "file") == 0) {
     d->type = FILE_URL; d->port = -1;
   } else return -1;

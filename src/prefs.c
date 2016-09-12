@@ -263,12 +263,9 @@ option_backend_url(const char  *optarg,
   if (split_url(prefs->backend_url,&su) != 0) {
     return str_printf("invalid URL: '%s'", optarg);
   }
-  if (su.type != HTTP_URL && su.type != FILE_URL && 
+  if (su.type != HTTP_URL && su.type != HTTPS_URL && su.type != FILE_URL && 
       (prefs->backend_type == BACKEND_TYPE_BOARD || prefs->backend_type == BACKEND_TYPE_RSS)) {
     return str_printf("this kind of URL not allowed here: '%s' (expected http:// or file://)", optarg);
-  }
-  if (su.type != POP3_URL && su.type != APOP_URL && prefs->backend_type == BACKEND_TYPE_POP) {
-    return str_printf("this kind of URL not allowed here: '%s' (expected pop3://)", optarg);
   }
   return NULL;
 }
@@ -281,7 +278,7 @@ option_post_url(const char  *optarg,
   assert(optarg);
   FREE_STRING(prefs->post_url);
   prefs->post_url = str_dup_unquoted(optarg);
-  if (split_url(prefs->post_url, &su) || su.type != HTTP_URL) {
+  if (split_url(prefs->post_url, &su) || (su.type != HTTP_URL && su.type != HTTPS_URL)) {
     return str_printf("invalid POST URL: '%s'", optarg);
   }
   if (prefs->backend_type == BACKEND_TYPE_POP) {
@@ -738,8 +735,6 @@ wmcc_site_prefs_set_default(SitePrefs *p, int verbatim) {
   ASSIGN_STRING_VAL(p->post_template, "message=%s");
   p->user_cookie = NULL; 
   p->user_login = NULL;
-  p->pop3_user = NULL;
-  p->pop3_pass = NULL;
   p->rss_ignore_description = 0;
   p->pp_bgcolor = 0xdae6e6;
   BICOLOR_SET(p->pp_fgcolor,0x303030,0xd0d0d0);
@@ -793,8 +788,6 @@ wmcc_site_prefs_copy(SitePrefs *sp, const SitePrefs *src) {
   SPSTRDUP(post_template);
   SPSTRDUP(user_cookie);
   SPSTRDUP(user_login);
-  SPSTRDUP(pop3_user);
-  SPSTRDUP(pop3_pass);
   if (src->nb_names>0) {
     ALLOC_VEC(sp->all_names, src->nb_names, char *);
     for (i=0; i < src->nb_names; i++) sp->all_names[i] = strdup(src->all_names[i]);
@@ -815,8 +808,6 @@ wmcc_site_prefs_destroy(SitePrefs *p)
   FREE_STRING(p->post_url);
   FREE_STRING(p->user_cookie);
   FREE_STRING(p->user_login);
-  FREE_STRING(p->pop3_user);
-  FREE_STRING(p->pop3_pass);
   FREE_STRING(p->user_name);
   /*  FREE_STRING(p->site_name); NON ! c'est detruit dans all_names */
   destroy_string_list(&p->all_names, &p->nb_names);
@@ -1675,10 +1666,7 @@ wmcc_prefs_read_options_auth(GeneralPrefs *p, const char *basefname) {
   FILE *f = fopen(fname, "r");  
   char *err = NULL;
   regex_t re_cookies;
-  regex_t re_pop3;
   assert(regcomp(&re_cookies, "\"(.+)\" +cookie: *\"(.*)\"",
-                 REG_EXTENDED | REG_ICASE) == 0);
-  assert(regcomp(&re_pop3,    "\"([^\"]+)\" *user: *\"([^\"]+)\" *pass: *\"([^\"]+)\"", 
                  REG_EXTENDED | REG_ICASE) == 0);
   if (f) {
     regmatch_t match[50];
@@ -1697,18 +1685,6 @@ wmcc_prefs_read_options_auth(GeneralPrefs *p, const char *basefname) {
           } else {
             printf("warning: site '%s' is not listed in %s\n", site_name, basefname);
           }
-        } else if (regexec(&re_pop3, s, 50, match, 0) == 0) {
-          s[match[1].rm_eo] = 0; char *site_name = s+match[1].rm_so;
-          s[match[2].rm_eo] = 0; char *user = s+match[2].rm_so;
-          s[match[3].rm_eo] = 0; char *pass = s+match[3].rm_so;
-          //printf("pop3: site '%s' '%s' '%s'\n", site_name, user, pass);
-          sp = wmcc_prefs_find_site(p, site_name);
-          if (sp) {
-            sp->pop3_user = strdup(user);
-            sp->pop3_pass = strdup(pass);
-          } else {
-            printf("warning: site '%s' is not listed in %s\n", site_name, basefname);
-          }
         } else {
           printf("unmatched line: %.12s...\n", s);
           exit(1);
@@ -1720,7 +1696,6 @@ wmcc_prefs_read_options_auth(GeneralPrefs *p, const char *basefname) {
     fprintf(stderr, "could not open %s : %s\n", fname, strerror(errno));
   }
   FREE_STRING(fname);
-  regfree(&re_pop3);
   regfree(&re_cookies);
   return err;
 }
