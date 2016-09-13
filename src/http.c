@@ -50,7 +50,7 @@
 #  define SETERR_TIMEOUT WSASetLastError(WSAETIMEDOUT)
 #  define STR_LAST_ERROR (flag_cancel_task ? "donwload canceled" : strerror(WSAGetLastError()))
 #  define GAI_STRERROR(x) strerror(WSAGetLastError())
-#  define LASTERR_ESUCCESS (WSAGetLastError() == 0) /* à tester ... */
+#  define LASTERR_ESUCCESS (WSAGetLastError() == 0) /* Ã  tester ... */
 #else
 #  define LASTERR_EINTR (errno==EINTR)
 #  define SETERR_TIMEOUT errno=ETIMEDOUT
@@ -279,11 +279,11 @@ http_request_send(HttpRequest *r)
     curl_easy_setopt(r->curl, CURLOPT_WRITEFUNCTION, _http_request_send_curl_write_callback);
     curl_easy_setopt(r->curl, CURLOPT_WRITEDATA, (void *)r);
 
-    curl_easy_setopt(r->curl, CURLOPT_FAILONERROR, 1); /* pas la peine de récupérer des données pour une >= 400 */
+    curl_easy_setopt(r->curl, CURLOPT_FAILONERROR, 1); /* pas la peine de rÃ©cupÃ©rer des donnÃ©es pour une >= 400 */
     curl_easy_setopt(r->curl, CURLOPT_ERRORBUFFER, http_last_err_msg);
 
     curl_easy_setopt(r->curl, CURLOPT_FOLLOWLOCATION, 1);
-    curl_easy_setopt(r->curl, CURLOPT_NOSIGNAL, 1); /* sinon ça interfère avec pause() */
+    curl_easy_setopt(r->curl, CURLOPT_NOSIGNAL, 1); /* sinon Ã§a interfÃ¨re avec pause() */
 
     int still_running;
     CURLM *multi_handle;
@@ -361,8 +361,8 @@ http_request_send(HttpRequest *r)
 
       r->response = codep;
       if (r->response >= 400) {
-            /* Triton> maintenant, le 201 Created renvoyé par la tribune de test de zorel n'indique plus d'erreur */
-            /* See> on peut aussi s'attendre à une 303 See Other quand un post est créé */
+            /* Triton> maintenant, le 201 Created renvoyÃ© par la tribune de test de zorel n'indique plus d'erreur */
+            /* See> on peut aussi s'attendre Ã  une 303 See Other quand un post est crÃ©Ã© */
         r->error = 1;
         strcpy(http_last_err_url, http_last_url);
         time(&http_err_time);
@@ -388,7 +388,7 @@ http_request_init(HttpRequest *r) {
   r->header_size = 0;
   r->response_data = str_ndup("", 1);
   r->response_size = 0;
-  /* proxy par défaut choppé dans la var d'env "http_proxy" 
+  /* proxy par dÃ©faut choppÃ© dans la var d'env "http_proxy" 
      
   TODO: gerer aussi la var. d'env "no_proxy"
   */
