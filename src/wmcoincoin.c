@@ -563,7 +563,6 @@ wmcc_init_http_request(HttpRequest *r, SitePrefs *sp, char *url)
 {
   http_request_init(r);
   SplittedURL su;
-  int i;
   if (str_startswith(url, "fucking_brocken")) {
     myprintf("%<RED FIX THIS URL>: %<MAG %s>\n", url); exit(1);
   }
@@ -573,9 +572,13 @@ wmcc_init_http_request(HttpRequest *r, SitePrefs *sp, char *url)
   r->url = strdup(url);
   if (sp->proxy_name) {
     r->proxy_name = strdup(sp->proxy_name);
-    if (sp->proxy_auth_user && sp->proxy_auth_pass) 
-      r->proxy_user_pass = str_printf("%s:%s", sp->proxy_auth_user, sp->proxy_auth_pass);
     r->proxy_port = sp->proxy_port;
+    if (sp->proxy_auth_user) {
+      r->proxy_user = strdup(sp->proxy_auth_user);
+	}
+    if (sp->proxy_auth_pass) {
+      r->proxy_pass = strdup(sp->proxy_auth_pass);
+    }
   }
   r->pragma_nocache = sp->proxy_nocache;
   r->use_if_modified_since = sp->use_if_modified_since;

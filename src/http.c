@@ -188,12 +188,16 @@ _http_request_send_parse_headers(HttpRequest *r)
   char *line = r->header_data;
 
   while ((line_end = strchr(line, '\n'))) {
-    if (strncmp(line, "Last-Modified: ", 15) == 0) {
-      if (*r->p_last_modified) {
-        free(*r->p_last_modified);
-        *r->p_last_modified = NULL;
+    if (r->p_last_modified) {
+      if (strncmp(line, "Last-Modified: ", 15) == 0) {
+        if (*r->p_last_modified) {
+          free(*r->p_last_modified);
+          *r->p_last_modified = NULL;
+        }
+        *r->p_last_modified = strndup(line + 15, line_end - line - 15);
+        str_trim(*r->p_last_modified);
+        BLAHBLAH(Prefs.verbosity_http, printf("last modified: %s\n", *r->p_last_modified));
       }
-      *r->p_last_modified = strdup(line + 15);
     }
     if (strncmp(line, "Transfer-Encoding: chunked", 26) == 0) {
       r->is_chunk_encoded = 1;
@@ -208,7 +212,7 @@ _http_request_send_parse_headers(HttpRequest *r)
       BLAHBLAH(Prefs.verbosity_http, printf("x-post-id: %d\n", r->post_id));
     }
     if (strncmp(line, "Content-Type:", 13) == 0) {
-      r->content_type = strdup(line+13);
+      r->content_type = strndup(line+13, line_end - line - 13);
       str_trim(r->content_type);
       BLAHBLAH(Prefs.verbosity_http, printf("content type: %s\n", r->content_type));
     }
@@ -267,10 +271,23 @@ http_request_send(HttpRequest *r)
 
     struct curl_slist *list = NULL;
     if (r->accept) {
-      char *accept = malloc(8 + strlen(r->accept));
-      snprintf(accept, 8 + strlen(r->accept), "Accept: %s", r->accept);
+      char *accept = malloc(8 + strlen(r->accept) + 1);
+      snprintf(accept, 8 + strlen(r->accept) + 1, "Accept: %s", r->accept);
       list = curl_slist_append(list, accept);
       free(accept);
+    }
+    if (r->p_last_modified && *(r->p_last_modified) && r->use_if_modified_since) {
+      char *last_modified = *r->p_last_modified;
+
+      char *if_modified_since = malloc(19 + strlen(last_modified) + 1);
+      snprintf(if_modified_since, 19 + strlen(last_modified) + 1, "If-Modified-Since: %s", last_modified);
+      printf("if-plop: %s\n", if_modified_since);
+      list = curl_slist_append(list, if_modified_since);
+      free(if_modified_since);
+    }
+    if (r->pragma_nocache) {
+      list = curl_slist_append(list, "Pragma: no-cache");
+      list = curl_slist_append(list, "Cache-Control: no-cache");
     }
     curl_easy_setopt(r->curl, CURLOPT_HTTPHEADER, list);
 
@@ -284,6 +301,26 @@ http_request_send(HttpRequest *r)
 
     curl_easy_setopt(r->curl, CURLOPT_FOLLOWLOCATION, 1);
     curl_easy_setopt(r->curl, CURLOPT_NOSIGNAL, 1); /* sinon ça interfère avec pause() */
+
+    if (r->proxy_name) {
+      curl_easy_setopt(r->curl, CURLOPT_PROXY, r->proxy_name);
+
+      if (r->proxy_port) {
+        curl_easy_setopt(r->curl, CURLOPT_PROXYPORT, r->proxy_port);
+      }
+
+      if (r->proxy_user) {
+        curl_easy_setopt(r->curl, CURLOPT_PROXYUSERNAME, r->proxy_user);
+
+        if (r->proxy_pass) {
+          curl_easy_setopt(r->curl, CURLOPT_PROXYUSERPWD, r->proxy_pass);
+        }
+      } else {
+        if (r->proxy_pass) {
+          curl_easy_setopt(r->curl, CURLOPT_PROXYPASSWORD, r->proxy_pass);
+        }
+      }
+    }
 
     int still_running;
     CURLM *multi_handle;
@@ -408,7 +445,8 @@ void http_request_close (HttpRequest *r) {
 
   FREE_STRING(r->url);
   FREE_STRING(r->proxy_name);
-  FREE_STRING(r->proxy_user_pass);
+  FREE_STRING(r->proxy_user);
+  FREE_STRING(r->proxy_pass);
   FREE_STRING(r->user_agent);
   FREE_STRING(r->referer);
   FREE_STRING(r->cookie);

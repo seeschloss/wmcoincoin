@@ -94,7 +94,8 @@ typedef struct {
   char *url;
 
   char *proxy_name;
-  char *proxy_user_pass;
+  char *proxy_user;
+  char *proxy_pass;
   int         proxy_port;
 
   int         pragma_nocache;

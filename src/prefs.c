@@ -299,7 +299,7 @@ option_set_proxy(const char  *optarg,
     p->proxy_name = NULL;
   } else {
     S = strdup(optarg);
-    if ((s = strchr(S, ':')) != NULL) {
+    if ((s = strrchr(S, ':')) != NULL) {
       *s = 0;
       p->proxy_name = strdup(S);
       p->proxy_port = atoi(s+1); assert(p->proxy_port>0);
