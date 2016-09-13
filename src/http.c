@@ -182,6 +182,63 @@ _http_request_send_curl_write_callback(void *contents, size_t size, size_t nmemb
 }
 
 void
+_http_request_send_parse_headers(HttpRequest *r)
+{
+  char *line_end;
+  char *line = r->header_data;
+
+  while ((line_end = strchr(line, '\n'))) {
+    if (strncmp(line, "Last-Modified: ", 15) == 0) {
+      if (*r->p_last_modified) {
+        free(*r->p_last_modified);
+        *r->p_last_modified = NULL;
+      }
+      *r->p_last_modified = strdup(line + 15);
+    }
+    if (strncmp(line, "Transfer-Encoding: chunked", 26) == 0) {
+      r->is_chunk_encoded = 1;
+      r->chunk_num = -1;
+    }
+    if (strncmp(line, "Content-Length:", 15) == 0) {
+      r->content_length = atoi(line+15);
+      BLAHBLAH(Prefs.verbosity_http, printf("content length: %d\n", r->content_length));
+    }
+    if (strncmp(line, "X-Post-Id:", 10) == 0) {
+      r->post_id = atoi(line+10);
+      BLAHBLAH(Prefs.verbosity_http, printf("x-post-id: %d\n", r->post_id));
+    }
+    if (strncmp(line, "Content-Type:", 13) == 0) {
+      r->content_type = strdup(line+13);
+      str_trim(r->content_type);
+      BLAHBLAH(Prefs.verbosity_http, printf("content type: %s\n", r->content_type));
+    }
+    if (strncmp(line, "Set-Cookie:", 11) == 0) {
+      /* Format: Set-Cookie: <name>=<value>[; <name>=<value>]...
+                             [; expires=<date>][; domain=<domain_name>]
+                             [; path=<some_path>][; secure][; httponly] */
+      char *garbage;
+      if ((garbage = strcasestr(line+11, "expires="))) {
+          r->new_cookie = strndup(line+11, garbage - line - 11);
+      } else if ((garbage = strcasestr(line+11, "domain="))) {
+          r->new_cookie = strndup(line+11, garbage - line - 11);
+      } else if ((garbage = strcasestr(line+11, "path"))) {
+          r->new_cookie = strndup(line+11, garbage - line - 11);
+      } else if ((garbage = strcasestr(line+11, "secure"))) {
+          r->new_cookie = strndup(line+11, garbage - line - 11);
+      } else if ((garbage = strcasestr(line+11, "httponly"))) {
+          r->new_cookie = strndup(line+11, garbage - line - 11);
+      } else {
+          r->new_cookie = strdup(line+11);
+      }
+
+      BLAHBLAH(Prefs.verbosity_http,printf("new cookie: %s\n", r->new_cookie));
+    }
+
+    line = line_end + 1;
+  }
+}
+
+void
 http_request_send(HttpRequest *r)
 {
   curl_global_init(CURL_GLOBAL_ALL);
@@ -190,6 +247,8 @@ http_request_send(HttpRequest *r)
   if(r->curl) {
     curl_easy_setopt(r->curl, CURLOPT_URL, r->url);
     printf("Url %s\n", r->url);
+
+    memcpy(http_last_url, r->url, strlen(r->url) + 1);
 
     if (r->type == HTTP_POST) {
       curl_easy_setopt(r->curl, CURLOPT_POSTFIELDS, r->post);
@@ -220,6 +279,9 @@ http_request_send(HttpRequest *r)
     curl_easy_setopt(r->curl, CURLOPT_HEADERDATA, (void *)r);
     curl_easy_setopt(r->curl, CURLOPT_WRITEFUNCTION, _http_request_send_curl_write_callback);
     curl_easy_setopt(r->curl, CURLOPT_WRITEDATA, (void *)r);
+
+    curl_easy_setopt(r->curl, CURLOPT_FAILONERROR, 1); /* pas la peine de récupérer des données pour une >= 400 */
+    curl_easy_setopt(r->curl, CURLOPT_ERRORBUFFER, http_last_err_msg);
 
     int still_running;
     CURLM *multi_handle;
@@ -292,37 +354,22 @@ http_request_send(HttpRequest *r)
 
       global_http_upload_cnt += sizep;
 
-      char *line_end;
-      char *line = r->header_data;
+      long codep;
+      curl_easy_getinfo(r->curl, CURLINFO_RESPONSE_CODE, &codep);
 
-      while (line_end = strchr(line, '\n')) {
-	    if (strncmp(line, "Last-Modified: ", 15) == 0) {
-	      if (*r->p_last_modified) {
-            free(*r->p_last_modified);
-            *r->p_last_modified = NULL;
-          }
-	      *r->p_last_modified = strdup(line + 15);
-        }
-        if (strncmp(line, "Transfer-Encoding: chunked", 26) == 0) {
-          r->is_chunk_encoded = 1;
-          r->chunk_num = -1;
-        }
-        if (strncmp(line, "Content-Length:", 15) == 0) {
-          r->content_length = atoi(line+15);
-          BLAHBLAH(Prefs.verbosity_http, printf("content length: %d\n", r->content_length));
-        }
-        if (strncmp(line, "X-Post-Id:", 10) == 0) {
-          r->post_id = atoi(line+10);
-          BLAHBLAH(Prefs.verbosity_http, printf("x-post-id: %d\n", r->post_id));
-        }
-        if (strncmp(line, "Content-Type:", 13) == 0) {
-          r->content_type = strdup(line+13);
-          str_trim(r->content_type);
-          BLAHBLAH(Prefs.verbosity_http, printf("content type: %s\n", r->content_type));
-        }
+      r->response = codep;
+      if (r->response >= 400) {
+            /* Triton> maintenant, le 201 Created renvoyé par la tribune de test de zorel n'indique plus d'erreur */
+            /* See> on peut aussi s'attendre à une 303 See Other quand un post est créé */
+        r->error = 1;
+        strcpy(http_last_err_url, http_last_url);
+        time(&http_err_time);
 
-        line = line_end + 1;
+        myprintf(_("[%<MAG %s>]: %<yel %s>\n"), http_last_err_url, http_last_err_msg);
       }
+
+
+      _http_request_send_parse_headers(r);
 	}
 
     curl_slist_free_all(list);
@@ -335,6 +382,10 @@ http_request_init(HttpRequest *r) {
   memset(r, 0, sizeof(HttpRequest));
   r->content_length = -1;
   r->is_chunk_encoded = 0;
+  r->header_data = str_ndup("", 1);
+  r->header_size = 0;
+  r->response_data = str_ndup("", 1);
+  r->response_size = 0;
   /* proxy par défaut choppé dans la var d'env "http_proxy" 
      
   TODO: gerer aussi la var. d'env "no_proxy"
@@ -368,13 +419,7 @@ http_request_init(HttpRequest *r) {
 
 char *
 http_error(HttpRequest *r) {
-  return r->response_size == 0 ? "error" : "";
-}
-
-int
-http_read(HttpRequest *r, char *buff, int len) {
-  memcpy(buff, r->response_data, r->response_size);
-  return r->response_size;
+  return http_last_err_msg;
 }
 
 int http_is_ok(HttpRequest *r) {
@@ -390,8 +435,10 @@ void http_request_close (HttpRequest *r) {
   FREE_STRING(r->cookie);
   FREE_STRING(r->accept); /* Triton> Accept: header/http */
   FREE_STRING(r->post);
+  FREE_STRING(r->header_data);
   FREE_STRING(r->response_data);
   r->content_length = -1;
+  r->header_size = -1;
   r->response_size = -1;
   curl_easy_cleanup(r->curl);
 }

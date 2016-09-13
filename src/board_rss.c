@@ -200,7 +200,7 @@ rss_board_update(Board *board, char *path) {
   HttpRequest r;
   //int http_err_flag = 0;
   //char *errmsg = NULL;
-  char *rsstxt = NULL, *p;
+  char *p;
   char *rss_title = NULL;
   XMLBlock xmlb;
   int pos, refresh_request = -1, cest_bon_je_connais_la_suite = 0;
@@ -219,7 +219,8 @@ rss_board_update(Board *board, char *path) {
   http_request_send(&r);
   if (!http_is_ok(&r)) { http_request_close(&r);return 1; }
   wmcc_log_http_request(board->site, &r);
-  //rsstxt = http_read_all(&r, path);
+  char *rsstxt = malloc(r.response_size);
+  memcpy(rsstxt, r.response_data, r.response_size);
   http_request_close(&r);
   if (!http_is_ok(&r)) goto ratai;
   if (!rsstxt || !http_is_ok(&r)) return 1; /* "not modified" */
