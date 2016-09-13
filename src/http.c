@@ -282,6 +282,8 @@ http_request_send(HttpRequest *r)
     curl_easy_setopt(r->curl, CURLOPT_FAILONERROR, 1); /* pas la peine de récupérer des données pour une >= 400 */
     curl_easy_setopt(r->curl, CURLOPT_ERRORBUFFER, http_last_err_msg);
 
+    curl_easy_setopt(r->curl, CURLOPT_FOLLOWLOCATION, 1);
+
     int still_running;
     CURLM *multi_handle;
     multi_handle = curl_multi_init();
