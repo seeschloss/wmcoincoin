@@ -283,6 +283,7 @@ http_request_send(HttpRequest *r)
     curl_easy_setopt(r->curl, CURLOPT_ERRORBUFFER, http_last_err_msg);
 
     curl_easy_setopt(r->curl, CURLOPT_FOLLOWLOCATION, 1);
+    curl_easy_setopt(r->curl, CURLOPT_NOSIGNAL, 1); /* sinon ça interfère avec pause() */
 
     int still_running;
     CURLM *multi_handle;
