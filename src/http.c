@@ -375,44 +375,47 @@ http_request_send(HttpRequest *r)
       switch(rc) {
         case -1:
           if (errno != EINTR) {
-            /* select error */ 
+            /* select error */
             break;
           }
-        case 0: /* timeout */ 
-        default: /* action */ 
+        case 0: /* timeout */
+        default: /* action */
           curl_multi_perform(multi_handle, &still_running);
           break;
       }
-    } while(still_running);
+    } while(still_running && !flag_cancel_task);
+
+    if (flag_cancel_task) {
+      flag_http_error = 1;
+      r->error = 1;
+      strcpy(http_last_err_url, http_last_url);
+      strcpy(http_last_err_msg, "User cancelled");
+    }
 
     curl_multi_remove_handle(multi_handle, r->curl);
     curl_multi_cleanup(multi_handle);
 
-    if (r->error != CURLE_OK) {
-      fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(r->error));
-	} else {
-      long sizep;
-      curl_easy_getinfo(r->curl, CURLINFO_REQUEST_SIZE, &sizep);
+    long sizep;
+    curl_easy_getinfo(r->curl, CURLINFO_REQUEST_SIZE, &sizep);
 
-      global_http_upload_cnt += sizep;
+    global_http_upload_cnt += sizep;
 
-      long codep;
-      curl_easy_getinfo(r->curl, CURLINFO_RESPONSE_CODE, &codep);
+    long codep;
+    curl_easy_getinfo(r->curl, CURLINFO_RESPONSE_CODE, &codep);
 
-      r->response = codep;
-      if (r->response >= 400) {
-            /* Triton> maintenant, le 201 Created renvoyé par la tribune de test de zorel n'indique plus d'erreur */
-            /* See> on peut aussi s'attendre à une 303 See Other quand un post est créé */
-        r->error = 1;
-        strcpy(http_last_err_url, http_last_url);
-        time(&http_err_time);
+    r->response = codep;
+    if (r->response >= 400) {
+          /* Triton> maintenant, le 201 Created renvoyé par la tribune de test de zorel n'indique plus d'erreur */
+          /* See> on peut aussi s'attendre à une 303 See Other quand un post est créé */
+      r->error = 1;
+      strcpy(http_last_err_url, http_last_url);
+      time(&http_err_time);
 
-        myprintf(_("[%<MAG %s>]: %<yel %s>\n"), http_last_err_url, http_last_err_msg);
-      }
+      myprintf(_("[%<MAG %s>]: %<yel %s>\n"), http_last_err_url, http_last_err_msg);
+    }
 
 
-      _http_request_send_parse_headers(r);
-	}
+    _http_request_send_parse_headers(r);
 
     curl_slist_free_all(list);
   }
