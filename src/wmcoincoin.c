@@ -571,9 +571,6 @@ wmcc_init_http_request(HttpRequest *r, SitePrefs *sp, char *url)
   
   r->type = HTTP_GET;
   r->url = strdup(url);
-  r->host_path = NULL;
-  for (i=0; i < su.path_len; ++i) r->host_path = str_cat_printf(r->host_path, "/%s", su.path[i]);
-  if (r->host_path == NULL) r->host_path = strdup("/");
   if (sp->proxy_name) {
     r->proxy_name = strdup(sp->proxy_name);
     if (sp->proxy_auth_user && sp->proxy_auth_pass) 

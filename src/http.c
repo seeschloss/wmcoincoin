@@ -247,6 +247,8 @@ http_request_send(HttpRequest *r)
   if(r->curl) {
     curl_easy_setopt(r->curl, CURLOPT_URL, r->url);
 
+    curl_easy_setopt(r->curl, CURLOPT_URL, r->url);
+
     memcpy(http_last_url, r->url, strlen(r->url) + 1);
 
     if (r->type == HTTP_POST) {
@@ -348,6 +350,9 @@ http_request_send(HttpRequest *r)
       }
     } while(still_running);
 
+    curl_multi_remove_handle(multi_handle, r->curl);
+    curl_multi_cleanup(multi_handle);
+
     if (r->error != CURLE_OK) {
       fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(r->error));
 	} else {
@@ -388,35 +393,6 @@ http_request_init(HttpRequest *r) {
   r->header_size = 0;
   r->response_data = str_ndup("", 1);
   r->response_size = 0;
-  /* proxy par défaut choppé dans la var d'env "http_proxy" 
-     
-  TODO: gerer aussi la var. d'env "no_proxy"
-  */
-  if (!str_is_empty(getenv("http_proxy"))) {
-    char *http_proxy_ = str_ndup(getenv("http_proxy"),1024), *p;
-    char *http_proxy = http_proxy_;
-    for (p = http_proxy; *p; ++p)
-      if ((*p) >= 0 && *p < ' ') *p = ' ';
-    if (str_startswith(http_proxy, "http://")) http_proxy += 7;
-    
-    if ((p=strchr(http_proxy, '@'))) {
-      char auth[200]; strncpy(auth, http_proxy, MIN(200, p - http_proxy)); auth[(sizeof auth) - 1] = 0;
-      http_proxy = p+1; 
-      ASSIGN_STRING_VAL(r->proxy_user_pass, auth);
-    }
-
-    /* remove trailing slashes */
-    for (p = http_proxy; *p; ++p)
-      if (*p == '/') *p = 0;
-
-    if ((p=strchr(http_proxy, ':'))) {
-      r->proxy_name = str_ndup(http_proxy, p - http_proxy);
-      r->proxy_port = atoi(p+1);
-    } else {
-      ASSIGN_STRING_VAL(r->proxy_name, http_proxy);
-      r->proxy_port = 3128;
-    }
-  }
 }
 
 char *
@@ -429,16 +405,21 @@ int http_is_ok(HttpRequest *r) {
 }
 
 void http_request_close (HttpRequest *r) {
-  FREE_STRING(r->host_path);
+      long portp;
+      curl_easy_getinfo(r->curl, CURLINFO_LOCAL_PORT, &portp);
+
+  FREE_STRING(r->url);
   FREE_STRING(r->proxy_name);
   FREE_STRING(r->proxy_user_pass);
   FREE_STRING(r->user_agent);
   FREE_STRING(r->referer);
   FREE_STRING(r->cookie);
+  FREE_STRING(r->new_cookie);
   FREE_STRING(r->accept); /* Triton> Accept: header/http */
   FREE_STRING(r->post);
   FREE_STRING(r->header_data);
   FREE_STRING(r->response_data);
+  FREE_STRING(r->content_type);
   r->content_length = -1;
   r->header_size = -1;
   r->response_size = -1;

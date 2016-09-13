@@ -1985,14 +1985,6 @@ regular_board_update_xml(Board *board, HttpRequest *r) {
     }
   }
 
-  if (!http_is_ok(r)) { 
-    http_err_flag = 1;
-    myfprintf(stderr, _("[%<YEL %s>] Error while downloading "
-                        "'%<YEL %s>' : %<RED %s>\n"), 
-	      board->site->prefs->site_name, 
-              board->site->prefs->backend_url, http_error(r));
-  }
-  http_request_close(r);
   return http_err_flag;
 }
 
@@ -2004,7 +1996,7 @@ regular_board_update_tsv(Board *board, HttpRequest *r) {
 
   char *line_end;
   char *remaining = r->response_data;
-  while (line_end = strchr(remaining, '\n')) {
+  while ((line_end = strchr(remaining, '\n'))) {
     char *s = remaining;
     remaining = line_end + 1;
     BLAHBLAH(3, myprintf("got new post: %s\n", s));
@@ -2109,14 +2101,6 @@ regular_board_update_tsv(Board *board, HttpRequest *r) {
     }
   }
 
-  if (!http_is_ok(r)) { 
-    http_err_flag = 1;
-    myfprintf(stderr, _("[%<YEL %s>] Error while downloading "
-                        "'%<YEL %s>' : %<RED %s>\n"), 
-	      board->site->prefs->site_name, 
-              board->site->prefs->backend_url, http_error(r));
-  }
-  http_request_close(r);
   return http_err_flag;
 }
 
@@ -2130,13 +2114,26 @@ regular_board_update(Board *board, char *path) {
   http_request_send(&r);
   wmcc_log_http_request(board->site, &r);
 
-  if (r.content_type && strncmp(r.content_type, "text/tab-separated-values", 25) == 0) {
-    fprintf(stderr, "parsing backend %s\n", r.content_type);
-      board->encoding = strdup("UTF-8");
-	  /* le standard impose l'UTF-8 pour les backends TSV */
-	  return regular_board_update_tsv(board, &r);
+  if (!http_is_ok(&r)) { 
+    myfprintf(stderr, _("[%<YEL %s>] Error while downloading "
+          "'%<YEL %s>' : %<RED %s>\n"), 
+        board->site->prefs->site_name, 
+        board->site->prefs->backend_url, http_error(&r));
+
+    http_request_close(&r);
+    return 1;
   } else {
-	  return regular_board_update_xml(board, &r);
+    if (r.content_type && strncmp(r.content_type, "text/tab-separated-values", 25) == 0) {
+      fprintf(stderr, "parsing backend %s\n", r.content_type);
+        board->encoding = strdup("UTF-8");
+        /* le standard impose l'UTF-8 pour les backends TSV */
+        regular_board_update_tsv(board, &r);
+    } else {
+        regular_board_update_xml(board, &r);
+    }
+
+    http_request_close(&r);
+    return 0;
   }
 }
 
