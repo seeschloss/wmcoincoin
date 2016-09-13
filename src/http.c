@@ -246,7 +246,6 @@ http_request_send(HttpRequest *r)
   r->curl = curl_easy_init();
   if(r->curl) {
     curl_easy_setopt(r->curl, CURLOPT_URL, r->url);
-    printf("Url %s\n", r->url);
 
     memcpy(http_last_url, r->url, strlen(r->url) + 1);
 
