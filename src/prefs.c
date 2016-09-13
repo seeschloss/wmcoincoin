@@ -44,7 +44,7 @@ void update_prefs_from_obsolete_features(SitePrefs *sp) {
 const char *
 coincoin_default_useragent_template()
 {
-  return "wmCoinCoin/$v (palmipede; $s $r $m)";
+  return "wmCoinCoin/$v (palmipede; sessions; x-post-id; utf8; https; libcurl; $s $r $m)";
 }
 
 void
@@ -53,10 +53,10 @@ coincoin_default_useragent(char *s, int sz)
   struct utsname utsn;
   
   if (uname(&utsn) != -1) {
-    snprintf(s, sz, "wmCoinCoin/" VERSION " (palmipede; %s %s %s)",
+    snprintf(s, sz, "wmCoinCoin/" VERSION " (palmipede; sessions; x-post-id; utf8; https; libcurl; %s %s %s)",
 	     utsn.sysname, utsn.release, utsn.machine);
   } else {
-    snprintf(s, sz, "wmCoinCoin/" VERSION " (palmipede; ?)");
+    snprintf(s, sz, "wmCoinCoin/" VERSION " (palmipede; sessions; x-post-id; utf8; https; libcurl; ?)");
   }
 }
 
@@ -265,7 +265,7 @@ option_backend_url(const char  *optarg,
   }
   if (su.type != HTTP_URL && su.type != HTTPS_URL && su.type != FILE_URL && 
       (prefs->backend_type == BACKEND_TYPE_BOARD || prefs->backend_type == BACKEND_TYPE_RSS)) {
-    return str_printf("this kind of URL not allowed here: '%s' (expected http:// or file://)", optarg);
+    return str_printf("this kind of URL (%d) not allowed here: '%s' (expected http://, https:// or file://)", su.type, optarg);
   }
   return NULL;
 }
@@ -728,7 +728,7 @@ wmcc_site_prefs_set_default(SitePrefs *p, int verbatim) {
   p->proxy_name = NULL;
   p->proxy_port = 1080;/* meme valeur par defaut que curl ... */
   p->proxy_nocache = 0;
-  ASSIGN_STRING_VAL(p->backend_url, "http://linuxfr.org/board/index.xml");
+  ASSIGN_STRING_VAL(p->backend_url, "https://linuxfr.org/board/index.xml");
   p->backend_type = BACKEND_TYPE_BOARD;
   p->backend_flavour = BACKEND_FLAVOUR_UNENCODED; /* style 'moderne' par défaut */
   ASSIGN_STRING_VAL(p->post_url, "");//board/add.php3");
@@ -1714,13 +1714,13 @@ wmcc_prefs_read_options(GeneralPrefs *p, const char *filename, int verbatim)
     myfprintf(stderr, _("\n\n%<YEL oooooooh !!! you didn't define at least *ONE* site>, you bad boy.\ni do it for you, but this is the last time\n plz %<MAG use wmccc to add new sites>\n\n"));
     wmcc_prefs_add_site(p, &global_sp, "\"linuxfr\"", BACKEND_TYPE_BOARD);
     p->site[0]->backend_flavour = BACKEND_FLAVOUR_ENCODED;
-    ASSIGN_STRING_VAL(p->site[0]->post_url, "http://linuxfr.org/board");
+    ASSIGN_STRING_VAL(p->site[0]->post_url, "https://linuxfr.org/board");
     ASSIGN_STRING_VAL(p->site[0]->post_template, "board[message]=%s");
     wmcc_prefs_add_site(p, &global_sp, "\"news\"", BACKEND_TYPE_RSS);
-    ASSIGN_STRING_VAL(p->site[1]->backend_url, "http://linuxfr.org/news.atom");
+    ASSIGN_STRING_VAL(p->site[1]->backend_url, "https://linuxfr.org/news.atom");
     p->site[1]->pp_bgcolor = 0xe7d74c;
     wmcc_prefs_add_site(p, &global_sp, "\"journaux\"", BACKEND_TYPE_RSS);
-    ASSIGN_STRING_VAL(p->site[2]->backend_url, "http://linuxfr.org/journaux.atom");
+    ASSIGN_STRING_VAL(p->site[2]->backend_url, "https://linuxfr.org/journaux.atom");
     p->site[2]->pp_bgcolor = 0xd8ac85;
   }
   if (error == NULL) error = wmcc_prefs_read_options_auth(p,filename);
