@@ -247,8 +247,6 @@ http_request_send(HttpRequest *r)
   if(r->curl) {
     curl_easy_setopt(r->curl, CURLOPT_URL, r->url);
 
-    curl_easy_setopt(r->curl, CURLOPT_URL, r->url);
-
     memcpy(http_last_url, r->url, strlen(r->url) + 1);
 
     if (r->type == HTTP_POST) {
