@@ -405,7 +405,7 @@ http_request_send(HttpRequest *r)
     curl_easy_getinfo(r->curl, CURLINFO_RESPONSE_CODE, &codep);
 
     r->response = codep;
-    if (r->response >= 400) {
+    if (r->response < 100 || r->response >= 400) {
           /* Triton> maintenant, le 201 Created renvoyé par la tribune de test de zorel n'indique plus d'erreur */
           /* See> on peut aussi s'attendre à une 303 See Other quand un post est créé */
       r->error = 1;
