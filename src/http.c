@@ -281,7 +281,6 @@ http_request_send(HttpRequest *r)
 
       char *if_modified_since = malloc(19 + strlen(last_modified) + 1);
       snprintf(if_modified_since, 19 + strlen(last_modified) + 1, "If-Modified-Since: %s", last_modified);
-      printf("if-plop: %s\n", if_modified_since);
       list = curl_slist_append(list, if_modified_since);
       free(if_modified_since);
     }
@@ -301,6 +300,8 @@ http_request_send(HttpRequest *r)
 
     curl_easy_setopt(r->curl, CURLOPT_FOLLOWLOCATION, 1);
     curl_easy_setopt(r->curl, CURLOPT_NOSIGNAL, 1); /* sinon ça interfère avec pause() */
+
+    curl_easy_setopt(r->curl, CURLOPT_TIMEOUT, 10); /* 10 secondes de timeout ça suffit */
 
     if (r->proxy_name) {
       curl_easy_setopt(r->curl, CURLOPT_PROXY, r->proxy_name);
@@ -412,8 +413,9 @@ http_request_send(HttpRequest *r)
       time(&http_err_time);
 
       myprintf(_("[%<MAG %s>]: %<yel %s>\n"), http_last_err_url, http_last_err_msg);
+    } else {
+      r->error = 0;
     }
-
 
     _http_request_send_parse_headers(r);
 

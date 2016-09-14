@@ -217,13 +217,22 @@ rss_board_update(Board *board, char *path) {
   //r.accept = strdup("application/rss+xml");
   if (board->site->prefs->use_if_modified_since) { r.p_last_modified = &board->last_modified; }
   http_request_send(&r);
-  if (!http_is_ok(&r)) { http_request_close(&r);return 1; }
+  if (!http_is_ok(&r)) {
+    http_request_close(&r);
+    goto ratai;
+  }
   wmcc_log_http_request(board->site, &r);
+
+  if (r.response_size <= 0) {
+    http_request_close(&r);
+    goto RAS; /* certainement du not modified */
+  }
+
   char *rsstxt = malloc(r.response_size);
   memcpy(rsstxt, r.response_data, r.response_size);
   http_request_close(&r);
-  if (!http_is_ok(&r)) goto ratai;
-  if (!rsstxt || !http_is_ok(&r)) return 1; /* "not modified" */
+
+  if (!rsstxt) goto RAS; /* "not modified" */
   
   if (strlen(rsstxt)==0) goto RAS;
 
