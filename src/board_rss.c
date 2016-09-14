@@ -225,7 +225,7 @@ rss_board_update(Board *board, char *path) {
 
   if (r.response_size <= 0) {
     http_request_close(&r);
-    goto RAS; /* certainement du not modified */
+    return 0; /* certainement du not modified */
   }
 
   char *rsstxt = malloc(r.response_size);
