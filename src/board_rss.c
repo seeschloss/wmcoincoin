@@ -234,7 +234,10 @@ rss_board_update(Board *board, char *path) {
 
   if (!rsstxt) goto RAS; /* "not modified" */
   
-  if (strlen(rsstxt)==0) goto RAS;
+  if (strlen(rsstxt)==0) {
+    FREE_STRING(rsstxt); 
+    goto RAS;
+  }
 
   /* tentative de conversion vers utf8 */
   if ((pos = get_XMLBlock(rsstxt, strlen(rsstxt), "?xml", &xmlb))>=0) {
@@ -490,7 +493,6 @@ rss_board_update(Board *board, char *path) {
   if (board->oldmd5 && board->last_post_id > 0) release_md5_array(board);
   destroy_XMLBlock(&xmlb);
   FREE_STRING(rss_title);
-  FREE_STRING(rsstxt); 
   prelog_commit(board);
   return 0;
  ratai:
