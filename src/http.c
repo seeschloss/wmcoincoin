@@ -64,7 +64,7 @@
 #define _(String) gettext (String)
 
 #define HTTP_ERR_MSG_SZ 512
-#define HTTP_LAST_ERR_URL_SZ 128
+#define HTTP_LAST_ERR_URL_SZ 512
 
 static char http_last_err_msg[HTTP_ERR_MSG_SZ] = "";
 static char http_last_err_url[HTTP_LAST_ERR_URL_SZ] = "";
