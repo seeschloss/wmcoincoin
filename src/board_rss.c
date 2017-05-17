@@ -257,7 +257,10 @@ rss_board_update(Board *board, char *path) {
   }
 
   pos = get_XMLBlock(rsstxt, strlen(rsstxt), "title", &xmlb);
-  if (pos < 0 || xmlb.content_len == 0) goto ratai;
+  if (pos < 0 || xmlb.content_len == 0) {
+      FREE_STRING(rsstxt);
+      goto ratai;
+  }
   /*if (board->rss_title) free(board->rss_title);
     board->rss_title = str_ndup(xmlb.content, xmlb.content_len);*/
   rss_title = str_ndup(xmlb.content, xmlb.content_len);
@@ -499,7 +502,6 @@ rss_board_update(Board *board, char *path) {
   if (board->oldmd5 && board->last_post_id > 0) release_md5_array(board);
   destroy_XMLBlock(&xmlb);
   FREE_STRING(rss_title);
-  FREE_STRING(rsstxt);
   prelog_commit(board);
   return 1;
 }
