@@ -476,15 +476,17 @@ int is_utf8_superscript(const unsigned char *p, int *superscript) {
    site_name_hash contient 0 quand il n'est pas fait allusion à un site particulier (du genre 11:11:11@linuxfr)
 */
 static int
-check_for_horloge_ref_basic_helper(const unsigned char *ww, const char **site_name, int *ref_h, int *ref_m, int *ref_s, int *ref_num)
+check_for_horloge_ref_basic_helper(const unsigned char *ww, const char **site_name, int *ref_h, int *ref_m, int *ref_s, int *ref_num, int *ref_year, int *ref_month, int *ref_day)
 {
   int l, h, m, s, num;  /* num est utilise pour les posts multiples (qui on un même timestamp) */
-  const unsigned char *p;
+  int year = -1, month = -1, day = -1;
   unsigned char w[11];
 
   *ref_h = -1; *ref_m = -1; *ref_s = -1; *ref_num = -1;
   num = -1; h = -1; m = -1; s = -1;
   l = strlen(ww);
+
+  *ref_year = -1; *ref_month = -1; *ref_day = -1;
 
   if (l < 4) return 0; /* de qui se moque-t-on ? */
 
@@ -505,8 +507,41 @@ check_for_horloge_ref_basic_helper(const unsigned char *ww, const char **site_na
     }
   }
 
-  if (l < 5 || l > 10) return 0; /* on elimine les cas les plus explicites */
-  strncpy(w, ww, l); w[l] = 0;
+  if (l > 4 + 11 && l <= 10 + 11) {
+      // certainement une horloge avec une date
+
+      if (ww[4] != '-' || ww[7] != '-') {
+          // en fait ce n'est pas une date
+          return 0;
+      }
+
+      if (ww[10] == 'T') {
+          // date à la con de devnewton<
+          year = atoi(ww);
+          month = atoi(ww + 5);
+          day = atoi(ww + 8);
+
+          l -= 11;
+          strncpy(w, ww + 11, l);
+          w[l] = 0;
+      } else if (ww[10] == ' ') {
+          year = atoi(ww);
+          month = atoi(ww + 5);
+          day = atoi(ww + 8);
+
+          l -= 11;
+          strncpy(w, ww + 11, l);
+          w[l] = 0;
+      } else {
+          // ça devait etre autre chose, finalement
+          return 0;
+      }
+  } else if (l < 5 || l > 10) {
+      return 0; /* on elimine les cas les plus explicites */
+  } else {
+      strncpy(w, ww, l);
+      w[l] = 0;
+  }
 
   if (w[2] == ':') {
     h = atoi(w);
@@ -514,6 +549,8 @@ check_for_horloge_ref_basic_helper(const unsigned char *ww, const char **site_na
 
     if (l > 6) {
         s = atoi(w + 6);
+    } else {
+        s = -1;
     }
 
     if (l > 8) {
@@ -529,6 +566,7 @@ check_for_horloge_ref_basic_helper(const unsigned char *ww, const char **site_na
   if (h > 23 || m > 59 || s > 59) return 0;
 
   *ref_h = h; *ref_m = m; *ref_s = s; *ref_num = num;
+  *ref_year = year; *ref_month = month; *ref_day = day;
 
   return 1;
 }
@@ -538,13 +576,13 @@ check_for_horloge_ref_basic_helper(const unsigned char *ww, const char **site_na
    attention aux valeurs de retour de site_id 
 */
 static int
-check_for_horloge_ref_basic(Boards *boards, const unsigned char *ww, int *site_id, int *ref_h, int *ref_m, int *ref_s, int *ref_num)
+check_for_horloge_ref_basic(Boards *boards, const unsigned char *ww, int *site_id, int *ref_h, int *ref_m, int *ref_s, int *ref_num, int *ref_year, int *ref_month, int *ref_day)
 {
   const char *site_name;
   int ret;
   
   *site_id = -1;
-  ret = check_for_horloge_ref_basic_helper(ww, &site_name, ref_h, ref_m, ref_s, ref_num);
+  ret = check_for_horloge_ref_basic_helper(ww, &site_name, ref_h, ref_m, ref_s, ref_num, ref_year, ref_month, ref_day);
   if (ret && site_name) { /* bon .. ça mérite qu'on cherche le site */
     int i, hash;
 
@@ -668,7 +706,7 @@ board_get_tok(const unsigned char **p, const unsigned char **np,
       unsigned char last = *end;
       int is_multi = 0;
       while (*end && 
-	     ((*end >= '0' && *end <= '9') || strchr(":.hm", *end) || is_utf8_superscript(end, NULL))) {
+	     ((*end >= '0' && *end <= '9') || (end-start == 10 && (*end == ' ' || *end == 'T')) || strchr(":-", *end) || is_utf8_superscript(end, NULL))) {
         int len = is_utf8_superscript(end,NULL); if (!len) len = 1;
 	end+=len;
 	if ((last < '0' || last > '9') && (*end < '0' || *end > '9'))
@@ -766,7 +804,7 @@ board_msg_is_ref_to_me(Boards *boards, const board_msg_info *ref_mi) {
 */
 static board_msg_info *
 board_find_horloge_ref(Board *board, id_type caller_id, 
-		       int h, int m, int s, int num, unsigned char *commentaire, int comment_sz)
+		       int h, int m, int s, int num, int year, int month, int day, unsigned char *commentaire, int comment_sz)
 {
   board_msg_info *mi, *best_mi;
   int best_mi_num;
@@ -780,12 +818,24 @@ board_find_horloge_ref(Board *board, id_type caller_id,
 
   while (mi) {
     match = 0;
-    if (mi->id.lid > id_type_lid(caller_id) && best_mi ) break; /* on ne tente ipot que dans les cas desesperes ! */
+    if (mi->id.lid > id_type_lid(caller_id) && best_mi ) {
+        break; /* on ne tente ipot que dans les cas desesperes ! */
+    }
     if (s == -1) {
       if ((mi->hmsf[0] == h || (board->site->prefs->use_AM_PM && 
 				(mi->hmsf[0] % 12 == h) && mi->hmsf[0] > 12))
 	   && mi->hmsf[1] == m) {
 	match = 1;
+
+        if (year >= 0 && month >= 0 && day >= 0) {
+            struct tm *t = localtime(&mi->timestamp);
+
+            if (t->tm_year == year-1900 && t->tm_mon == month-1 && t->tm_mday == day) {
+                match = 1;
+            } else {
+                match = 0;
+            }
+        }
       }
     } else {
       if ((mi->hmsf[0] == h  || (board->site->prefs->use_AM_PM && 
@@ -794,7 +844,17 @@ board_find_horloge_ref(Board *board, id_type caller_id,
 	if (num == -1 || num == best_mi_num) {
 	  match = 1; //break;
 	}
-	best_mi_num++;
+        if (year >= 0 && month >= 0 && day >= 0) {
+            struct tm *t = localtime(&mi->timestamp);
+
+            if (t->tm_year == year-1900 && t->tm_mon == month-1 && t->tm_mday == day) {
+                match = 1;
+            } else {
+                match = 0;
+            }
+        }
+
+	if (match) best_mi_num++;
       } else {
 	best_mi_num = 0; /* la raison est tordue: si on conserve des messages
 			    sur plusieurs jours, le comportement naturel est de
@@ -879,10 +939,11 @@ check_for_horloge_ref(Boards *boards, id_type caller_id,
 {
   Board *board;
   int site_id, h, m, s, num; /* num est utilise pour les posts multiples (qui on un même timestamp) */
+  int year, month, day;
   
   assert(!id_type_is_invalid(caller_id));
   *is_a_ref = 0;
-  if (check_for_horloge_ref_basic(boards, ww, &site_id, &h, &m, &s, &num) == 0) return NULL;
+  if (check_for_horloge_ref_basic(boards, ww, &site_id, &h, &m, &s, &num, &year, &month, &day) == 0) return NULL;
   *is_a_ref = 1;
 
   if (ref_num) *ref_num = num;
@@ -897,7 +958,7 @@ check_for_horloge_ref(Boards *boards, id_type caller_id,
   }
   if (board) {
     return board_find_horloge_ref(board, caller_id, 
-				  h, m, s, num, commentaire, comment_sz);
+				  h, m, s, num, year, month, day, commentaire, comment_sz);
   } else return NULL;
 }
 
@@ -923,7 +984,8 @@ board_msg_find_refs(Board *board, board_msg_info *mi)
      if (board_get_tok(&p,&np,tok,512, &has_initial_space) == NULL) { break; }
      if (tok[0] >= '0' && tok[0] <= '9') {
        int sid, h,m,s,num;
-       if (check_for_horloge_ref_basic(board->boards, tok, &sid, &h, &m, &s, &num)) {
+       int year, month, day;
+       if (check_for_horloge_ref_basic(board->boards, tok, &sid, &h, &m, &s, &num, &year, &month, &day)) {
 	 board_msg_info *ref_mi;
 
 	 Board *ref_board = board;
@@ -943,7 +1005,7 @@ board_msg_find_refs(Board *board, board_msg_info *mi)
 	   mi->refs[mi->nb_refs].mi = NULL;
 	   
 	   ref_mi = board_find_horloge_ref(ref_board, mi->id, 
-					   h, m, s, num, NULL, 0);
+					   h, m, s, num, year, month, day, NULL, 0);
 	   
 	   if (ref_mi && ((ref_mi->id.lid <= mi->id.lid) || ref_board != board)) {
 	     mi->refs[mi->nb_refs].mi = ref_mi;
