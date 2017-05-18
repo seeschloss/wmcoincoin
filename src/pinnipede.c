@@ -542,7 +542,7 @@ pv_tmsgi_parse(Pinnipede *pp, Board *board, board_msg_info *mi, int with_seconds
   char sdate[20]; sdate[0] = 0;
   if ((tnow / (24*3600)) - (pv->tstamp / (24*3600)) >= 2) { /* on va mettre la date */
     struct tm *t = localtime(&pv->tstamp);
-    snprintf(sdate,20,"%02d/%02d#", t->tm_mon+1, t->tm_mday);
+    snprintf(sdate,20,"%04d-%02d-%02d ", t->tm_year+1900, t->tm_mon+1, t->tm_mday);
   }
   if (with_seconds) {
     snprintf(s, PVTP_SZ, "%s%02d:%02d:%02d",sdate, mi->hmsf[0], mi->hmsf[1], mi->hmsf[2]);
