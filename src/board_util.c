@@ -505,50 +505,25 @@ check_for_horloge_ref_basic_helper(const unsigned char *ww, const char **site_na
     }
   }
 
-  if (l < 5 || l > 10) return 0; /* on enlimine les cas les plus explicites */
+  if (l < 5 || l > 10) return 0; /* on elimine les cas les plus explicites */
   strncpy(w, ww, l); w[l] = 0;
 
-  if (w[1] == ':' || w[2] == ':') {
-    /* il y a des separateurs entre les heure et les minutes [et les secondes] */
-    int nb_char_h, nb_char_m, nb_char_s;
-    p = w;
-    h = 0;
-    nb_char_h = nb_char_m = nb_char_s = 0;
-    while (*p != ':' && *p != '.' && *p != 'h') {
-      if (*p < '0' || *p > '9') return 0;
-      h = 10*h + (*p - '0'); p++;
-      nb_char_h++;
+  if (w[2] == ':') {
+    h = atoi(w);
+    m = atoi(w + 3);
+
+    if (l > 6) {
+        s = atoi(w + 6);
     }
-    p++;
-    m = 0;
-    while (*p != ':' && *p != '.' && *p != 'm' && *p) {
-      if (*p < '0' || *p > '9') return 0;
-      m = 10*m + (*p - '0'); p++;
-      nb_char_m++;
-    }
-    if (*p == ':' || *p == '.' || *p == 'm') {
-      p++;
-      s = 0;
-      while (*p && *p != ':' && !is_utf8_superscript(p, NULL)) {
-	if (*p < '0' || *p > '9') return 0;
-	s = 10*s + (*p - '0'); p++;
-	nb_char_s++;
-      }
-      if (*p == (unsigned char)'¹') num = 0;
-      if (*p == (unsigned char)'²') num = 1;
-      if (*p == (unsigned char)'³') num = 2;
-      int len = is_utf8_superscript(p, &num);
-      if (len) { p += len-1; --num; }
-      if (*p == ':') {
-        p++; if (*p >= '0' && *p <= '9') {
-          num = *p - '1';
-          /* Triton> Magnifique patch pour le cas ou 10 posts ou plus arriveraient a la meme seconde */
-          p++; if (*p >= '0' && *p <= '9') {
-            num = (10 * (num+1)) + *p - '1';
-          }
+
+    if (l > 8) {
+        if (w[8] == ':') {
+            num = atoi(w + 9) - 1;
+        } else if (is_utf8_superscript(w + 8, &num)) {
+            num -= 1;
         }
-      }
-    } else s = -1;
+    }
+
   } else return 0;
 
   if (h > 23 || m > 59 || s > 59) return 0;
