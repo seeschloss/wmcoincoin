@@ -221,16 +221,23 @@ pv_destroy(PostVisual *pv)
 }
 
 static PostWord*
-pw_create(const unsigned char *w, unsigned attr, const unsigned char *attr_s, PostVisual *parent)
+pw_create(const unsigned char *w, const unsigned char *raw, unsigned attr, const unsigned char *attr_s, PostVisual *parent)
 {
   int alen; 
   int wlen;
+  int rawlen;
   PostWord *pw;
 
   wlen = strlen(w);
+  rawlen = strlen(raw);
   if (attr_s) alen=strlen(attr_s); else alen = -1;
-  pw = malloc(sizeof(PostWord)+wlen+1+alen+1);
-  pw->w = ((unsigned char*)pw)+sizeof(PostWord); strcpy(pw->w,w);
+  pw = malloc(sizeof(PostWord)+wlen+1+rawlen+1+alen+1);
+  pw->w = ((unsigned char*)pw)+sizeof(PostWord);
+  strcpy(pw->w,w);
+
+  pw->raw = ((unsigned char*)pw)+sizeof(PostWord)+wlen+1;
+  strcpy(pw->raw, raw);
+
   if (attr_s) {
     pw->attr_s = ((unsigned char*)pw)+sizeof(PostWord)+wlen+1;
     strcpy(pw->attr_s, attr_s);
@@ -478,6 +485,7 @@ pv_tmsgi_parse(Pinnipede *pp, Board *board, board_msg_info *mi, int with_seconds
   PostWord *pw, *tmp;
   
   unsigned char s[PVTP_SZ];
+  unsigned char raw[PVTP_SZ];
   unsigned char attr_s[PVTP_SZ];
 
   const unsigned char *p, *np;
@@ -532,7 +540,7 @@ pv_tmsgi_parse(Pinnipede *pp, Board *board, board_msg_info *mi, int with_seconds
       snprintf(s, PVTP_SZ, "  ");
     }
 
-    tmp = pw_create(s, PWATTR_TROLLSCORE | (mi->troll_score > 2 ? PWATTR_BD : 0), NULL, pv);
+    tmp = pw_create(s, s, PWATTR_TROLLSCORE | (mi->troll_score > 2 ? PWATTR_BD : 0), NULL, pv);
     if (pw == NULL) { pv->first = tmp; } else { pw->next = tmp; }
     pw = tmp;
   }
@@ -550,7 +558,7 @@ pv_tmsgi_parse(Pinnipede *pp, Board *board, board_msg_info *mi, int with_seconds
     snprintf(s, PVTP_SZ, "%s%02d:%02d",sdate, mi->hmsf[0], mi->hmsf[1]);
   }
   
-  tmp = pw_create(s, PWATTR_TSTAMP | (pw == NULL ? 0 : PWATTR_HAS_INITIAL_SPACE), NULL, pv);  
+  tmp = pw_create(s, s, PWATTR_TSTAMP | (pw == NULL ? 0 : PWATTR_HAS_INITIAL_SPACE), NULL, pv);  
   if (pw == NULL) { pv->first = tmp; } else { pw->next = tmp; }
   pw = tmp;
   pw_add_style(pw, &board->site->prefs->pp_clock_style);
@@ -581,14 +589,14 @@ pv_tmsgi_parse(Pinnipede *pp, Board *board, board_msg_info *mi, int with_seconds
     }
     
     if (nick_mode == 1 || nick_mode == 3 || nick_mode == 4) {
-      tmp = pw_create(p, (is_login == 0 ? PWATTR_NICK : PWATTR_LOGIN) | PWATTR_HAS_INITIAL_SPACE, NULL, pv);
+      tmp = pw_create(p, p, (is_login == 0 ? PWATTR_NICK : PWATTR_LOGIN) | PWATTR_HAS_INITIAL_SPACE, NULL, pv);
       if (pw == NULL) { pv->first = tmp; } else { pw->next = tmp; }
       pw = tmp;
       pw_add_style(pw, (is_login == 0 ? &board->site->prefs->pp_ua_style : &board->site->prefs->pp_login_style));
     }
 
     if ((nick_mode == 2 || nick_mode == 3) && strlen(mi->login)) {
-      tmp = pw_create(mi->login, PWATTR_LOGIN | PWATTR_HAS_INITIAL_SPACE, NULL, pv);
+      tmp = pw_create(mi->login, mi->login, PWATTR_LOGIN | PWATTR_HAS_INITIAL_SPACE, NULL, pv);
       if (pw == NULL) { pv->first = tmp; } else { pw->next = tmp; }
       pw = tmp;      
       pw_add_style(pw, &board->site->prefs->pp_login_style);
@@ -676,12 +684,21 @@ pv_tmsgi_parse(Pinnipede *pp, Board *board, board_msg_info *mi, int with_seconds
       }
     }
     if (add_word) {
+      strcpy(raw, s);
       int is_ref;
 
       if ((attr & PWATTR_LNK) == 0) {
         check_for_horloge_ref(board->boards, mi->id, s,attr_s, PVTP_SZ, &is_ref, NULL);
         if (is_ref) {
           attr |= PWATTR_REF;
+        }
+
+        if (strlen(s) > 10) {
+            if (s[10] == 'T') {
+                // les horloges de devnewton< indiquent la date à tort et à travers
+                // on va simplement ne pas l'afficher.
+                strcpy(s, s + 11);
+            }
         }
       }
 
@@ -720,7 +737,7 @@ pv_tmsgi_parse(Pinnipede *pp, Board *board, board_msg_info *mi, int with_seconds
         BLAHBLAH(2,myprintf("TOTOZ: %<GRN %s> [status = %<GRN %s>]\n",s,st));
       }
 
-      pw->next = pw_create(s, attr, (attr & PWATTR_LNK) ? attr_s : NULL, pv);
+      pw->next = pw_create(s, raw, attr, (attr & PWATTR_LNK) ? attr_s : NULL, pv);
       has_initial_space = 0;
       attr &= ~(PWATTR_REF | PWATTR_VISITED | PWATTR_TOTOZ) ;
       //      printf("ADD(id=%d): '%s'\n", mi->id, s);
@@ -1329,7 +1346,7 @@ void pp_refresh_hilight_refs(Pinnipede *pp, Boards *boards, int sid, time_t time
 	if (pw->attr & PWATTR_REF) {
 	  int bidon, ref2_num;
 
-	  ref2_mi = check_for_horloge_ref(boards, pw->parent->id, pw->w, NULL, 0, &bidon, &ref2_num); assert(bidon);
+	  ref2_mi = check_for_horloge_ref(boards, pw->parent->id, pw->raw, NULL, 0, &bidon, &ref2_num); assert(bidon);
 	  if (ref2_mi && ref2_mi->timestamp == timestamp) { /* test sur timestamp pour les situation où +sieurs msg ont le même */
 	    if (id_type_sid(ref2_mi->id) == sid) {
 	      if (ref2_num == -1                                 /* ref à plusieurs posts */
@@ -1411,8 +1428,9 @@ pp_refresh(Dock *dock, Drawable d, PostWord *pw_ref)
   
   /* premier cas: on survole une reference */
   if (pw_ref && (pw_ref->attr & PWATTR_REF)) {
-    int bidon;
-    ref_mi = check_for_horloge_ref(boards, pw_ref->parent->id, pw_ref->w, ref_comment, 200, &bidon, &ref_num); assert(bidon);
+    int is_ref;
+    ref_mi = check_for_horloge_ref(boards, pw_ref->parent->id, pw_ref->raw, ref_comment, 200, &is_ref, &ref_num);
+    assert(is_ref);
   } else if (pw_ref && (pw_ref->attr & PWATTR_LNK)) {
     char *link = strdup(pw_ref->attr_s);
     char *anchor = strrchr(link, '#');
@@ -3233,7 +3251,7 @@ pp_handle_left_clic(Dock *dock, int mx, int my)
       int bidon;
       int ref_num;
 
-      mi = check_for_horloge_ref(boards, pw->parent->id, pw->w, NULL, 0, &bidon, &ref_num); assert(bidon);
+      mi = check_for_horloge_ref(boards, pw->parent->id, pw->raw, NULL, 0, &bidon, &ref_num); assert(bidon);
 
 
 

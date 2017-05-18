@@ -705,8 +705,12 @@ board_get_tok(const unsigned char **p, const unsigned char **np,
     if (*end >= '0' && *end <= '9') {
       unsigned char last = *end;
       int is_multi = 0;
-      while (*end && 
-	     ((*end >= '0' && *end <= '9') || (end-start == 10 && (*end == ' ' || *end == 'T')) || strchr(":-", *end) || is_utf8_superscript(end, NULL))) {
+      while (*end && (
+                (*end >= '0' && *end <= '9')
+             || (end-start == 10 && (*end == ' ' || *end == 'T'))
+             || strchr(":-", *end)
+             || is_utf8_superscript(end, NULL)
+           )) {
         int len = is_utf8_superscript(end,NULL); if (!len) len = 1;
 	end+=len;
 	if ((last < '0' || last > '9') && (*end < '0' || *end > '9'))
@@ -721,7 +725,7 @@ board_get_tok(const unsigned char **p, const unsigned char **np,
 /* 		{ char c = *end; *end = 0; printf("TOK : %s\n", start); *end = c; } */
       }
       /* un petit coup de marche arriere si on n'a pas termine sur un chiffre */
-      if (end-start > 4 && is_multi == 0 && (*(end-1) == ':' || *(end-1) == '.' || *(end-1) == 'm')) end--;
+      if (end-start > 4 && is_multi == 0 && *(end-1) == ':') end--;
     } else {
       int ok_totoz = 0;
       if (end[0] == '[' && end[1] == ':') { /* totoz ? */

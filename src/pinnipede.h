@@ -47,6 +47,7 @@ typedef struct _PostWord PostWord;
 struct _PostWord {
   unsigned char *w; /* non mallocé, stocke dans la même zone que cette structure */
   unsigned char *attr_s;
+  unsigned char *raw; /* non mallocé, stocke dans la même zone que cette structure */
   unsigned int attr;
   short xpos, xwidth; /* boite englobante */
   short xdraw;        /* le x passé a xft */
