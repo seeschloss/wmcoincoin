@@ -591,11 +591,6 @@ check_for_horloge_ref_basic_helper(const unsigned char *ww, const char **site_na
         }
       }
     } else s = -1;
-
-    /* le test qui tue pour arrêter de confondre la version du kernel avec une horloge .. */
-    /* ça ira jusqu'au kernel 2.10.10 */
-    if (nb_char_h > 2 || nb_char_m != 2 || nb_char_s == 1 || nb_char_s > 2) return 0;
-
   } else return 0;
 
   if (h > 23 || m > 59 || s > 59) return 0;
