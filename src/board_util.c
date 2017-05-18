@@ -480,7 +480,6 @@ check_for_horloge_ref_basic_helper(const unsigned char *ww, const char **site_na
 {
   int l, h, m, s, num;  /* num est utilise pour les posts multiples (qui on un même timestamp) */
   const unsigned char *p;
-  int use_deuxpt;
   unsigned char w[11];
 
   *ref_h = -1; *ref_m = -1; *ref_s = -1; *ref_num = -1;
@@ -506,51 +505,10 @@ check_for_horloge_ref_basic_helper(const unsigned char *ww, const char **site_na
     }
   }
 
-  if (l < 4 || l > 10) return 0; /* on enlimine les cas les plus explicites */
+  if (l < 5 || l > 10) return 0; /* on enlimine les cas les plus explicites */
   strncpy(w, ww, l); w[l] = 0;
 
-  use_deuxpt = 0;
-  p = w; 
-  /* verifie que la chaine ne contient que des chiffres et des ':' ou des '.' (les ':' n'etant pas en premiere ou derniere position) */
-  while (*p) { 
-    int l = 1;
-    if ((*p == ':' || *p == '.' || 
-	 (use_deuxpt == 0 && *p == 'h') || (use_deuxpt == 1 && *p == 'm')) 
-	&& p != w && *(p+1)) {
-      use_deuxpt++;
-    } else if (*p < '0' || *p > '9') {
-      int ll = is_utf8_superscript(p, NULL);
-      if (ll == 0 || p[ll] != 0) break;
-      else l = ll;
-    }
-
-    p+=l;
-  }
-  if (*p) return 0;
-  
-  if (use_deuxpt == 0) {
-    if (l == 4) {
-      /* type '1630' */
-      h = (w[0]-'0')*10 + (w[1]-'0');
-      m = (w[2]-'0')*10 + (w[3]-'0');
-      s = -1;
-    } else if (l == 6) {
-      h = (w[0]-'0')*10 + (w[1]-'0');
-      m = (w[2]-'0')*10 + (w[3]-'0');
-      s = (w[4]-'0')*10 + (w[5]-'0');
-    } else if (l == 8) {
-      h = (w[0]-'0')*10 + (w[1]-'0');
-      m = (w[2]-'0')*10 + (w[3]-'0');
-      s = (w[4]-'0')*10 + (w[5]-'0');
-      if (is_utf8_superscript(w+6, &num) != 2) return 0;
-      else --num;
-    } else return 0;
-
-    /* ci-dessous minipatch pour Dae qui reference les posts multiples
-       sous la forme hh:mm:ss:num -> wmc2 ne les reconnaissait pas comme des 
-       refs, maintenant si */
-
-  } else if (use_deuxpt <= 3) {
+  if (w[1] == ':' || w[2] == ':') {
     /* il y a des separateurs entre les heure et les minutes [et les secondes] */
     int nb_char_h, nb_char_m, nb_char_s;
     p = w;
