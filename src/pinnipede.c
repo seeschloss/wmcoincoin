@@ -691,13 +691,19 @@ pv_tmsgi_parse(Pinnipede *pp, Board *board, board_msg_info *mi, int with_seconds
         check_for_horloge_ref(board->boards, mi->id, s,attr_s, PVTP_SZ, &is_ref, NULL);
         if (is_ref) {
           attr |= PWATTR_REF;
-        }
 
-        if (strlen(s) > 10) {
-            if (s[10] == 'T') {
-                // les horloges de devnewton< indiquent la date à tort et à travers
-                // on va simplement ne pas l'afficher.
-                strcpy(s, s + 11);
+          if (strlen(s) > 10) {
+              if (s[10] == 'T') {
+                  // les horloges de devnewton< indiquent la date à tort et à travers
+                  // on va simplement ne pas l'afficher.
+                  strcpy(s, s + 11);
+              }
+          }
+        } else {
+            check_for_id_ref(board->boards, mi->id, s, attr_s, PVTP_SZ, &is_ref);
+
+            if (is_ref) {
+              attr |= PWATTR_REFID;
             }
         }
       }
@@ -739,7 +745,7 @@ pv_tmsgi_parse(Pinnipede *pp, Board *board, board_msg_info *mi, int with_seconds
 
       pw->next = pw_create(s, raw, attr, (attr & PWATTR_LNK) ? attr_s : NULL, pv);
       has_initial_space = 0;
-      attr &= ~(PWATTR_REF | PWATTR_VISITED | PWATTR_TOTOZ) ;
+      attr &= ~(PWATTR_REF | PWATTR_REFID | PWATTR_VISITED | PWATTR_TOTOZ) ;
       //      printf("ADD(id=%d): '%s'\n", mi->id, s);
       pw = pw->next;
     }
@@ -1245,7 +1251,7 @@ pp_draw_line(Dock *dock, Pixmap lpix, PostWord *pw,
       if (pw->attr & PWATTR_TSTAMP) {
 	color = pp->timestamp_color[site_num];
 //	if (pw->parent->is_my_message) { pixel = IRGB2PIXEL(0x000080); }
-      } else if (pw->attr & (PWATTR_LNK|PWATTR_REF)) {
+      } else if (pw->attr & (PWATTR_LNK|PWATTR_REF|PWATTR_REFID)) {
 	if ((pw->attr & PWATTR_VISITED) == 0) {
 	  color = pp->lnk_color[site_num];
 	} else {
@@ -1331,7 +1337,7 @@ pp_draw_line(Dock *dock, Pixmap lpix, PostWord *pw,
   return pw;
 }
 
-void pp_refresh_hilight_refs(Pinnipede *pp, Boards *boards, int sid, time_t timestamp, int sub_timestamp) {
+void pp_refresh_hilight_refs(Pinnipede *pp, Boards *boards, int sid, time_t timestamp, int sub_timestamp, board_msg_info *mi) {
   int l;
 
   for (l=0; l < pp->nb_lignes; l++) {
@@ -1343,7 +1349,15 @@ void pp_refresh_hilight_refs(Pinnipede *pp, Boards *boards, int sid, time_t time
       pw = pp->lignes[l];
       pl = pw->ligne;
       while (pw && pl == pw->ligne) {
-	if (pw->attr & PWATTR_REF) {
+	if (pw->attr & PWATTR_REFID) {
+	  int is_ref;
+
+	  ref2_mi = check_for_id_ref(boards, pw->parent->id, pw->raw, NULL, 0, &is_ref);
+      assert(is_ref);
+	  if (ref2_mi && mi && mi->id.lid == ref2_mi->id.lid) {
+          pw->attr |= PWATTR_TMP_EMPH;
+	  }
+	} else if (pw->attr & PWATTR_REF) {
 	  int bidon, ref2_num;
 
 	  ref2_mi = check_for_horloge_ref(boards, pw->parent->id, pw->raw, NULL, 0, &bidon, &ref2_num); assert(bidon);
@@ -1431,6 +1445,10 @@ pp_refresh(Dock *dock, Drawable d, PostWord *pw_ref)
     int is_ref;
     ref_mi = check_for_horloge_ref(boards, pw_ref->parent->id, pw_ref->raw, ref_comment, 200, &is_ref, &ref_num);
     assert(is_ref);
+  } else if (pw_ref && (pw_ref->attr & PWATTR_REFID)) {
+    int is_ref;
+    ref_mi = check_for_id_ref(boards, pw_ref->parent->id, pw_ref->raw, ref_comment, 200, &is_ref);
+    assert(is_ref);
   } else if (pw_ref && (pw_ref->attr & PWATTR_LNK)) {
     char *link = strdup(pw_ref->attr_s);
     char *anchor = strrchr(link, '#');
@@ -1444,7 +1462,7 @@ pp_refresh(Dock *dock, Drawable d, PostWord *pw_ref)
     free(link);
   } else if (pw_ref && (pw_ref->attr & PWATTR_TSTAMP)) {
     pp_refresh_hilight_refs(pp, boards, id_type_sid(pw_ref->parent->id), 
-			    pw_ref->parent->tstamp, pw_ref->parent->sub_tstamp);
+			    pw_ref->parent->tstamp, pw_ref->parent->sub_tstamp, pw_ref->parent);
   }
   if (ref_mi) { 
     board_msg_info *mi;
@@ -1479,7 +1497,7 @@ pp_refresh(Dock *dock, Drawable d, PostWord *pw_ref)
     /* et maintenant on detecte toutes les autres references vers ce message pour les afficher
        temporairement en gras (ça c vraiment pour faire le cakos)*/
     pp_refresh_hilight_refs(pp, boards, id_type_sid(ref_mi->id), 
-                            ref_mi->timestamp, ref_mi->sub_timestamp);
+                            ref_mi->timestamp, ref_mi->sub_timestamp, ref_mi);
   }
 
   /* 
@@ -2463,6 +2481,8 @@ pp_check_survol(Dock *dock, PostWord *pw, int force_refresh)
       free(stime);
       is_a_ref = 1;
     } else if (pw->attr & PWATTR_REF) {
+      is_a_ref = 1;
+    } else if (pw->attr & PWATTR_REFID) {
       is_a_ref = 1;
     }
   }

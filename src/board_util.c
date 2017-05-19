@@ -700,7 +700,27 @@ board_get_tok(const unsigned char **p, const unsigned char **np,
     }
     start++;
     if (*start) end = start+1;
+  } else if (*start == '#') { /* une référence à un post id */
+      do {
+          end++;
+      } while ((*end && isdigit(*end)) || (end-start > 16));
+
+      if (end-start == 3 && *(end) == ':') {
+          // en fait, c'est probablement juste une vieille horlage avec date de wmcc/olcc
+          end = start;
+
+          // euh...
+          goto timestamp;
+      }
+
+      if (*end == '@') {
+          // alors là y a un @tribune indiqué
+          do {
+              end++;
+          } while (isalnum(*end) || *end == '_');
+      }
   } else {
+timestamp:
     /* pour aider la reconnaissance des timestamp */
     if (*end >= '0' && *end <= '9') {
       unsigned char last = *end;
@@ -965,6 +985,129 @@ check_for_horloge_ref(Boards *boards, id_type caller_id,
 				  h, m, s, num, year, month, day, commentaire, comment_sz);
   } else return NULL;
 }
+
+/*
+  recherche un message par id
+  /!\ la recherche est locale à la board indiquée en parametre
+*/
+static board_msg_info *
+board_find_horloge_id(Board *board, id_type caller_id,
+		       int post_id, unsigned char *commentaire, int comment_sz)
+{
+  board_msg_info *mi;
+  mi = board->msg;
+
+  board_msg_info *found_mi = NULL;
+
+  while (mi) {
+    if (mi->id.lid == post_id) {
+        found_mi = mi;
+        break;
+    }
+
+    mi = mi->next;
+  }
+
+  if (commentaire) {
+      if (!found_mi) {
+          if (post_id > caller_id.lid) {
+              snprintf(commentaire, comment_sz, _("IPOT(tm) detected"));
+          } else {
+              snprintf(commentaire, comment_sz, _("but where is '%d' ?"), post_id);
+          }
+      }
+  }
+
+  return found_mi;
+}
+
+/* si 'ww' contient une reference (du type '#1630') vers un message existant, on renvoie 
+   son msg_info, et on rempli 'commentaire' 
+
+   site_name_hash contient 0 quand il n'est pas fait allusion à un site particulier (du genre #1630@linuxfr)
+*/
+static int
+check_for_id_ref_basic_helper(const unsigned char *ww, const char **site_name, int *ref_id)
+{
+  int l, id;
+
+  l = strlen(ww);
+
+  if (l < 2) return 0; /* de qui se moque-t-on ? */
+
+  if (ww[0] != '#') {
+      return 0;
+  }
+
+  /* on tente d'abord d'intercepter le nom du site */
+  *site_name = strchr(ww, '@');
+  if (*site_name) {
+    *site_name += 1;
+  }
+
+  id = atoi(ww + 1);
+
+  if (!id) {
+      return 0;
+  }
+
+  *ref_id = id;
+
+  return 1;
+}
+
+static int
+check_for_id_ref_basic(Boards *boards, const unsigned char *ww, int *site_id, int *ref_id)
+{
+  const char *site_name;
+  int ret;
+
+  *site_id = -1;
+  ret = check_for_id_ref_basic_helper(ww, &site_name, ref_id);
+  if (ret && site_name) { /* bon .. ça mérite qu'on cherche le site */
+    int i, hash;
+
+    for (i=0; isalpha(site_name[i]); i++) ;
+
+    hash = str_hache_nocase(site_name, i);
+    for (i = 0; i < boards->nb_aliases; i++) {
+      if (boards->aliases[i].hash == hash) {
+	*site_id = boards->aliases[i].sid;
+	break;
+      }
+    }
+    if (*site_id == -1) *site_id = -2; /* pour savoir qu'un @site a été utilisé, mais qu'il est mauvais */
+  }
+  return ret;
+}
+
+/* look for a reference on every board */
+board_msg_info *
+check_for_id_ref(Boards *boards, id_type caller_id, 
+		      const unsigned char *ww, unsigned char *commentaire, 
+		      int comment_sz, int *is_a_ref)
+{
+  Board *board;
+  int site_id, post_id;
+  
+  assert(!id_type_is_invalid(caller_id));
+  *is_a_ref = 0;
+  if (check_for_id_ref_basic(boards, ww, &site_id, &post_id) == 0) return NULL;
+  *is_a_ref = 1;
+
+  if (site_id >= 0) {
+    board = boards->btab[site_id];
+  } else if (site_id == -1) { /* on prend le site par défaut */
+    board = boards->btab[caller_id.sid];
+  } else {
+    snprintf(commentaire, comment_sz, _("I don't fucking know %s"), ww);
+    return NULL;
+  }
+  if (board) {
+    return board_find_horloge_id(board, caller_id, post_id, commentaire, comment_sz);
+  } else return NULL;
+}
+
 
 /* appelé discretement par board_check_my_messages dans board.c
    (oui c pas logique) 

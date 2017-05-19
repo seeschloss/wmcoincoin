@@ -15,6 +15,9 @@ int board_msg_is_ref_to_me(Boards *boards, const board_msg_info *ref_mi);
 board_msg_info *check_for_horloge_ref(Boards *boards, id_type caller_id, 
 		      const unsigned char *ww, unsigned char *commentaire, 
 		      int comment_sz, int *is_a_ref, int *ref_num);
+board_msg_info *check_for_id_ref(Boards *boards, id_type caller_id, 
+		      const unsigned char *ww, unsigned char *commentaire, 
+		      int comment_sz, int *is_a_ref);
 
 void board_msg_find_refs(Board *board, board_msg_info *mi);
 KeyList *board_key_list_cleanup(Boards *boards, KeyList *first);
