@@ -1480,9 +1480,6 @@ wmcc_prefs_validate_option(GeneralPrefs *p, SitePrefs *sp, SitePrefs *global_sp,
       if (strcasecmp(arg, "fr")==0) sp->locale = locFR;
       else sp->locale = locEN;
     } break; 
-    case OPTSG_pinnipede_use_AM_PM: {
-      CHECK_BOOL_ARG(sp->use_AM_PM);
-    } break;
     case OPT_scrollcoin_bg_color: {
       CHECK_BICOLOR_ARG(p->sc_bg_color);
     } break; 

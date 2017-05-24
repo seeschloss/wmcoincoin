@@ -319,8 +319,6 @@ prefs_write_to_file(GeneralPrefs *p, FILE *f) {
     SP_SAVEFONTSTYLE(OPTSG_pinnipede_clock_style, pp_clock_style);
     SP_SAVEFONTSTYLE(OPTSG_pinnipede_login_style, pp_login_style);
     SP_SAVEFONTSTYLE(OPTSG_pinnipede_useragent_style, pp_ua_style);
-    SP_SAVEBOOL(OPTSG_pinnipede_use_AM_PM, use_AM_PM);
-    //SP_SAVEBOOL(OPTSG_board_auto_refresh, board_auto_refresh);
     SP_SAVEBOOL(OPTSG_pinnipede_mark_id_gaps, mark_id_gaps);
     SP_SAVEBOOL(OPTS_balltrap_enable, hunt_opened_on_site);
   }

@@ -290,9 +290,6 @@ pinnipede.url_replace: "free.fr" => "[free]"
 pinnipede.url_replace: "dyndns.org" => "[dyndns]"
 
 
-### pour reconnaitre les horloges hh:mm:ssAM/PM du dacode anglais
-#[.]pinnipede.use_AM_PM: off
-
 ### ouvre le pinnipede des le lancement du coincoin
 #pinnipede.auto_open: off
 

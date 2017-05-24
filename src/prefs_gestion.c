@@ -671,9 +671,6 @@ wmcc_prefs_relecture(Dock *dock, int whatfile)
 	  SP_FONTSTYLE_COPY_IF_CHANGED(pp_clock_style)) {
 	redraw_pinni = 1;
       }
-      if (SP_INT_OPT_COPY_IF_CHANGED(use_AM_PM)) {
-	rebuild_pinni = 1;
-      }
 
       if (SP_INT_OPT_COPY_IF_CHANGED(check_board)) {
 	Site *site;

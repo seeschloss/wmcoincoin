@@ -846,9 +846,7 @@ board_find_horloge_ref(Board *board, id_type caller_id,
         break; /* on ne tente ipot que dans les cas desesperes ! */
     }
     if (s == -1) {
-      if ((mi->hmsf[0] == h || (board->site->prefs->use_AM_PM && 
-				(mi->hmsf[0] % 12 == h) && mi->hmsf[0] > 12))
-	   && mi->hmsf[1] == m) {
+      if (mi->hmsf[0] == h && mi->hmsf[1] == m) {
 	match = 1;
 
         if (year >= 0 && month >= 0 && day >= 0) {
@@ -862,9 +860,7 @@ board_find_horloge_ref(Board *board, id_type caller_id,
         }
       }
     } else {
-      if ((mi->hmsf[0] == h  || (board->site->prefs->use_AM_PM && 
-				 (mi->hmsf[0] % 12 == h) && mi->hmsf[0] > 12))
-	  && mi->hmsf[1] == m && mi->hmsf[2] == s) {
+      if (mi->hmsf[0] == h && mi->hmsf[1] == m && mi->hmsf[2] == s) {
 	if (num == -1 || num == best_mi_num) {
 	  match = 1; //break;
 	}
