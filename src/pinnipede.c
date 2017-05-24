@@ -3276,27 +3276,6 @@ pp_handle_left_clic(Dock *dock, int mx, int my)
 
 
       if (mi) {
-#ifdef BOULAI_MODE
-	PostWord *trouve;
-	int i;
-	/* si le message referencé est déjà affiché, on ne fait rien */
-	for (i=0, trouve=NULL; i < pp->nb_lignes; i++) {
- 	  if (pp->lignes[i] && 
-	      pp->lignes[i]->parent->id == mi->id && 
-	      pp->lignes[i]->ligne == 0) trouve = pp->lignes[i];
-	}
-	if (trouve == NULL) {
-	  PostVisual *pv;
-	  /* c'est un peu lourd pour positionner le message juste en haut du pinnipede.. */
-	  pv = pp_pv_add(pp, mi->id);
-	  if (pv) {
-	    int ligne = pp->nb_lignes - pv->nblig; // - (my-LINEY0(0))/(LINEY0(1)-LINEY0(0));
-	    pp_update_content(dock, mi->id, ligne, 0, 0);
-	  }
-	  trouve = pp->lignes[0];
-	}
-	pp_refresh(dock, pp->win, trouve);
-#else
 	/* si la reference désigne plusieurs post de la même heure ,
 	   on se déplace vers le dernier du bloc
 	*/
