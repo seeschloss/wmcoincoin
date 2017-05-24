@@ -3297,7 +3297,6 @@ pp_handle_left_clic(Dock *dock, int mx, int my)
 	  }
 	}
         pp_show_message_from_id(dock, mi->id);
-#endif
       }
     } else if (pw->attr & PWATTR_LOGIN) {
       pp_open_login_home_in_browser(dock, id_type_sid(pw->parent->id),mx, my, pw->w,1);
