@@ -264,6 +264,8 @@ typedef struct _GeneralPrefs{
 
   int hunt_opened;   /* la chasse est ouverte ? */
   int hunt_max_duck; /* y'a des quotas sur le canard d'elevage ? */
+
+  int palmipede_use_id_references; /* poster des id #5896 au lieu de 12:34:56 */
 } GeneralPrefs;
 
 

@@ -1219,6 +1219,9 @@ wmcc_prefs_validate_option(GeneralPrefs *p, SitePrefs *sp, SitePrefs *global_sp,
     case OPT_dock_start_in_boss_mode: {
       CHECK_BOOL_ARG(p->start_in_boss_mode);
     } break; 
+    case OPT_palmipede_use_id_references: {
+      CHECK_BOOL_ARG(p->palmipede_use_id_references); 
+    } break; 
     case OPTSG_rss_ignore_description: {
       CHECK_BOOL_ARG(sp->rss_ignore_description);
     } break;

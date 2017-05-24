@@ -511,6 +511,10 @@ board.miniua_rule: ua:".*Linux.*" => color:="#80ff80"
 #[.]palmipede.msg_max_length: 255
 #[.]palmipede.useragent_max_length: 60
 
+### poster les id des posts (#4257) plutot que les horloges (10:25:45)
+### par contre sa va chouiner dans les tribunes
+#[.]palmipede.use_id_references: False
+
 ### various deprecated options
 #OBSOLETE#news.font_family:
 #OBSOLETE#news.font_size:

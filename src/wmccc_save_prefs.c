@@ -238,6 +238,7 @@ prefs_write_to_file(GeneralPrefs *p, FILE *f) {
   G_SAVEKL(OPT_pinnipede_plop_keywords,plopify_key_list);
   G_SAVEKL(OPT_pinnipede_hilight_keywords,hilight_key_list);
   G_SAVESTRLST(OPT_pinnipede_plop_words,plop_words,nb_plop_words);
+  G_SAVEBOOL(OPT_palmipede_use_id_references, palmipede_use_id_references);
 
   {
     MiniUARule *r;

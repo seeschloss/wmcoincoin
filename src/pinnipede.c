@@ -3177,17 +3177,21 @@ pp_open_palmi_for_reply(Dock *dock, PostWord *pw) {
     if (ri) snprintf(s_ts, sizeof s_ts, "%s", ri->link);
   }
   if (s_ts[0] == 0) {
-    char s_subts[3];
-    char *pwstart = strchr(pw->w, '#'); if (!pwstart) pwstart = pw->w; else pwstart++;
-    s_subts[0] = s_subts[1] = s_subts[2] = 0;
-    switch(pw->parent->sub_tstamp) {
-    case -1: break;
-    case 0: s_subts[0] = '¹'; break;
-    case 1: s_subts[0] = '²'; break;
-    case 2: s_subts[0] = '³'; break;
-    default: s_subts[0] = ':'; s_subts[1] = '1' + pw->parent->sub_tstamp;
+    if (Prefs.palmipede_use_id_references) {
+	snprintf(s_ts, 30, "#%d", pw->parent->id.lid);
+    } else {
+	char s_subts[3];
+	char *pwstart = strchr(pw->w, '#'); if (!pwstart) pwstart = pw->w; else pwstart++;
+	s_subts[0] = s_subts[1] = s_subts[2] = 0;
+	switch(pw->parent->sub_tstamp) {
+	case -1: break;
+	case 0: s_subts[0] = '¹'; break;
+	case 1: s_subts[0] = '²'; break;
+	case 2: s_subts[0] = '³'; break;
+	default: s_subts[0] = ':'; s_subts[1] = '1' + pw->parent->sub_tstamp;
+	}
+	snprintf(s_ts, 30, "%s%s", pw->w, s_subts);
     }
-    snprintf(s_ts, 30, "%s%s", pw->w, s_subts);
   }
   if (editw_ismapped(dock->editw) == 0) {
     char *username = Prefs.site[id_type_sid(pw->parent->id)]->user_name;

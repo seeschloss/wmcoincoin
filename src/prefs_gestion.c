@@ -528,6 +528,7 @@ wmcc_prefs_relecture(Dock *dock, int whatfile)
     G_STR_OPT_COPY(board_scrinechote);
 
     G_INT_OPT_COPY(palmipede_enable_scroll_wheel_for_boulets);
+    G_INT_OPT_COPY(palmipede_use_id_references);
 
     /* à faire: plop_words */
 
