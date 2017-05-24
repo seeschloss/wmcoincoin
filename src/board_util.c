@@ -873,12 +873,13 @@ board_find_horloge_ref(Board *board, id_type caller_id,
 
             if (t->tm_year == year-1900 && t->tm_mon == month-1 && t->tm_mday == day) {
                 match = 1;
+		best_mi_num++;
             } else {
                 match = 0;
             }
-        }
-
-	if (match) best_mi_num++;
+        } else {
+	    best_mi_num++;
+	}
       } else {
 	best_mi_num = 0; /* la raison est tordue: si on conserve des messages
 			    sur plusieurs jours, le comportement naturel est de
