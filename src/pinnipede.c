@@ -3264,6 +3264,29 @@ pp_handle_left_clic(Dock *dock, int mx, int my)
     } else if (pw->attr & PWATTR_TSTAMP) {
       /* clic sur l'holorge -> ouverture du palmipede */
       pp_open_palmi_for_reply(dock, pw);
+    } else if (pw->attr & PWATTR_REFID) {
+      /* clic sur une reference, on va essayer de se déplacer pour afficher la ref en bas du
+	 pinnipede */
+      board_msg_info *mi;
+      int is_a_ref;
+
+      mi = check_for_id_ref(boards, pw->parent->id, pw->raw, NULL, 0, &is_a_ref);
+      assert(is_a_ref);
+
+      if (mi) {
+	if (!id_type_is_invalid(mi->id)) {
+	  int i;
+	  for (i=0; i < pp->nb_tabs; i++) {
+	    if (pp->tabs[i].site->prefs == Prefs.site[id_type_sid(mi->id)]) {
+	      if (pp->tabs[i].selected == 0) {
+		pp->tabs[i].selected = 1;
+		pp_tabs_set_visible_sites(pp);
+	      }
+	    }
+	  }
+	}
+        pp_show_message_from_id(dock, mi->id);
+      }
     } else if (pw->attr & PWATTR_REF) {
       /* clic sur une reference, on va essayer de se déplacer pour afficher la ref en bas du
 	 pinnipede */
