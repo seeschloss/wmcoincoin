@@ -922,7 +922,7 @@ pp_pv_count_horloges(PostVisual *pv) {
   PostWord *pw = pv->first;
   int cnt = 0;
   while (pw) {
-    if ((pw->attr & PWATTR_REF)) ++cnt;
+    if ((pw->attr & PWATTR_REFID) || (pw->attr & PWATTR_REF)) ++cnt;
     pw = pw->next;
   }
   return cnt;
@@ -932,7 +932,7 @@ static PostWord *
 pp_pv_get_nth_horloge(PostVisual *pv, int n) {
   PostWord *pw = pv->first;
   while (n && pw) {
-    if ((pw->attr & PWATTR_REF)) {
+    if ((pw->attr & PWATTR_REFID) || (pw->attr & PWATTR_REF)) {
       n--;
       if (n == 0) return pw;
     }
