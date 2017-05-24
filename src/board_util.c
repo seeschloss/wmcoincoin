@@ -703,7 +703,7 @@ board_get_tok(const unsigned char **p, const unsigned char **np,
   } else if (*start == '#') { /* une référence à un post id */
       do {
           end++;
-      } while ((*end && isdigit(*end)) || (end-start > 16));
+      } while (*end && isdigit(*end) && end-start <= 16);
 
       if (end-start == 3 && *(end) == ':') {
           // en fait, c'est probablement juste une vieille horlage avec date de wmcc/olcc
