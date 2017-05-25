@@ -3331,6 +3331,24 @@ pp_handle_left_clic(Dock *dock, int mx, int my)
   } /* if (pw) */  
 }
 
+static void
+pp_handle_control_left_clic(Dock *dock, int mx, int my)
+{
+  Pinnipede *pp = dock->pinnipede;
+  Boards *boards = dock->sites->boards;
+  PostWord *pw;
+
+  pw = pp_get_pw_at_xy(pp, mx, my);
+  if (pw) {
+    if (pw->attr & PWATTR_TSTAMP) {
+      /* ctrl-clic sur l'holorge -> ouverture du palmipede avec une référence #id */
+      Prefs.palmipede_use_id_references = !Prefs.palmipede_use_id_references;
+	  pp_open_palmi_for_reply(dock, pw);
+      Prefs.palmipede_use_id_references = !Prefs.palmipede_use_id_references;
+    }
+  } /* if (pw) */  
+}
+
 /* gestion du relachement du bouton souris (si on n'est pas en train de 'tirer' la fenetre, 
    et si on n'a pas cliqué sur la barre de petits boutons */
 void 
@@ -3367,7 +3385,7 @@ pp_handle_button_release(Dock *dock, XButtonEvent *event)
     if (event->state & ShiftMask) {
       // pp_handle_shift_clic(dock, &Prefs.hilight_key_list, mx, my, 0);
     } else if (event->state & ControlMask) {
-      //      pp_handle_control_left_clic(dock, mx, my);
+            pp_handle_control_left_clic(dock, mx, my);
     } else if (event->state & (Mod1Mask | Mod4Mask) ) { /* on est gentil, les deux marchent */
       //      pp_handle_alt_clic(dock, event);
     } else {
