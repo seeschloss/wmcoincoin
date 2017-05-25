@@ -1167,6 +1167,34 @@ board_msg_find_refs(Board *board, board_msg_info *mi)
 	   mi->nb_refs++;
 	 }
        }
+     } else if (tok[0] == '#') {
+       int sid, post_id;
+       if (check_for_id_ref_basic(board->boards, tok, &sid, &post_id)) {
+	 board_msg_info *ref_mi;
+
+	 Board *ref_board = board;
+	 if (sid >= 0) ref_board = board->boards->btab[sid];
+	 if (ref_board) { /* c'est peut etre une tribune desactivé */
+	   
+	   ref_mi = board_find_horloge_id(ref_board, mi->id, post_id, NULL, 0);
+	   
+	   if (ref_mi && ((ref_mi->id.lid <= mi->id.lid) || ref_board != board)) {
+	   
+	     if (mi->nb_refs+1 > max_nb_refs) {
+	       max_nb_refs += 10;
+	       mi->refs = realloc(mi->refs, max_nb_refs*sizeof(board_msg_ref));
+	     }
+	     
+	     mi->refs[mi->nb_refs].h = 0;
+	     mi->refs[mi->nb_refs].m = 0;
+	     mi->refs[mi->nb_refs].s = 0;
+	     mi->refs[mi->nb_refs].num = 0;
+	     mi->refs[mi->nb_refs].mi = ref_mi;
+	     mi->refs[mi->nb_refs].nbmi=1;
+	     mi->nb_refs++;
+	   }
+	 }
+       }
      }
      p=np;
   }
