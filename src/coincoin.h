@@ -163,8 +163,8 @@ struct Board_ {
   unsigned char last_post_time[5];
 
   int last_post_timestamp; /* en secondes */
-  int last_post_id;
-  int last_post_id_prev;
+  int64_t last_post_id;
+  int64_t last_post_id_prev;
 
   /* log des 'last_post_id' au cours des 'nb_trollo_log' derniers check de la board,
      utilise pour calculer le nb moyen de messages postes / seconde */
@@ -180,7 +180,8 @@ struct Board_ {
 
   /* le dernier id qui a ete affiche sur la tribune, 
      le nb de messages (non vus, donc) qui ont ete recus depuis */
-  int last_viewed_id, nb_msg_since_last_viewed;
+  int64_t last_viewed_id;
+  int nb_msg_since_last_viewed;
 
   /* date a laquelle le dernier check a ete fait
      (c'est pas redondant, je part du principe que l'horloge locale
@@ -222,7 +223,7 @@ struct Board_ {
 
   char *encoding; /* encoding utilisé pour les POST. Déduit de l'encoding du backend */
 
-  int last_posted_id; /* id du dernier post qu'on a posté, récupéré du header X-Post-Id */
+  int64_t last_posted_id; /* id du dernier post qu'on a posté, récupéré du header X-Post-Id */
 };
 
 typedef struct SiteNameHash_ {
@@ -693,7 +694,7 @@ void board_update(Board* board);
 void board_destroy(Board *board);
 void board_save_state(FILE *f, Board *board);
 void board_restore_state(FILE *f, Board *board);
-void board_set_viewed(Board *board, int id);
+void board_set_viewed(Board *board, int64_t id);
 int board_is_rss_feed(Board *b);
 int board_is_regular_board(Board *b);
 int board_can_post_messages(Board *b);

@@ -227,9 +227,8 @@ DECL_GLOB_INIT(char *app_useragent, NULL);
 
 
 typedef struct id_type {
-  int lid BITFIELD(25); /* attention c pas portable, on ne peut pas présumer que le bitfield sera
-			   effectivement signé :-/ (ex. compiler avec gcc -ftraditionnal) */
-  int sid  BITFIELD(7);
+  int64_t lid;
+  int sid;
 } id_type;
 
 inline static int
@@ -281,8 +280,9 @@ id_type_lid(id_type a) {
   return a.lid;
 }
 
-inline static void id_type_set_lid(id_type *id, int lid) {
+inline static void id_type_set_lid(id_type *id, int64_t lid) {
   id->lid = lid;
+  assert(lid >= -1);
 }
 
 inline static void id_type_set_sid(id_type *id, int sid) {

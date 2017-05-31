@@ -22,7 +22,7 @@ void release_md5_array(Board *b);
 md5_and_time *find_md5_in_md5_array(md5_byte_t md5[16], md5_and_time *m);
 void board_decode_message(Board *board, char *dest, const char *src);
 board_msg_info *board_log_msg(Board *board, char *ua, char *login, 
-                              char *stimestamp, char *_message, int id, 
+                              char *stimestamp, char *_message, int64_t id, 
                               const unsigned char *my_useragent);
 RSSBonusInfo *rss_register(Boards *boards, md5_byte_t mimd5[16], char *link, board_msg_info *mi);
 int rss_board_update(Board *board, char *path);

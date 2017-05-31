@@ -166,7 +166,7 @@
 
 /* search an id in the tree : fast */
 board_msg_info *
-board_find_id(const Board *board, int id)
+board_find_id(const Board *board, int64_t id)
 {
   board_msg_info *it;
 
@@ -217,7 +217,7 @@ boards_last_id(const Boards *b) {
 }
 
 board_msg_info*
-board_find_previous_from_id(const Board *board, int id)
+board_find_previous_from_id(const Board *board, int64_t id)
 {
   board_msg_info *mi;
   board_msg_info *prev = NULL;
@@ -989,7 +989,7 @@ check_for_horloge_ref(Boards *boards, id_type caller_id,
 */
 static board_msg_info *
 board_find_horloge_id(Board *board, id_type caller_id,
-		       int post_id, unsigned char *commentaire, int comment_sz)
+		       int64_t post_id, unsigned char *commentaire, int comment_sz)
 {
   board_msg_info *mi;
   mi = board->msg;
@@ -1010,7 +1010,7 @@ board_find_horloge_id(Board *board, id_type caller_id,
           if (post_id > caller_id.lid) {
               snprintf(commentaire, comment_sz, _("IPOT(tm) detected"));
           } else {
-              snprintf(commentaire, comment_sz, _("but where is '%d' ?"), post_id);
+              snprintf(commentaire, comment_sz, _("but where is '#%lld' ?"), post_id);
           }
       }
   }
@@ -1024,9 +1024,10 @@ board_find_horloge_id(Board *board, id_type caller_id,
    site_name_hash contient 0 quand il n'est pas fait allusion à un site particulier (du genre #1630@linuxfr)
 */
 static int
-check_for_id_ref_basic_helper(const unsigned char *ww, const char **site_name, int *ref_id)
+check_for_id_ref_basic_helper(const unsigned char *ww, const char **site_name, int64_t *ref_id)
 {
-  int l, id;
+  int l;
+  int64_t id;
 
   l = strlen(ww);
 
@@ -1042,7 +1043,7 @@ check_for_id_ref_basic_helper(const unsigned char *ww, const char **site_name, i
     *site_name += 1;
   }
 
-  id = atoi(ww + 1);
+  id = strtoull(ww + 1, NULL, 10);
 
   if (!id) {
       return 0;
@@ -1054,7 +1055,7 @@ check_for_id_ref_basic_helper(const unsigned char *ww, const char **site_name, i
 }
 
 static int
-check_for_id_ref_basic(Boards *boards, const unsigned char *ww, int *site_id, int *ref_id)
+check_for_id_ref_basic(Boards *boards, const unsigned char *ww, int *site_id, int64_t *ref_id)
 {
   const char *site_name;
   int ret;
@@ -1085,7 +1086,8 @@ check_for_id_ref(Boards *boards, id_type caller_id,
 		      int comment_sz, int *is_a_ref)
 {
   Board *board;
-  int site_id, post_id;
+  int site_id;
+  int64_t post_id;
   
   assert(!id_type_is_invalid(caller_id));
   *is_a_ref = 0;
@@ -1168,7 +1170,8 @@ board_msg_find_refs(Board *board, board_msg_info *mi)
 	 }
        }
      } else if (tok[0] == '#') {
-       int sid, post_id;
+       int sid;
+	   int64_t post_id;
        if (check_for_id_ref_basic(board->boards, tok, &sid, &post_id)) {
 	 board_msg_info *ref_mi;
 

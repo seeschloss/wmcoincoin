@@ -2473,7 +2473,7 @@ pp_check_survol(Dock *dock, PostWord *pw, int force_refresh)
       }
       char *stime = strdup(asctime(localtime(&mi->timestamp)));
       while (stime && stime[0] && stime[strlen(stime)-1] == '\n') stime[strlen(stime)-1] = 0;
-      snprintf(survol, 1024, "[%s] id=%d ua=%s\n%s%s\ntimestamp=(%s)", 
+      snprintf(survol, 1024, "[%s] id=%lld ua=%s\n%s%s\ntimestamp=(%s)", 
 	       Prefs.site[pw->parent->id.sid]->site_name,
 	       pw->parent->id.lid, 
 	       (mi ? mi->useragent : ""), 
@@ -3178,7 +3178,7 @@ pp_open_palmi_for_reply(Dock *dock, PostWord *pw) {
   }
   if (s_ts[0] == 0) {
     if (Prefs.palmipede_use_id_references) {
-	snprintf(s_ts, 30, "#%d", pw->parent->id.lid);
+	snprintf(s_ts, 30, "#%lld", pw->parent->id.lid);
     } else {
 	char s_subts[3];
 	char *pwstart = strchr(pw->w, '#'); if (!pwstart) pwstart = pw->w; else pwstart++;
