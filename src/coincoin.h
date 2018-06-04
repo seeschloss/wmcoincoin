@@ -341,7 +341,7 @@ typedef struct _Pinnipede Pinnipede;
 typedef struct _Plopup Plopup; 
 typedef void(*plopup_callback_t)(int);
 
-#define DOCK_FIXED_FONT "-*-fixed-*--10-*"
+#define DOCK_FIXED_FONT "-*-courier-*--10-*"
 #define DOCK_FIXED_FONT_W 6
 
 

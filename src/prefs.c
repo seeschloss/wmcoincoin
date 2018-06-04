@@ -853,6 +853,7 @@ wmcc_prefs_set_default(GeneralPrefs *p) {
   p->board_auto_dl_pictures = 0;
   p->board_sfw_pictures = 0;
   p->board_enable_hfr_pictures = 0;
+  ASSIGN_STRING_VAL(p->board_totoz_server, "https://totoz.moul.es");
 
   p->disable_xft_antialiasing = 0;
   ASSIGN_STRING_VAL(p->pp_fn_family, "sans");
@@ -1149,6 +1150,9 @@ wmcc_prefs_validate_option(GeneralPrefs *p, SitePrefs *sp, SitePrefs *global_sp,
     } break;
     case OPT_board_enable_hfr_pictures: {
       CHECK_BOOL_ARG(p->board_enable_hfr_pictures);
+    } break;
+    case OPT_board_totoz_server: {
+      ASSIGN_STRING_VAL(p->board_totoz_server, arg);
     } break;
     case OPT_balltrap_enable: {
       CHECK_BOOL_ARG(p->hunt_opened);

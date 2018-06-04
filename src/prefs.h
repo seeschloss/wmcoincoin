@@ -215,6 +215,7 @@ typedef struct _GeneralPrefs{
   int board_auto_dl_pictures;
   int board_sfw_pictures;
   int board_enable_hfr_pictures;
+  char *board_totoz_server;
 
   BiColor sc_bg_color, sc_bg_light_color, sc_bg_dark_color, 
     sc_arrow_normal_color, sc_arrow_emphasized_color,

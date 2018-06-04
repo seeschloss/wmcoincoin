@@ -1119,6 +1119,11 @@ create_global_pinnipede_options_dialog (void)
   GtkWidget *board_auto_dl_pictures;
   GtkWidget *board_auto_dl_pictures_fb;
   GtkWidget *hseparator7;
+  GtkWidget *hbox7;
+  GtkWidget *label21;
+  GtkWidget *combo4;
+  GList *combo4_items = NULL;
+  GtkWidget *board_totoz_server;
   GtkWidget *label94;
   GtkWidget *label92;
   GtkWidget *vbox18;
@@ -1516,6 +1521,31 @@ create_global_pinnipede_options_dialog (void)
   gtk_widget_show (hseparator7);
   gtk_box_pack_start (GTK_BOX (vbox19), hseparator7, FALSE, FALSE, 0);
 
+  hbox7 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox7);
+  gtk_box_pack_start (GTK_BOX (vbox19), hbox7, TRUE, TRUE, 0);
+
+  label21 = gtk_label_new (_("Totoz server"));
+  gtk_widget_show (label21);
+  gtk_box_pack_start (GTK_BOX (hbox7), label21, FALSE, FALSE, 0);
+
+  combo4 = gtk_combo_new ();
+  g_object_set_data (G_OBJECT (GTK_COMBO (combo4)->popwin),
+                     "GladeParentKey", combo4);
+  gtk_widget_show (combo4);
+  gtk_box_pack_start (GTK_BOX (hbox7), combo4, FALSE, FALSE, 0);
+  combo4_items = g_list_append (combo4_items, (gpointer) _("https://totoz.eu"));
+  combo4_items = g_list_append (combo4_items, (gpointer) _("https://nsfw.totoz.eu"));
+  combo4_items = g_list_append (combo4_items, (gpointer) _("https://totoz.moul.es"));
+  combo4_items = g_list_append (combo4_items, (gpointer) _("https://nsfw.totoz.moul.es"));
+  combo4_items = g_list_append (combo4_items, (gpointer) _("https://claudex.be/sfwttz"));
+  combo4_items = g_list_append (combo4_items, (gpointer) _("https://claudex.be/ttz"));
+  gtk_combo_set_popdown_strings (GTK_COMBO (combo4), combo4_items);
+  g_list_free (combo4_items);
+
+  board_totoz_server = GTK_COMBO (combo4)->entry;
+  gtk_widget_show (board_totoz_server);
+
   label94 = gtk_label_new (_("The totoz module requires wmcoincoin_player support. It searches for occurences of [:totoz] etc in the pinnipede, and displays a correspounding picture from the set of smileys of http://totoz.eu\n\nThis pictures may be bookmarked in the pinnipede (via right clic), and the bookmark ( stored in ~/.wmcoincoin/totoz/bookmarks.{txt,html} ) can be opened from the totoz button in the palmipede."));
   gtk_widget_show (label94);
   gtk_box_pack_start (GTK_BOX (vbox19), label94, FALSE, FALSE, 0);
@@ -1664,6 +1694,10 @@ create_global_pinnipede_options_dialog (void)
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, board_auto_dl_pictures, "board_auto_dl_pictures");
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, board_auto_dl_pictures_fb, "board_auto_dl_pictures_fb");
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, hseparator7, "hseparator7");
+  GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, hbox7, "hbox7");
+  GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, label21, "label21");
+  GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, combo4, "combo4");
+  GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, board_totoz_server, "board_totoz_server");
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, label94, "label94");
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, label92, "label92");
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, vbox18, "vbox18");
