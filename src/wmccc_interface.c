@@ -1109,9 +1109,6 @@ create_global_pinnipede_options_dialog (void)
   GtkWidget *hbox33;
   GtkWidget *image14;
   GtkWidget *vbox20;
-  GtkWidget *hbox44;
-  GtkWidget *board_sfw_pictures;
-  GtkWidget *board_sfw_pictures_fb;
   GtkWidget *hbox34;
   GtkWidget *board_enable_hfr_pictures;
   GtkWidget *board_enable_hfr_pictures_fb;
@@ -1505,18 +1502,6 @@ create_global_pinnipede_options_dialog (void)
   gtk_widget_show (board_auto_dl_pictures_fb);
   gtk_box_pack_start (GTK_BOX (hbox35), board_auto_dl_pictures_fb, FALSE, FALSE, 0);
 
-  hbox44 = gtk_hbox_new (FALSE, 0);
-  gtk_widget_show (hbox44);
-  gtk_box_pack_start (GTK_BOX (vbox20), hbox44, TRUE, TRUE, 0);
-
-  board_sfw_pictures = gtk_check_button_new_with_mnemonic (_("Only display safe for work images."));
-  gtk_widget_show (board_sfw_pictures);
-  gtk_box_pack_start (GTK_BOX (hbox44), board_sfw_pictures, FALSE, FALSE, 0);
-
-  board_sfw_pictures_fb = gtk_label_new (_("label96"));
-  gtk_widget_show (board_sfw_pictures_fb);
-  gtk_box_pack_start (GTK_BOX (hbox44), board_sfw_pictures_fb, FALSE, FALSE, 0);
-
   hseparator7 = gtk_hseparator_new ();
   gtk_widget_show (hseparator7);
   gtk_box_pack_start (GTK_BOX (vbox19), hseparator7, FALSE, FALSE, 0);
@@ -1684,9 +1669,6 @@ create_global_pinnipede_options_dialog (void)
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, hbox33, "hbox33");
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, image14, "image14");
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, vbox20, "vbox20");
-  GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, hbox44, "hbox44");
-  GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, board_sfw_pictures, "board_sfw_pictures");
-  GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, board_sfw_pictures_fb, "board_sfw_pictures_fb");
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, hbox34, "hbox34");
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, board_enable_hfr_pictures, "board_enable_hfr_pictures");
   GLADE_HOOKUP_OBJECT (global_pinnipede_options_dialog, board_enable_hfr_pictures_fb, "board_enable_hfr_pictures_fb");

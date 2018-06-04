@@ -213,7 +213,6 @@ typedef struct _GeneralPrefs{
 
   /* options totozeuses */
   int board_auto_dl_pictures;
-  int board_sfw_pictures;
   int board_enable_hfr_pictures;
   char *board_totoz_server;
 

@@ -512,7 +512,6 @@ wmcc_prefs_relecture(Dock *dock, int whatfile)
     G_STR_OPT_COPY(browser2_cmd);
 
     G_INT_OPT_COPY(enable_troll_detector);
-    G_INT_OPT_COPY(board_sfw_pictures);
     G_INT_OPT_COPY(board_auto_dl_pictures);
     G_INT_OPT_COPY(board_enable_hfr_pictures);
     G_INT_OPT_COPY(board_enable_hfr_pictures);
@@ -569,7 +568,7 @@ wmcc_prefs_relecture(Dock *dock, int whatfile)
     /* test sur les grosses options du pinnipede */
     if (G_STR_OPT_COPY_IF_CHANGED(pp_fn_family) +
 	G_INT_OPT_COPY_IF_CHANGED(pp_fn_size) +
-	G_INT_OPT_COPY_IF_CHANGED(board_totoz_server) +
+	G_STR_OPT_COPY_IF_CHANGED(board_totoz_server) +
         G_INT_OPT_COPY_IF_CHANGED(pp_show_sec_mode) +
         G_INT_OPT_COPY_IF_CHANGED(pp_html_mode)) {
       rebuild_pinni = 1;

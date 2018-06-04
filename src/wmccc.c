@@ -786,7 +786,6 @@ static int prepare_or_finalize_conf_dialog_(GtkWidget *dialog, int finalize) {
   PFC_TOGGLE_BUTTON_G(pp_show_sec_mode);
   PFC_TOGGLE_BUTTON_G(board_enable_hfr_pictures);
   PFC_TOGGLE_BUTTON_G(board_auto_dl_pictures);
-  PFC_TOGGLE_BUTTON_G(board_sfw_pictures);
   PFC_TEXT_ENTRY_G(board_totoz_server);
   PFC_TOGGLE_BUTTON_G(hunt_opened);
   PFC_TOGGLE_BUTTON_S(hunt_opened_on_site);

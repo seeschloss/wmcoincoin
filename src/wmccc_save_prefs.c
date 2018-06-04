@@ -146,7 +146,6 @@ prefs_write_to_file(GeneralPrefs *p, FILE *f) {
   G_SAVEBOOL(OPT_pinnipede_show_seconds, pp_show_sec_mode);
 #ifdef HAVE_WMCOINCOIN_PLAYER  
   G_SAVESTR(OPT_board_totoz_server, board_totoz_server);
-  G_SAVEBOOL(OPT_board_sfw_pictures, board_sfw_pictures);
   G_SAVEBOOL(OPT_board_auto_dl_pictures, board_auto_dl_pictures);
   G_SAVEBOOL(OPT_board_enable_hfr_pictures, board_enable_hfr_pictures);
 #endif
