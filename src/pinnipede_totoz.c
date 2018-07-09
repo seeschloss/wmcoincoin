@@ -462,8 +462,6 @@ pp_totoz_get_image(Dock *dock, unsigned char *imgname) {
   int is_found=0, i=0, lu;
   char *siteroot;
   siteroot = strdup(Prefs.board_totoz_server);
-  static char *extlist[]={"gif", "png", NULL};
-  static char *mimelist[]={"image/gif", "image/png", NULL};
   char buf[1500];
   FILE *f;
 
@@ -471,53 +469,58 @@ pp_totoz_get_image(Dock *dock, unsigned char *imgname) {
 
   char *imgfname = pp_totoz_realfname(imgname,0);  
   pathdesc = str_printf("%s/.wmcoincoin/totoz/%s.desc", getenv("HOME"), imgfname);
-  while( !is_found && extlist[i] ) {
-    imgurl = str_printf("%s/%s.%s", siteroot, imgfname, extlist[i]);
-    wmcc_init_http_request(&r, dock->sites->list->prefs, imgurl);
-    /* Triton> Et hop, on supporte le header Accept: image/gif pour les images \o/ */
-    r.accept = strdup(mimelist[i]);
-    http_request_send(&r);
 
-    //printf("pp_totoz_get_image(%s,%s) : status = %d\n", imgname, extlist[i], pp_totoz_img_status(pp,imgname));
+  if (strstr(siteroot, "%s") != NULL) {
+    imgurl = str_printf(siteroot, imgfname);
+  } else {
+    imgurl = str_printf("%s/%s.gif", siteroot, imgfname);
+  }
+
+  wmcc_init_http_request(&r, dock->sites->list->prefs, imgurl);
+  /* Triton> Et hop, on supporte le header Accept: image/gif pour les images \o/ */
+  r.accept = strdup("image/gif; image/png");
+  http_request_send(&r);
+
+  //printf("pp_totoz_get_image(%s,%s) : status = %d\n", imgname, extlist[i], pp_totoz_img_status(pp,imgname));
+  
+  if (http_is_ok(&r)) {
+    is_found = 1;
+    pathimg  = str_printf("%s/.wmcoincoin/totoz/%s.gif", getenv("HOME"), imgfname);
+    wmcc_log_http_request(dock->sites->list, &r);
     
-    if (http_is_ok(&r)) {
-      is_found = 1;
-      pathimg  = str_printf("%s/.wmcoincoin/totoz/%s.%s", getenv("HOME"), imgfname, extlist[i]);
-      wmcc_log_http_request(dock->sites->list, &r);
-      
+    f = fopen(pathimg, "w");
+    if (f == NULL) {
+      char *ptotoz = str_printf("%s/.wmcoincoin/totoz", getenv("HOME")); mkdir(ptotoz, -1);
       f = fopen(pathimg, "w");
-      if (f == NULL) {
-        char *ptotoz = str_printf("%s/.wmcoincoin/totoz", getenv("HOME")); mkdir(ptotoz, -1);
-        f = fopen(pathimg, "w");
-      }
-      if (f == NULL) {
-        myfprintf(stderr, "pp_totoz_get_image : Impossible d'ouvrir/creer %s : %s\n", pathimg, strerror(errno));
+    }
+    if (f == NULL) {
+      myfprintf(stderr, "pp_totoz_get_image : Impossible d'ouvrir/creer %s : %s\n", pathimg, strerror(errno));
+      pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_NOTFOUND);
+    } else {
+      fwrite(r.response_data, r.response_size, 1, f);
+      if ( ferror(f) ) {
+        fclose(f);
+        myfprintf(stderr, "Erreur lors du telechargement du fichier %s\n", pathimg);
         pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_NOTFOUND);
       } else {
-        fwrite(r.response_data, r.response_size, 1, f);
-        if ( ferror(f) ) {
-          fclose(f);
-          myfprintf(stderr, "Erreur lors du telechargement du fichier %s\n", pathimg);
-          pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_NOTFOUND);
-        } else {
-          fclose(f);
-          cmd = str_printf("echo \"%s.%s\" `wmcoincoin_player -i \"%s\"` \"%s\" > \"%s\"", imgfname, extlist[i], pathimg, mimelist[i], pathdesc);
-          if (system(cmd) == -1)
-            myfprintf(stderr, "%s failed\n", cmd);
-          free(cmd);
-          pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_FOUND);
-          pp_totoz_update_status(dock, imgname);
-        }
+        fclose(f);
+        cmd = str_printf("echo \"%s.gif\" `wmcoincoin_player -i \"%s\"` \"%s\" > \"%s\"", imgfname, pathimg, "image/gif", pathdesc);
+        if (system(cmd) == -1)
+          myfprintf(stderr, "%s failed\n", cmd);
+        free(cmd);
+        pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_FOUND);
+        pp_totoz_update_status(dock, imgname);
       }
-      FREE_STRING(pathimg);
-      //printf("pp_totoz_get_image(%s,%s) / http_is_ok : status = %d\n", imgname, extlist[i], pp_totoz_img_status(pp,imgname));
+    }
+    FREE_STRING(pathimg);
+    //printf("pp_totoz_get_image(%s,%s) / http_is_ok : status = %d\n", imgname, extlist[i], pp_totoz_img_status(pp,imgname));
 
-    } else pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_NOTFOUND);
-    printf("pp_totoz_get_image(%s,%s) / http_is_not_ok : status = %d\n", imgname, extlist[i], pp_totoz_img_status(pp,imgname));
-    http_request_close(&r);
-    i++;
-    free(imgurl);
-  }
+  } else pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_NOTFOUND);
+  printf("pp_totoz_get_image(%s) / http_is_not_ok : status = %d\n", imgname, pp_totoz_img_status(pp,imgname));
+  http_request_close(&r);
+  i++;
+  free(imgurl);
+
   if (pp_totoz_img_status(pp, imgname) == PP_TOTOZ_STATUS_NOTFOUND) {
     printf("writing NOTFOUND to %s\n", pathdesc);
     f = fopen(pathdesc, "w"); if (f) { fprintf(f, "NOTFOUND\n"); fclose(f); }

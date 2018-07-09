@@ -1510,7 +1510,7 @@ create_global_pinnipede_options_dialog (void)
   gtk_widget_show (hbox7);
   gtk_box_pack_start (GTK_BOX (vbox19), hbox7, TRUE, TRUE, 0);
 
-  label21 = gtk_label_new (_("Totoz server"));
+  label21 = gtk_label_new (_("Totoz server (use %s as a\nplaceholder for the totoz name)"));
   gtk_widget_show (label21);
   gtk_box_pack_start (GTK_BOX (hbox7), label21, FALSE, FALSE, 0);
 
@@ -1519,12 +1519,12 @@ create_global_pinnipede_options_dialog (void)
                      "GladeParentKey", combo4);
   gtk_widget_show (combo4);
   gtk_box_pack_start (GTK_BOX (hbox7), combo4, FALSE, FALSE, 0);
-  combo4_items = g_list_append (combo4_items, (gpointer) _("https://totoz.eu"));
-  combo4_items = g_list_append (combo4_items, (gpointer) _("https://nsfw.totoz.eu"));
-  combo4_items = g_list_append (combo4_items, (gpointer) _("https://totoz.moul.es"));
-  combo4_items = g_list_append (combo4_items, (gpointer) _("https://nsfw.totoz.moul.es"));
-  combo4_items = g_list_append (combo4_items, (gpointer) _("https://claudex.be/sfwttz"));
-  combo4_items = g_list_append (combo4_items, (gpointer) _("https://claudex.be/ttz"));
+  combo4_items = g_list_append (combo4_items, (gpointer) _("https://totoz.eu/gif/%s.gif"));
+  combo4_items = g_list_append (combo4_items, (gpointer) _("https://nsfw.totoz.eu/gif/%s.gif"));
+  combo4_items = g_list_append (combo4_items, (gpointer) _("https://totoz.moul.es/gif/%s.gif"));
+  combo4_items = g_list_append (combo4_items, (gpointer) _("https://nsfw.totoz.moul.es/gif/%s.gif"));
+  combo4_items = g_list_append (combo4_items, (gpointer) _("https://claudex.be/sfwttz/%s.gif"));
+  combo4_items = g_list_append (combo4_items, (gpointer) _("https://claudex.be/ttz/%s.gif"));
   gtk_combo_set_popdown_strings (GTK_COMBO (combo4), combo4_items);
   g_list_free (combo4_items);
 
