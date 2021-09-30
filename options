@@ -80,13 +80,13 @@
 
 ### ATTENTION, ce genre de commande externe peut etre une source de vulnerabilite,
 ### les caracteres bizarres dans les urls sont escapes avant d'etre envoyes
-### au browser externe, mais si le browser est lui-mÍme bugge...
+### au browser externe, mais si le browser est lui-m√™me bugge...
 ### Par defaut, aucun browser n'est selectionne (ca peut rassurer les plus paranoiaques)
 ### Le %s est remplace par l'url escapee, et la ligne de commande resultante est passee au shell
 
 ### ATTENTION AUSSI: si vous lancez le browser par l'intermediaire d'un programme
 ### du genre "kstart" (pour ouvrir dans un certain desktop sous kde) faites bien
-### attention: kstart interprÍte les caracteres comme un goret il faut donc mettre
+### attention: kstart interpr√™te les caracteres comme un goret il faut donc mettre
 ### '%s' a la place de %s
 #http.browser: opera %s &
 #http.browser: galeon -n %s &
@@ -307,7 +307,7 @@ pinnipede.url_replace: "dyndns.org" => "[dyndns]"
 ### par exemple la regle pour internet explorer)
 ### Il faut bien faire la distinction entre 
 ###    symb="dtri"  (fixe le symbole sauf si il est prefixe par une regle suivante) 
-### et symb:="dtri" (fixe le symbole definitivement, mÍme si une regle suivante 
+### et symb:="dtri" (fixe le symbole definitivement, m√™me si une regle suivante 
 ###                  aurait pu le rechanger)
 ### (new in 2.5.x) : si aucune regle n'est matchee, les symbole/couleur sont
 ### choisis en fonction du nom du site/des ua etc pour avoir qd meme
@@ -319,7 +319,7 @@ board.miniua_rule:  login:"kadreg" => color="#80ff00"
 
 board.miniua_rule:  ua:".*[Bb][Oo][Tt].*"  => ua:="un bot!",symb:="circ",color:="#ffffff"
 board.miniua_rule:  ua:".*[Dd][Aa][Ee].*"  => ua:="dae",symb:="cross",color:="#00ff00"
-### pour faire plaisir a jr :∞)
+### pour faire plaisir a jr :¬∞)
 board.miniua_rule:  ua:"^jr-lamoule$"  => ua:="JR",symb:="cross",color:="#00ff80"
 
 
@@ -447,7 +447,7 @@ board.miniua_rule: ua:".*Linux.*" => color:="#80ff80"
 
 #dock.bg_color: ffb12b
 #dock.bg_pixmap: /chemin/vers/un/fichier.xpm (de dimensions 64x64)
-#dock.skin_pixmap: /chemin/vers/un/fichier.xpm, du mÍme format que 'coin.xpm'
+#dock.skin_pixmap: /chemin/vers/un/fichier.xpm, du m√™me format que 'coin.xpm'
 ### couleur du texte defilant
 #dock.fg_color: 000000
 
@@ -471,7 +471,7 @@ board.miniua_rule: ua:".*Linux.*" => color:="#80ff80"
 ### changement de site actif avec la roulette dans le palmi
 #palmipede.enable_scroll_wheel_for_boulets: False
 
-### ces petits ballons d'aide peuvent Ítre casse-couilles
+### ces petits ballons d'aide peuvent √™tre casse-couilles
 #dock.use_balloons: True
 
 ### la fonte des ballons d'aide et des messages
@@ -485,7 +485,7 @@ board.miniua_rule: ua:".*Linux.*" => color:="#80ff80"
 ### pour demarrer le coincoin en mode horloge
 #dock.start_in_boss_mode: on
 
-### niveau de verbosite a partir duquel le coincoin r‚le
+### niveau de verbosite a partir duquel le coincoin r√¢le
 #verbosity.underpants: 0
 #verbosity.http: 1
 
