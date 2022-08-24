@@ -397,7 +397,6 @@ AC_FUNC_VPRINTF
 AC_CHECK_HEADERS(string.h stdarg.h unistd.h sys/time.h utime.h sys/utime.h)
 AC_CHECK_HEADERS(sys/select.h sys/utsname.h pwd.h signal.h windows.h)
 AC_CHECK_HEADERS(inttypes.h unistd.h)
-AC_HEADER_TIME
 AC_CHECK_FUNCS(strdup strstr strcasecmp strncasecmp)
 AC_CHECK_FUNCS(strerror snprintf vsnprintf select signal)
 AC_CHECK_FUNCS(uname)
@@ -421,7 +420,6 @@ AC_C_CONST
 AC_C_INLINE
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
-AC_HEADER_TIME
 AC_STRUCT_TM
 
 
