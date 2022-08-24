@@ -424,27 +424,39 @@ AC_STRUCT_TM
 
 
 dnl those two tests were taken from openssh-3.5p1
-AC_CACHE_CHECK([for struct sockaddr_storage], ac_cv_have_struct_sockaddr_storage, [
-	AC_TRY_COMPILE(
-		[
+AC_CACHE_CHECK(
+  [for struct sockaddr_storage],
+  [ac_cv_have_struct_sockaddr_storage],
+  [
+    AC_COMPILE_IFELSE(
+      [
+         AC_LANG_PROGRAM(
+           [
 #ifdef HAVE_WINDOWS_H
 #include <winsock2.h>
 #else
 #include <sys/types.h>
 #include <sys/socket.h>
 #endif
-		],
-		[ struct sockaddr_storage s; ],
-		[ ac_cv_have_struct_sockaddr_storage="yes" ],
-		[ ac_cv_have_struct_sockaddr_storage="no" ]
-	)
-])
+           ], [ struct sockaddr_storage s; ]
+         )
+      ],
+      [ ac_cv_have_struct_sockaddr_storage="yes" ],
+      [ ac_cv_have_struct_sockaddr_storage="no" ]
+    )
+  ]
+)
 if test "x$ac_cv_have_struct_sockaddr_storage" = "xyes" ; then
-	AC_DEFINE(HAVE_STRUCT_SOCKADDR_STORAGE,1,[struct sockaddr])
+  AC_DEFINE(HAVE_STRUCT_SOCKADDR_STORAGE,1,[struct sockaddr])
 fi
-AC_CACHE_CHECK([for struct addrinfo], ac_cv_have_struct_addrinfo, [
-	AC_TRY_COMPILE(
-		[
+AC_CACHE_CHECK(
+  [for struct addrinfo],
+  [ac_cv_have_struct_addrinfo],
+  [
+    AC_COMPILE_IFELSE(
+      [
+        AC_LANG_PROGRAM(
+          [
 #ifdef HAVE_WINDOWS_H
 #include <winsock2.h>
 #else
@@ -452,23 +464,34 @@ AC_CACHE_CHECK([for struct addrinfo], ac_cv_have_struct_addrinfo, [
 #include <sys/socket.h>
 #include <netdb.h>
 #endif
-	],
-		[ struct addrinfo s; s.ai_flags = AI_PASSIVE; ],
-		[ ac_cv_have_struct_addrinfo="yes" ],
-		[ ac_cv_have_struct_addrinfo="no" ]
-	)
-])
+          ], [ struct addrinfo s; s.ai_flags = AI_PASSIVE; ],
+         )
+      ],
+      [ ac_cv_have_struct_addrinfo="yes" ],
+      [ ac_cv_have_struct_addrinfo="no" ]
+    )
+  ]
+)
 if test "x$ac_cv_have_struct_addrinfo" = "xyes" ; then
-	AC_DEFINE(HAVE_STRUCT_ADDRINFO,1,[struct addrinfo])
+        AC_DEFINE(HAVE_STRUCT_ADDRINFO,1,[struct addrinfo])
 fi
 
-AC_CACHE_CHECK([for execinfo.h and backtrace], ac_have_backtrace, [
-        AC_TRY_COMPILE(
-                [ #include <execinfo.h>       
-                ],
-                [ void* trace[256]; int n = backtrace(trace, 256); ],
-                [ ac_have_backtrace="yes" ],
-                [ ac_have_backtrace="no"  ])])
+AC_CACHE_CHECK(
+  [for execinfo.h and backtrace],
+  [ac_have_backtrace],
+  [
+    AC_COMPILE_IFELSE(
+      [
+        AC_LANG_PROGRAM(
+          [#include <execinfo.h>],
+          [void* trace[256]; int n = backtrace(trace, 256);]
+        )
+      ],
+      [ ac_have_backtrace="yes" ],
+      [ ac_have_backtrace="no"  ]
+    )
+  ]
+)
 if test "x$ac_have_backtrace" = "xyes"; then
         AC_DEFINE(HAVE_BACKTRACE,1,[glibc backtrace function])
 fi;     
