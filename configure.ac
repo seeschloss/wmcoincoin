@@ -250,7 +250,6 @@ AM_GNU_GETTEXT_VERSION([0.21])
 dnl Checks for programs.
 dnl ===================
 AC_PROG_CC
-AC_ISC_POSIX
 
 
 dnl don't want the -g flag
