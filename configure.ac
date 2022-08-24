@@ -478,7 +478,7 @@ fi
 
 AC_CACHE_CHECK(
   [for execinfo.h and backtrace],
-  [ac_have_backtrace],
+  [ac_cv_have_backtrace],
   [
     AC_COMPILE_IFELSE(
       [
@@ -487,12 +487,12 @@ AC_CACHE_CHECK(
           [void* trace[256]; int n = backtrace(trace, 256);]
         )
       ],
-      [ ac_have_backtrace="yes" ],
-      [ ac_have_backtrace="no"  ]
+      [ ac_cv_have_backtrace="yes" ],
+      [ ac_cv_have_backtrace="no"  ]
     )
   ]
 )
-if test "x$ac_have_backtrace" = "xyes"; then
+if test "x$ac_cv_have_backtrace" = "xyes"; then
         AC_DEFINE(HAVE_BACKTRACE,1,[glibc backtrace function])
 fi;     
 
