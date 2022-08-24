@@ -499,23 +499,20 @@ fi;
 WMCOINCOIN_PLAYER=""
 if test "x$build_wmcc_player" = "xyes"; then
   PKG_CHECK_MODULES([x11], [x11])
-  AC_CHECK_PROG([IMLIB2_CONFIG_IN_PATH],[imlib2-config],[yes],[no])
-  if test "x$IMLIB2_CONFIG_IN_PATH" = "xno"; then
-        echo " *********************** YOU ARE NOT READY FOR THE DESKTOP ***********************"
-        echo " * no arms                              ==> no chocolate                         *"
-        echo " * imlib2-config was not found in path  ==> wmcoincoin_player will not be built. *"
-        echo " ************************* Thank you for your attention **************************"
-        build_wmcc_player="no"
-  else
-        AC_DEFINE(HAVE_IMLIB2,1,[use imlib2 for the player])
-        WMCOINCOIN_PLAYER="wmcoincoin_player${EXEEXT}"
-        build_wmcc_player="yes"
-        AC_DEFINE(HAVE_WMCOINCOIN_PLAYER,1,[wmcoincoin_player is supported])
-	imlib2_CFLAGS=$( imlib2-config --cflags )
-	imlib2_LIBS=$( imlib2-config --libs )
-	AC_SUBST([imlib2_CFLAGS])
-	AC_SUBST([imlib2_LIBS])
-  fi
+  PKG_CHECK_MODULES([imlib2], [imlib2],
+    [
+      AC_DEFINE(HAVE_IMLIB2,1,[use imlib2 for the player])
+      WMCOINCOIN_PLAYER="wmcoincoin_player${EXEEXT}"
+      AC_DEFINE(HAVE_WMCOINCOIN_PLAYER,1,[wmcoincoin_player is supported])
+    ], [
+      echo " *************** YOU ARE NOT READY FOR THE DESKTOP ****************"
+      echo " * no arms               ==> no chocolate                         *"
+      echo " * imlib2 was not found  ==> wmcoincoin_player will not be built. *"
+      echo " ****************** Thank you for your attention ******************"
+      build_wmcc_player="no"
+    ]
+  )
+
 dnl  AC_CHECK_PROG([CURL_IN_PATH],[curl],[yes],[no])
 dnl  if test "x$CURL_IN_PATH" = "xno"; then
 dnl         echo " *********************** YOU ARE NOT READY FOR THE DESKTOP ***********************"
