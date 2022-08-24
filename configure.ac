@@ -242,8 +242,8 @@ esac
 
 dnl internationalization macros
 ALL_LINGUAS="fr"
-AM_GNU_GETTEXT
-AM_GNU_GETTEXT_VERSION([0.17])
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.21])
 
 
 
@@ -538,7 +538,7 @@ case "$host" in
          ;;
 esac
 
-AC_CONFIG_FILES([Makefile intl/Makefile po/Makefile.in m4/Makefile src/Makefile scripts/Makefile platypus/Makefile])
+AC_CONFIG_FILES([Makefile po/Makefile.in m4/Makefile src/Makefile scripts/Makefile platypus/Makefile])
 AC_CONFIG_COMMANDS([default],[[ echo timestamp > stamp-h ]],[[]])
 AC_OUTPUT
 

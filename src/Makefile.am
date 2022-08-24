@@ -91,7 +91,7 @@ EXTRA_PROGRAMS = wmccc
 EXTRA_wmcoincoin_SOURCES = http_win.c http_unix.c fake-getaddrinfo.c fake-getnameinfo.c inet_aton.c
 
 #salete d'autoconf j'y comprends rien
-DEFS = @DEFS@ -DWMCCDATADIR="\"$(pkgdatadir)\"" -DLOCALEDIR="\"$(localedir)\"" -I$(top_srcdir)/intl -I$(top_srcdir)
+DEFS = @DEFS@ -DWMCCDATADIR="\"$(pkgdatadir)\"" -DLOCALEDIR="\"$(localedir)\"" -I$(top_srcdir)
 
 wmcoincoin_SOURCES = cc_queue.c plopup.c \
 	md5.c md5.h base64.c base64.h \
