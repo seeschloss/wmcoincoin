@@ -228,7 +228,7 @@ AC_CONFIG_SRCDIR([src/wmcoincoin.c])
 
 AC_PREREQ(2.52)
 AM_INIT_AUTOMAKE
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS([config.h])
 
 dnl Checks for host/os name
 dnl =======================
