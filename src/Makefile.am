@@ -88,7 +88,7 @@ bin_PROGRAMS = wmcoincoin @WMCCC@
 EXTRA_PROGRAMS = wmccc
 
 # include dans http.c
-EXTRA_wmcoincoin_SOURCES = http_win.c http_unix.c fake-getaddrinfo.c fake-getnameinfo.c inet_aton.c
+EXTRA_wmcoincoin_SOURCES = http_win.c http_unix.c inet_aton.c
 
 #salete d'autoconf j'y comprends rien
 DEFS = @DEFS@ -DWMCCDATADIR="\"$(pkgdatadir)\"" -DLOCALEDIR="\"$(localedir)\"" -I$(top_srcdir)
@@ -142,7 +142,7 @@ wmccc_SOURCES = \
 	coin_util.c coin_util.h \
 	options_list.h \
 	keylist.c keylist.h \
-	fake-getaddrinfo.h fake-getnameinfo.h inet_aton.h
+	inet_aton.h
 
 wmccc_LDADD = @GTK_LIBS@
 
