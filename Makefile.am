@@ -98,7 +98,7 @@ MAINT_CHARSET = latin1
 # pour faire plaisir à woof :°)
 #prefix=$(DESTDIR)@prefix@
 
-SUBDIRS = intl  m4  po src scripts platypus
+SUBDIRS = m4 po src scripts platypus
 EXTRA_DIST = config.rpath  MACOSX xpms/porte.h xpms/editwin_minib.xcf xpms/editwin_minib.xpm \
              xpms/coin.xpm  xpms/leds.h  xpms/leds.xcf \
              xpms/porte.xcf  xpms/weekday.xpm xpms/month.xpm \
