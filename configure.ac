@@ -478,28 +478,7 @@ fi;
 
 WMCOINCOIN_PLAYER=""
 if test "x$build_wmcc_player" = "xyes"; then
-  AC_CHECK_PROG([IMLIB2_CONFIG_IN_PATH],[imlib2-config],[yes],[no])
-  if test "x$IMLIB2_CONFIG_IN_PATH" = "xno"; then
-        echo " *********************** YOU ARE NOT READY FOR THE DESKTOP ***********************"
-        echo " * no arms                              ==> no chocolate                         *"
-        echo " * imlib2-config was not found in path  ==> wmcoincoin_player will not be built. *"
-        echo " ************************* Thank you for your attention **************************"
-        build_wmcc_player="no"
-  else
-        AC_DEFINE(HAVE_IMLIB2,1,[use imlib2 for the player])
-        WMCOINCOIN_PLAYER="wmcoincoin_player${EXEEXT}"
-        build_wmcc_player="yes"
-        AC_DEFINE(HAVE_WMCOINCOIN_PLAYER,1,[wmcoincoin_player is supported])
-  fi
-dnl  AC_CHECK_PROG([CURL_IN_PATH],[curl],[yes],[no])
-dnl  if test "x$CURL_IN_PATH" = "xno"; then
-dnl         echo " *********************** YOU ARE NOT READY FOR THE DESKTOP ***********************"
-dnl         echo " * no arms                     ==> no chocolate                                  *"
-dnl         echo " * curl was not found in path  ==> wmcoincoin-totoz-get won't work               *"
-dnl         echo " *                             ==> wmcoincoin_player will not be built.          *"
-dnl         echo " ************************* Thank you for your attention **************************"
-dnl         build_wmcc_player="no"
-dnl   fi
+  PKG_CHECK_MODULES(IMLIB2, [imlib2])
 fi
 AC_SUBST([WMCOINCOIN_PLAYER])
 
