@@ -103,7 +103,12 @@ main (int argc, char **argv)
    init_prefs();
    init_anim();
 
-   disp  = XOpenDisplay(NULL);
+   disp = XOpenDisplay(NULL);
+   if (disp == NULL) {
+     fputs("Couldn't connect to display\n", stderr);
+     return 1;
+   }
+
    if (argc == 1) {
      printf("kikou je suis un player pourri\n");
      printf("mes options toutes plus nazes les unes que les autres sont:\n");
