@@ -478,7 +478,7 @@ fi;
 
 WMCOINCOIN_PLAYER=""
 if test "x$build_wmcc_player" = "xyes"; then
-  PKG_CHECK_MODULES(IMLIB2, [imlib2])
+  PKG_CHECK_MODULES(IMLIB2, [imlib2], [WMCOINCOIN_PLAYER="wmcoincoin_player${EXEEXT}"], [build_wmcc_player=no])
 fi
 AC_SUBST([WMCOINCOIN_PLAYER])
 
