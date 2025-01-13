@@ -1337,7 +1337,7 @@ pp_draw_line(Dock *dock, Pixmap lpix, PostWord *pw,
   return pw;
 }
 
-void pp_refresh_hilight_refs(Pinnipede *pp, Boards *boards, int sid, time_t timestamp, int sub_timestamp, board_msg_info *mi) {
+void pp_refresh_hilight_refs(Pinnipede *pp, Boards *boards, int sid, time_t timestamp, int sub_timestamp, id_type *mi_id) {
   int l;
 
   for (l=0; l < pp->nb_lignes; l++) {
@@ -1354,7 +1354,7 @@ void pp_refresh_hilight_refs(Pinnipede *pp, Boards *boards, int sid, time_t time
 
 	  ref2_mi = check_for_id_ref(boards, pw->parent->id, pw->raw, NULL, 0, &is_ref);
       assert(is_ref);
-	  if (ref2_mi && mi && mi->id.lid == ref2_mi->id.lid) {
+	  if (ref2_mi && mi_id->lid == ref2_mi->id.lid) {
           pw->attr |= PWATTR_TMP_EMPH;
 	  }
 	} else if (pw->attr & PWATTR_REF) {
@@ -1462,7 +1462,7 @@ pp_refresh(Dock *dock, Drawable d, PostWord *pw_ref)
     free(link);
   } else if (pw_ref && (pw_ref->attr & PWATTR_TSTAMP)) {
     pp_refresh_hilight_refs(pp, boards, id_type_sid(pw_ref->parent->id), 
-			    pw_ref->parent->tstamp, pw_ref->parent->sub_tstamp, pw_ref->parent);
+			    pw_ref->parent->tstamp, pw_ref->parent->sub_tstamp, &pw_ref->parent->id);
   }
   if (ref_mi) { 
     board_msg_info *mi;
@@ -1497,7 +1497,7 @@ pp_refresh(Dock *dock, Drawable d, PostWord *pw_ref)
     /* et maintenant on detecte toutes les autres references vers ce message pour les afficher
        temporairement en gras (ça c vraiment pour faire le cakos)*/
     pp_refresh_hilight_refs(pp, boards, id_type_sid(ref_mi->id), 
-                            ref_mi->timestamp, ref_mi->sub_timestamp, ref_mi);
+                            ref_mi->timestamp, ref_mi->sub_timestamp, &ref_mi->id);
   }
 
   /* 
