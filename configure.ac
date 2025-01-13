@@ -228,7 +228,7 @@ AC_CONFIG_SRCDIR([src/wmcoincoin.c])
 
 AC_PREREQ(2.52)
 AM_INIT_AUTOMAKE
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS([config.h])
 
 dnl Checks for host/os name
 dnl =======================
@@ -242,15 +242,14 @@ esac
 
 dnl internationalization macros
 ALL_LINGUAS="fr"
-AM_GNU_GETTEXT
-AM_GNU_GETTEXT_VERSION([0.17])
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.21])
 
 
 
 dnl Checks for programs.
 dnl ===================
 AC_PROG_CC
-AC_ISC_POSIX
 
 
 dnl don't want the -g flag
@@ -398,7 +397,6 @@ AC_FUNC_VPRINTF
 AC_CHECK_HEADERS(string.h stdarg.h unistd.h sys/time.h utime.h sys/utime.h)
 AC_CHECK_HEADERS(sys/select.h sys/utsname.h pwd.h signal.h windows.h)
 AC_CHECK_HEADERS(inttypes.h unistd.h)
-AC_HEADER_TIME
 AC_CHECK_FUNCS(strdup strstr strcasecmp strncasecmp)
 AC_CHECK_FUNCS(strerror snprintf vsnprintf select signal)
 AC_CHECK_FUNCS(uname)
@@ -422,32 +420,43 @@ AC_C_CONST
 AC_C_INLINE
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
-AC_HEADER_TIME
 AC_STRUCT_TM
 
 
 dnl those two tests were taken from openssh-3.5p1
-AC_CACHE_CHECK([for struct sockaddr_storage], ac_cv_have_struct_sockaddr_storage, [
-	AC_TRY_COMPILE(
-		[
+AC_CACHE_CHECK(
+  [for struct sockaddr_storage],
+  [ac_cv_have_struct_sockaddr_storage],
+  [
+    AC_COMPILE_IFELSE(
+      [
+         AC_LANG_PROGRAM(
+           [
 #ifdef HAVE_WINDOWS_H
 #include <winsock2.h>
 #else
 #include <sys/types.h>
 #include <sys/socket.h>
 #endif
-		],
-		[ struct sockaddr_storage s; ],
-		[ ac_cv_have_struct_sockaddr_storage="yes" ],
-		[ ac_cv_have_struct_sockaddr_storage="no" ]
-	)
-])
+           ], [ struct sockaddr_storage s; ]
+         )
+      ],
+      [ ac_cv_have_struct_sockaddr_storage="yes" ],
+      [ ac_cv_have_struct_sockaddr_storage="no" ]
+    )
+  ]
+)
 if test "x$ac_cv_have_struct_sockaddr_storage" = "xyes" ; then
-	AC_DEFINE(HAVE_STRUCT_SOCKADDR_STORAGE,1,[struct sockaddr])
+  AC_DEFINE(HAVE_STRUCT_SOCKADDR_STORAGE,1,[struct sockaddr])
 fi
-AC_CACHE_CHECK([for struct addrinfo], ac_cv_have_struct_addrinfo, [
-	AC_TRY_COMPILE(
-		[
+AC_CACHE_CHECK(
+  [for struct addrinfo],
+  [ac_cv_have_struct_addrinfo],
+  [
+    AC_COMPILE_IFELSE(
+      [
+        AC_LANG_PROGRAM(
+          [
 #ifdef HAVE_WINDOWS_H
 #include <winsock2.h>
 #else
@@ -455,24 +464,35 @@ AC_CACHE_CHECK([for struct addrinfo], ac_cv_have_struct_addrinfo, [
 #include <sys/socket.h>
 #include <netdb.h>
 #endif
-	],
-		[ struct addrinfo s; s.ai_flags = AI_PASSIVE; ],
-		[ ac_cv_have_struct_addrinfo="yes" ],
-		[ ac_cv_have_struct_addrinfo="no" ]
-	)
-])
+          ], [ struct addrinfo s; s.ai_flags = AI_PASSIVE; ],
+         )
+      ],
+      [ ac_cv_have_struct_addrinfo="yes" ],
+      [ ac_cv_have_struct_addrinfo="no" ]
+    )
+  ]
+)
 if test "x$ac_cv_have_struct_addrinfo" = "xyes" ; then
-	AC_DEFINE(HAVE_STRUCT_ADDRINFO,1,[struct addrinfo])
+        AC_DEFINE(HAVE_STRUCT_ADDRINFO,1,[struct addrinfo])
 fi
 
-AC_CACHE_CHECK([for execinfo.h and backtrace], ac_have_backtrace, [
-        AC_TRY_COMPILE(
-                [ #include <execinfo.h>       
-                ],
-                [ void* trace[256]; int n = backtrace(trace, 256); ],
-                [ ac_have_backtrace="yes" ],
-                [ ac_have_backtrace="no"  ])])
-if test "x$ac_have_backtrace" = "xyes"; then
+AC_CACHE_CHECK(
+  [for execinfo.h and backtrace],
+  [ac_cv_have_backtrace],
+  [
+    AC_COMPILE_IFELSE(
+      [
+        AC_LANG_PROGRAM(
+          [#include <execinfo.h>],
+          [void* trace[256]; int n = backtrace(trace, 256);]
+        )
+      ],
+      [ ac_cv_have_backtrace="yes" ],
+      [ ac_cv_have_backtrace="no"  ]
+    )
+  ]
+)
+if test "x$ac_cv_have_backtrace" = "xyes"; then
         AC_DEFINE(HAVE_BACKTRACE,1,[glibc backtrace function])
 fi;     
 
@@ -517,7 +537,7 @@ case "$host" in
          ;;
 esac
 
-AC_CONFIG_FILES([Makefile intl/Makefile po/Makefile.in m4/Makefile src/Makefile scripts/Makefile platypus/Makefile])
+AC_CONFIG_FILES([Makefile po/Makefile.in m4/Makefile src/Makefile scripts/Makefile platypus/Makefile])
 AC_CONFIG_COMMANDS([default],[[ echo timestamp > stamp-h ]],[[]])
 AC_OUTPUT
 
