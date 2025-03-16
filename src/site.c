@@ -46,7 +46,7 @@ boards_init_sites(SiteList *slist) {
 }
 
 static Boards *
-boards_create() {
+boards_create(void) {
   Boards *b;
   ALLOC_OBJ(b, Boards);
   b->first = NULL;
@@ -68,7 +68,7 @@ sl_create() {
   SiteList *sl;
   int i;
   ALLOC_OBJ(sl, SiteList);
-  sl->boards = boards_create(sl);
+  sl->boards = boards_create();
   sl->list = NULL;
   for (i = 0; i < MAX_SITES; i++) {
     if (Prefs.site[i]) {

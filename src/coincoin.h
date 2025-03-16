@@ -656,7 +656,7 @@ void pp_animate(Dock *dock);
 void pp_set_board_updated(Dock *dock);
 void pp_check_balloons(Dock *dock, int x, int y);
 void pp_change_filter_mode(Dock *dock, int zero_or_one);
-int pp_get_filter_mode();
+int pp_get_filter_mode(Dock *dock);
 void pp_set_ua_filter(Dock *dock, char *ua);
 void pp_set_word_filter(Dock *dock, char *word);
 void pp_show_message_from_id(Dock *dock, id_type id);
