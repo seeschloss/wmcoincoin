@@ -9,6 +9,7 @@
 #include <time.h>
 #include <regex.h>
 #include <ctype.h>
+#include <inttypes.h>
 #include "http.h"
 #include "global.h"
 #include "raster.h"

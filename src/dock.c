@@ -399,7 +399,7 @@ refresh_docktxt_bottom(Dock *dock, int x, int y, int w)
     unsigned char minimsg[10];
     minimsg[0] = 0;
     if (dock->view_id_timer_cnt % 40 > 15) {
-      snprintf(minimsg, 10, "id=%d", dock->view_id_in_newstitles.lid); 
+      snprintf(minimsg, 10, "id=%" PRId64, dock->view_id_in_newstitles.lid);
     } else if (dock->tl_item_survol) {
       board_msg_info *mi;
       mi = boards_find_id(dock->sites->boards, dock->tl_item_survol->id);

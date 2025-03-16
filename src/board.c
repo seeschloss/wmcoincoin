@@ -337,8 +337,8 @@ void board_save_state(FILE *f, Board *board) {
   t = board->time_shift;
   BLAHBLAH(1,myprintf("%<yel site_save_state> %10s : tmin -> %<cya %3ld> tmax -> %<cya %3ld> t -> %<CYA %3ld>\n",
                       board->site->prefs->site_name, tmin, tmax, t));
-  fprintf(f, "time_shift_min=%ld time_shift_max=%ld time_shift=%ld\n", (long)tmin, (long)tmax, (long)t);
-  fprintf(f, "last_viewed_id=%d\n", board->last_viewed_id);
+  fprintf(f, "time_shift_min=%ld time_shift_max=%ld time_shift=%ld\n", tmin, tmax, t);
+  fprintf(f, "last_viewed_id=%" PRId64 "\n", board->last_viewed_id);
   if (board_is_rss_feed(board)) {
     if (board->mi_tree_root) {
       save_md5_array_recurs(f, board, board->mi_tree_root);
@@ -362,7 +362,7 @@ void board_restore_state(FILE *f, Board *board) {
     board->time_shift_max = tmax;
     board->time_shift = t;
   }
-  if (fscanf(f, "last_viewed_id=%d", &board->last_viewed_id) == EOF)
+  if (fscanf(f, "last_viewed_id=%" PRId64, &board->last_viewed_id) == EOF)
     myfprintf(stderr, "fscanf() failed\n");
   if (board_is_rss_feed(board)) {
     board->last_viewed_id = -1; /* on dispose d'une liste de md5 */
@@ -1606,7 +1606,7 @@ board_call_external_(Board *board, int last_id, char *cmd) {
     qmessage = shell_quote(it->msg);
     qua = shell_quote(it->useragent);
     qhost = shell_quote(board->site->prefs->site_name);
-    snprintf(sid, 20, "%d", it->id.lid);
+    snprintf(sid, 20, "%" PRId64, it->id.lid);
     snprintf(stimestamp, 20, "%lu", (unsigned long)it->timestamp);
     snprintf(strollscore, 20, "%d", it->troll_score);
     

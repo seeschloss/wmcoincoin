@@ -1010,7 +1010,7 @@ board_find_horloge_id(Board *board, id_type caller_id,
           if (post_id > caller_id.lid) {
               snprintf(commentaire, comment_sz, _("IPOT(tm) detected"));
           } else {
-              snprintf(commentaire, comment_sz, _("but where is '#%lld' ?"), post_id);
+              snprintf(commentaire, comment_sz, _("but where is '#%" PRId64 "' ?"), post_id);
           }
       }
   }
