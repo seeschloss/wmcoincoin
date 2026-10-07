@@ -1446,6 +1446,27 @@ double exp(double x);
 void
 editw_action(Dock *dock, EditW *ew)
 {
+  /* Wayland port: there is no dock to slide out of, and a shaped, animated,
+     absolutely-positioned window cannot exist.  Open at full size, close at once.
+     (the original animation code below is kept but unreachable) */
+  if (ew->action == SORTIR) {
+    XSizeHints sh;
+    memset(&sh, 0, sizeof sh);
+    sh.flags = PMinSize | PMaxSize;               /* fixed size -> compositors float it */
+    sh.min_width = sh.max_width = EW_SHAPED_WIDTH;
+    sh.min_height = sh.max_height = EW_SHAPED_HEIGHT;
+    XSetWMNormalHints(dock->display, ew->win, &sh);
+    XMoveResizeWindow(dock->display, ew->win, ew->win_xpos, ew->win_ypos, EW_SHAPED_WIDTH, EW_SHAPED_HEIGHT);
+    XCopyArea(dock->display, ew->pix, ew->win, dock->NormalGC, 0, 0, EW_SHAPED_WIDTH, EW_SHAPED_HEIGHT, 0, 0);
+    XMapRaised(dock->display, ew->win);
+    ew->action = NOACTION;
+    editw_set_kbfocus(dock, ew, 1);
+    return;
+  } else if (ew->action == RENTRER) {
+    ew->action = NOACTION;
+    editw_unmap(dock, ew);
+    return;
+  }
   //  printf("%d %d\n", ew->action, ew->action_step);
   if (ew->action == SORTIR) {
     float f;
@@ -2000,6 +2021,25 @@ static void floude(Dock *dock, char *s) {
 }
 
 
+/* Wayland port: post the current message to the current board and close the editor. */
+static void
+editw_post_now(Dock *dock, EditW *ew)
+{
+  Site *s;
+  if (dock->coin_coin_site_id == -1) {
+    fprintf(stderr, "wmcoincoin: no site equipped with a board to post to\n");
+    return;
+  }
+  s = sl_find_site_id(dock->sites, dock->coin_coin_site_id);
+  if (s && s->board && board_can_post_messages(s->board)) {
+    ccqueue_push_board_post(s->site_id, s->board->coin_coin_useragent, dock->coin_coin_message);
+    pp_unset_kbnav(dock);
+    editw_hide(dock, ew);
+  } else {
+    fprintf(stderr, "wmcoincoin: this board is read-only (or the site is gone)\n");
+  }
+}
+
 int
 editw_handle_keypress(Dock *dock, EditW *ew, XEvent *event)
 {
@@ -2258,14 +2298,11 @@ editw_handle_keypress(Dock *dock, EditW *ew, XEvent *event)
 
     case XK_Return:
     case XK_KP_Enter:
-      //      printf("state %d\n", dock->door_state);
-      if (dock->door_state != OPENING && dock->door_state != OPENED) {
-	//printf("opening %d\n", dock->door_state);
-	dock->door_state = OPENING;
-      } else if (dock->door_state == OPENED || dock->door_state_step > 12) {
-	dock->red_button_press_flag = 1;
-	dock->post_anonyme = ((event->xkey.state & ShiftMask) ? 1:0);
-      }
+      /* Wayland port: the original drives the dock's door/red-button animation and
+         posts from there.  Post straight away instead (same queue call as
+         dock_red_button_check()). */
+      dock->post_anonyme = ((event->xkey.state & ShiftMask) ? 1:0);
+      editw_post_now(dock, ew);
       break;
     default:
 #ifdef OLD_KBCOINCOIN

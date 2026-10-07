@@ -1809,7 +1809,9 @@ void initx(Dock *dock, int argc, char **argv) {
   XSetCommand(dock->display, dock->win, argv, argc);
   
   /* map the main window */
-  XMapWindow(dock->display, dock->win);
+  /* Wayland port: the dock applet has no equivalent; keep it as a never-mapped
+     data structure shared with the pinnipede/palmipede code. */
+  /* XMapWindow(dock->display, dock->win); */
   /* affiche l'image d'initialisation (oh comme c'est userfriendly ! ) */
   XSync(dock->display, True);
   XCopyArea(dock->display, dock->coinpix, DOCK_WIN(dock), dock->NormalGC, 0, 0, 64, 64, 0, 0);
@@ -2050,6 +2052,9 @@ int main(int argc, char **argv)
 
   memset(&Prefs, 0, sizeof(Prefs));
   wmcc_prefs_initialize(argc, argv, &Prefs);
+  /* Wayland port: override-redirect windows do not exist, and the palmipede must not
+     be tied to the visibility of the (never mapped) dock window */
+  Prefs.palmipede_override_redirect = 0;
   
   dock->sites = sl_create();
 
@@ -2225,8 +2230,8 @@ int main(int argc, char **argv)
   plopup_build(dock);
   pp_build(dock);
   balltrap_build(dock);
-  if (Prefs.auto_swallow)
-    swallower_autoswallow(dock);
+  /* Wayland port: window swallowing is impossible (no foreign window embedding) */
+  /* if (Prefs.auto_swallow) swallower_autoswallow(dock); */
   //sw_swallow_win_id(dock,0x3200001);
 
   dock->door_state = CLOSED; dock->door_state_step = 0;

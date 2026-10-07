@@ -1,263 +1,299 @@
+/* fontcoincoin: thin font/colour layer for wmcoincoin.
+ *
+ * Wayland port: this replaces the Xft/Xrender implementation with
+ * fontconfig + cairo-ft, drawing into libxwl surfaces.  The public API
+ * (fontcoincoin.h) is unchanged.
+ *
+ * Text handling note: the rest of wmcoincoin stores messages as Latin-1
+ * ("8" functions) or UTF-8 ("utf8" functions).  Cairo wants UTF-8, so the
+ * 8-bit entry points transcode first.
+ */
+#include <assert.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <X11/Xlib.h>
+#include <fontconfig/fontconfig.h>
+#include <cairo.h>
+#include <cairo-ft.h>
+#include "xwl.h"
+
+#ifdef XWL_FONT_TEST
+# define MIN(a,b) ((a)<(b)?(a):(b))
+# define MAX(a,b) ((a)>(b)?(a):(b))
+  static struct { int disable_xft_antialiasing; } Prefs;
+#else
+# include "coin_util.h"
+# include "global.h"
+#endif
+
 #define NB_MAX_CC_FONTS 100
 #define NB_MAX_CC_COLORS 300
-#include <assert.h>
-#include <stdlib.h>
-#include <X11/Xft/Xft.h>
-#include "coin_util.h"
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
-FT_Library ft_library;
+#define CC_DPI 96.0
 
 typedef int CCFontId;
 typedef int CCColorId;
 
 typedef struct CCFont {
   char *fontname;
-  XftFont *xfn;
+  cairo_scaled_font_t *sf;
+  cairo_font_extents_t fe;
+  int ascent, descent, height;
   int refcnt;
-  FT_Face face;
 } CCFont;
-
 
 typedef struct CCColor {
   unsigned argb;
-  XRenderColor xrc;
-  XftColor xfc;
+  double r, g, b, a;
+  unsigned long pixel;
   int refcnt;
 } CCColor;
 
-CCFont  *ccfonts[NB_MAX_CC_FONTS] = {NULL,};
-CCColor *cccolors[NB_MAX_CC_COLORS] = {NULL,};
+static CCFont  *ccfonts[NB_MAX_CC_FONTS];
+static CCColor *cccolors[NB_MAX_CC_COLORS];
 
-XftDraw *xd = 0;
-Display *display = 0;
-unsigned screen;
-Colormap colormap;
-Visual *visual = 0;
-Window root = None;
+static Display *display;
+static cairo_surface_t *scratch_surf;   /* for measuring */
+static cairo_t *scratch;
 
-void ccfont_initialize(Display *display_, int screen_, Visual *visual_, Colormap colormap_, Drawable d) {
+void ccfont_initialize(Display *display_, int screen_, Visual *visual_, Colormap colormap_, Drawable d)
+{
+  (void)screen_; (void)visual_; (void)colormap_; (void)d;
   display = display_;
-  screen = screen_;
-  visual = visual_;
-  colormap = colormap_;
-  root = RootWindow(display, screen);
-  xd = XftDrawCreate(display, d, visual, colormap);
-
-  FT_Init_FreeType(&ft_library);
+  FcInit();
+  scratch_surf = cairo_image_surface_create(CAIRO_FORMAT_A8, 1, 1);
+  scratch = cairo_create(scratch_surf);
 }
 
-void
-ccfont_release(CCFontId *pid) {
+/* ---------------- Latin-1 -> UTF-8 ---------------- */
+static char *latin1_to_utf8(const char *s, int len, char *out)
+{
+  char *o = out;
+  for (int i = 0; i < len; i++) {
+    unsigned char c = s[i];
+    if (c < 0x80) *o++ = c;
+    else { *o++ = 0xC0 | (c >> 6); *o++ = 0x80 | (c & 0x3F); }
+  }
+  *o = 0;
+  return out;
+}
+/* utf8 inputs may be unterminated slices: copy to a NUL-terminated buffer */
+static char *slice(const char *s, int len, char *out)
+{ memcpy(out, s, len); out[len] = 0; return out; }
+
+/* ---------------- fonts ---------------- */
+void ccfont_release(CCFontId *pid)
+{
   CCFontId id = *pid;
   if (id == -1) return;
-  assert(ccfonts[id]);
-  assert(ccfonts[id]->refcnt > 0);
-  if (--(ccfonts[id]->refcnt) == 0) {
-    if (ccfonts[id]->xfn) { XftFontClose(display, ccfonts[id]->xfn); ccfonts[id]->xfn = NULL; }
-    if (ccfonts[id]->fontname) { free(ccfonts[id]->fontname); ccfonts[id]->fontname = NULL; }
-    free(ccfonts[id]); ccfonts[id] = NULL;
+  assert(ccfonts[id] && ccfonts[id]->refcnt > 0);
+  if (--ccfonts[id]->refcnt == 0) {
+    if (ccfonts[id]->sf) cairo_scaled_font_destroy(ccfonts[id]->sf);
+    free(ccfonts[id]->fontname);
+    free(ccfonts[id]);
+    ccfonts[id] = NULL;
   }
   *pid = -1;
 }
 
-CCFontId
-ccfont_get(char *fontdesc_) {
-  int i, ifn = -1;
-  char *fontdesc;
-  if (Prefs.disable_xft_antialiasing) /* xft roxor ! */
-    fontdesc = str_printf("%s:antialias=no",fontdesc_);
-  else fontdesc = fontdesc_;
+static cairo_scaled_font_t *open_font(const char *desc, int disable_aa)
+{
+  FcPattern *pat = FcNameParse((const FcChar8 *)desc);
+  if (!pat) return NULL;
+  FcConfigSubstitute(NULL, pat, FcMatchPattern);
+  double dpi;
+  if (FcPatternGetDouble(pat, FC_DPI, 0, &dpi) != FcResultMatch)
+    FcPatternAddDouble(pat, FC_DPI, CC_DPI);
+  FcDefaultSubstitute(pat);
+  FcResult res;
+  FcPattern *match = FcFontMatch(NULL, pat, &res);
+  FcPatternDestroy(pat);
+  if (!match) return NULL;
+
+  double px = 12;
+  FcPatternGetDouble(match, FC_PIXEL_SIZE, 0, &px);
+  FcBool aa = FcTrue;
+  FcPatternGetBool(match, FC_ANTIALIAS, 0, &aa);
+
+  cairo_font_face_t *face = cairo_ft_font_face_create_for_pattern(match);
+  cairo_matrix_t fm, ctm;
+  cairo_matrix_init_scale(&fm, px, px);
+  cairo_matrix_init_identity(&ctm);
+  cairo_font_options_t *fo = cairo_font_options_create();
+  cairo_font_options_set_antialias(fo, (aa && !disable_aa) ? CAIRO_ANTIALIAS_GRAY : CAIRO_ANTIALIAS_NONE);
+  cairo_font_options_set_hint_metrics(fo, CAIRO_HINT_METRICS_ON);   /* integer advances, like Xft */
+  cairo_scaled_font_t *sf = cairo_scaled_font_create(face, &fm, &ctm, fo);
+  cairo_font_options_destroy(fo);
+  cairo_font_face_destroy(face);
+  FcPatternDestroy(match);
+  if (cairo_scaled_font_status(sf) != CAIRO_STATUS_SUCCESS) { cairo_scaled_font_destroy(sf); return NULL; }
+  return sf;
+}
+
+CCFontId ccfont_get(char *fontdesc_)
+{
+  char *fontdesc = fontdesc_;
+  int ifn = -1, i;
+  char buf[600];
+  if (Prefs.disable_xft_antialiasing) {
+    snprintf(buf, sizeof buf, "%s:antialias=no", fontdesc_);
+    fontdesc = buf;
+  }
   for (i = 0; i < NB_MAX_CC_FONTS; ++i) {
-    if (ccfonts[i] == NULL && ifn == -1) ifn = i;
-    else if (ccfonts[i] && strcmp(fontdesc, ccfonts[i]->fontname) == 0) {
-      ccfonts[i]->refcnt++;
-      if (fontdesc_ != fontdesc) free(fontdesc);
-      return i;
-    }
+    if (ccfonts[i] == NULL) { if (ifn == -1) ifn = i; }
+    else if (strcmp(fontdesc, ccfonts[i]->fontname) == 0) { ccfonts[i]->refcnt++; return i; }
   }
-  if (ifn >= 0) {
-    CCFont *cf = ccfonts[ifn] = malloc(sizeof(CCFont)); assert(cf);
-    cf->refcnt = 1;
-    cf->fontname = strdup(fontdesc);
-    cf->xfn = XftFontOpenName(display, screen, fontdesc);
-    if (!cf->xfn) { 
-      fprintf(stderr, "fontcoincoin could not find any font matching '%s'\n", fontdesc); 
-      ccfont_release(&ifn); 
-    }
-  } else { 
-    fprintf(stderr, "max fonts exhausted... leak ?\n");
-    assert(0);
+  if (ifn < 0) { fprintf(stderr, "max fonts exhausted... leak ?\n"); assert(0); }
+  CCFont *cf = ccfonts[ifn] = calloc(1, sizeof *cf);
+  cf->refcnt = 1;
+  cf->fontname = strdup(fontdesc);
+  cf->sf = open_font(fontdesc, Prefs.disable_xft_antialiasing);
+  if (!cf->sf) {
+    fprintf(stderr, "fontcoincoin could not find any font matching '%s'\n", fontdesc);
+    ccfont_release(&ifn);
+    return ifn;
   }
-  if (fontdesc_ != fontdesc) free(fontdesc);
+  cairo_scaled_font_extents(cf->sf, &cf->fe);
+  cf->ascent  = (int)ceil(cf->fe.ascent);
+  cf->descent = (int)ceil(cf->fe.descent);
+  cf->height  = (int)ceil(cf->fe.height);
   return ifn;
 }
 
-CCFontId ccfont_incref(CCFontId id) {
-  assert(ccfonts[id]);
-  assert(ccfonts[id]->refcnt >= 0);
-  ccfonts[id]->refcnt++;
-  return id;
-}
+CCFontId ccfont_incref(CCFontId id)
+{ assert(ccfonts[id]); ccfonts[id]->refcnt++; return id; }
 
-CCColorId
-cccolor_get(unsigned argb) {
+/* ---------------- colours ---------------- */
+CCColorId cccolor_get(unsigned argb)
+{
   int i, ic = -1;
   for (i = 0; i < NB_MAX_CC_COLORS; ++i) {
-    if (cccolors[i] == NULL && ic == -1) ic = i;
-    else if (cccolors[i] && argb == cccolors[i]->argb) {
-      cccolors[i]->refcnt++;
-      return i;
-    }
+    if (cccolors[i] == NULL) { if (ic == -1) ic = i; }
+    else if (argb == cccolors[i]->argb) { cccolors[i]->refcnt++; return i; }
   }
-  if (ic >= 0) {
-    CCColor *cc = cccolors[ic] = malloc(sizeof(CCColor)); assert(cc);
-    cc->refcnt = 1;
-    cc->argb = argb; 
-    cc->xrc.red = MIN(((argb >> 16) & 0xFF) * 256, 65535);
-    cc->xrc.green = MIN(((argb >> 8) & 0xFF) * 256, 65535);
-    cc->xrc.blue = MIN(((argb >> 0) & 0xFF) * 256, 65535);
-    cc->xrc.alpha = 65535 - MIN(((argb >> 24) & 0xFF) * 256, 65535);
-    XftColorAllocValue(display, visual, colormap, &cc->xrc,&cc->xfc);
-  } else { 
-    fprintf(stderr, "max colors exhausted... leak ?\n");
-    assert(0);
-  }
+  if (ic < 0) { fprintf(stderr, "max colors exhausted... leak ?\n"); assert(0); }
+  CCColor *cc = cccolors[ic] = calloc(1, sizeof *cc);
+  cc->refcnt = 1; cc->argb = argb;
+  cc->r = ((argb >> 16) & 0xFF) / 255.0;
+  cc->g = ((argb >> 8) & 0xFF) / 255.0;
+  cc->b = (argb & 0xFF) / 255.0;
+  /* historical quirk: the top byte is *transparency* (0 = opaque) */
+  cc->a = 1.0 - ((argb >> 24) & 0xFF) / 255.0;
+  cc->pixel = argb & 0xFFFFFF;               /* libxwl pixel format */
   return ic;
 }
 
-CCColorId 
-cccolor_get_rgb(int r255, int g255, int b255) {
-  r255 = MAX(0,MIN(255,r255));
-  g255 = MAX(0,MIN(255,g255));
-  b255 = MAX(0,MIN(255,b255));
-  return cccolor_get(r255*65536 + g255*256 + b255);
+CCColorId cccolor_get_rgb(int r255, int g255, int b255)
+{
+  r255 = MAX(0, MIN(255, r255)); g255 = MAX(0, MIN(255, g255)); b255 = MAX(0, MIN(255, b255));
+  return cccolor_get(r255 * 65536 + g255 * 256 + b255);
 }
 
-CCColorId
-cccolor_from_name(const char *name) {
+CCColorId cccolor_from_name(const char *name)
+{
   XColor xc;
-  if (XParseColor(display, colormap, name, &xc)) {
-    int rgb = 
-      ((((int)xc.red  )/256) << 16) + 
-      ((((int)xc.green)/256) << 8) + 
-      ((((int)xc.blue )/256));
-    return cccolor_get(rgb);
-  } else return -1;
+  if (XParseColor(display, 0, name, &xc))
+    return cccolor_get((((int)xc.red / 256) << 16) + (((int)xc.green / 256) << 8) + ((int)xc.blue / 256));
+  return -1;
 }
 
-CCColorId cccolor_incref(CCColorId id) {
-  assert(cccolors[id]);
-  assert(cccolors[id]->refcnt >= 0);
-  cccolors[id]->refcnt++;
-  return id;
-}
+CCColorId cccolor_incref(CCColorId id)
+{ assert(cccolors[id]); cccolors[id]->refcnt++; return id; }
 
-void 
-cccolor_release(CCColorId *pid) {
+void cccolor_release(CCColorId *pid)
+{
   CCColorId id = *pid;
   if (id == -1) return;
-  assert(cccolors[id]);
-  assert(cccolors[id]->refcnt > 0);
-  if (--(cccolors[id]->refcnt) == 0) {
-    XftColorFree(display, visual, colormap, &cccolors[id]->xfc);
-    free(cccolors[id]); cccolors[id] = NULL;
-  }
+  assert(cccolors[id] && cccolors[id]->refcnt > 0);
+  if (--cccolors[id]->refcnt == 0) { free(cccolors[id]); cccolors[id] = NULL; }
   *pid = -1;
 }
 
-void 
-cccolor_reset(CCColorId *pid, unsigned argb) {
-  cccolor_release(pid);
-  *pid = cccolor_get(argb);
+void cccolor_reset(CCColorId *pid, unsigned argb)
+{ cccolor_release(pid); *pid = cccolor_get(argb); }
+
+unsigned long cccolor_pixel(CCColorId cid) { return cccolors[cid]->pixel; }
+
+/* ---------------- text drawing ---------------- */
+static void draw_utf8(CCFontId fid, CCColorId cid, Drawable d, int x, int y, const char *u)
+{
+  assert(ccfonts[fid] && ccfonts[fid]->sf && cccolors[cid]);
+  cairo_surface_t *s = xwl_surface(display, d);
+  if (!s) return;
+  cairo_t *cr = cairo_create(s);
+  CCColor *c = cccolors[cid];
+  cairo_set_scaled_font(cr, ccfonts[fid]->sf);
+  cairo_set_source_rgba(cr, c->r, c->g, c->b, c->a);
+  cairo_move_to(cr, x, y);
+  cairo_show_text(cr, u);
+  cairo_destroy(cr);
+  xwl_damage(display, d);
 }
 
-unsigned long cccolor_pixel(CCColorId cid) {
-  return cccolors[cid]->xfc.pixel;
-}
-
-void
-ccfont_draw_string8(CCFontId fid, CCColorId cid, Drawable d, int x, int y, char *str, int len) {
+void ccfont_draw_string8(CCFontId fid, CCColorId cid, Drawable d, int x, int y, char *str, int len)
+{
   assert(str);
-  assert(ccfonts[fid] && ccfonts[fid]->xfn); 
-  assert(cccolors[cid]);
   if (len == -1) len = strlen(str);
-  XftDrawChange(xd, d);
-  XftDrawString8(xd, &cccolors[cid]->xfc, ccfonts[fid]->xfn, x, y, str, len);
-  XftDrawChange(xd, root);
+  char *tmp = malloc(2 * (size_t)len + 1);
+  draw_utf8(fid, cid, d, x, y, latin1_to_utf8(str, len, tmp));
+  free(tmp);
 }
 
-void
-ccfont_draw_string_utf8(CCFontId fid, CCColorId cid, Drawable d, int x, int y, char *str, int len) {
+void ccfont_draw_string_utf8(CCFontId fid, CCColorId cid, Drawable d, int x, int y, char *str, int len)
+{
   assert(str);
-  assert(ccfonts[fid] && ccfonts[fid]->xfn); 
-  assert(cccolors[cid]);
   if (len == -1) len = strlen(str);
-  XftDrawChange(xd, d);
-  XftDrawStringUtf8(xd, &cccolors[cid]->xfc, ccfonts[fid]->xfn, x, y, str, len);
-  XftDrawChange(xd, root);
+  char *tmp = malloc((size_t)len + 1);
+  draw_utf8(fid, cid, d, x, y, slice(str, len, tmp));
+  free(tmp);
 }
 
-/* extrait de: http://www.keithp.com/~keithp/render/Xft.tutorial
+/* ---------------- text metrics ---------------- */
+static int extents_utf8(CCFontId fid, const char *u, short *pxstart, short *pxoff)
+{
+  cairo_text_extents_t te;
+  cairo_set_scaled_font(scratch, ccfonts[fid]->sf);
+  cairo_text_extents(scratch, u, &te);
+  /* Xft convention: x = offset of the origin from the left of the ink box */
+  if (pxstart) *pxstart = (short)floor(-te.x_bearing);
+  if (pxoff) *pxoff = (short)floor(te.x_advance + 0.5);
+  /* whitespace has no ink: Xft then reports the advance (pinnipede relies on width("  ") for word gaps) */
+  if (te.width <= 0.0) return (int)floor(te.x_advance + 0.5);
+  return (int)ceil(te.width);
+}
 
- (..) to compute the rectangle covered by a single glyph rendered at
-x,y:
-
-	top = y - glyphInfo.y;
-	left = x - glyphInfo.x;
-	bottom = top + glyphInfo.height;
-	right = left + glyphInfo.width;
-
-And to compute the normal location for the next glyph:
-
-	x = x + glyphInfo.xOff;
-	y = y + glyphInfo.yOff;
-
-*/
-int
-ccfont_text_xbox(CCFontId fid, char *str, int len, short *pxstart, short *pxoff) {
-  XGlyphInfo ext;
+int ccfont_text_xbox(CCFontId fid, const char *str, int len, short *pxstart, short *pxoff)
+{
   if (len == -1) len = strlen(str);
-  XftTextExtents8(display, ccfonts[fid]->xfn, str, len, &ext);
-  if (pxstart) *pxstart = ext.x;
-  if (pxoff) *pxoff = ext.xOff;
-  return ext.width;
+  char *tmp = malloc(2 * (size_t)len + 1);
+  int w = extents_utf8(fid, latin1_to_utf8(str, len, tmp), pxstart, pxoff);
+  free(tmp); return w;
 }
 
-int
-ccfont_text_xbox_utf8(CCFontId fid, char *str, int len, short *pxstart, short *pxoff) {
-  XGlyphInfo ext;
+int ccfont_text_xbox_utf8(CCFontId fid, char *str, int len, short *pxstart, short *pxoff)
+{
   if (len == -1) len = strlen(str);
-  XftTextExtentsUtf8(display, ccfonts[fid]->xfn, str, len, &ext);
-  if (pxstart) *pxstart = ext.x;
-  if (pxoff) *pxoff = ext.xOff;
-  return ext.width;
+  char *tmp = malloc((size_t)len + 1);
+  int w = extents_utf8(fid, slice(str, len, tmp), pxstart, pxoff);
+  free(tmp); return w;
 }
 
-int ccfont_text_width8(CCFontId fid, char *str, int len) {
-  return ccfont_text_xbox(fid,str,len,NULL,NULL);
-}
+int ccfont_text_width8(CCFontId fid, const char *str, int len) { return ccfont_text_xbox(fid, str, len, NULL, NULL); }
 
-int ccfont_text_width_utf8(CCFontId fid, char *str, int len) {
-  XGlyphInfo ext;
-  if (len == -1) len = strlen(str);
-  XftTextExtents8(display, ccfonts[fid]->xfn, str, len, &ext);
-  XftTextExtentsUtf8(display, ccfonts[fid]->xfn, str, len, &ext);
-  return ext.width;
-}
+int ccfont_text_width_utf8(CCFontId fid, char *str, int len)
+{ return ccfont_text_xbox_utf8(fid, str, len, NULL, NULL); }
 
-int ccfont_text_within_width8(CCFontId fid, char *str, int len, int width, int *final_width) {
-  XGlyphInfo ext;
+/* How many chars of `str` fit in `width` pixels (advance-based). */
+int ccfont_text_within_width8(CCFontId fid, const char *str, int len, int width, int *final_width)
+{
   int w = 0, i = 0;
   if (width > 0) {
     while (str[i] && (i < len || len == -1)) {
-      XftTextExtents8(display, ccfonts[fid]->xfn, str+i, 1, &ext);
-      //printf("i=%d str[i]='%c', w ?= %d+%d : %d\n",i,str[i], w, ext.width, width); 
-      if (w + ext.width <= width)
-        w += ext.xOff - ext.x - 1;//width; /* le calcul est pas clair clair .. */
-      else break;
+      char one[3]; short off;
+      latin1_to_utf8(str + i, 1, one);
+      extents_utf8(fid, one, NULL, &off);
+      if (w + off <= width) w += off; else break;
       ++i;
     }
   }
@@ -265,14 +301,6 @@ int ccfont_text_within_width8(CCFontId fid, char *str, int len, int width, int *
   return i;
 }
 
-int ccfont_ascent(CCFontId fid) {
-  return ccfonts[fid]->xfn->ascent;
-}
-
-int ccfont_descent(CCFontId fid) {
-  return ccfonts[fid]->xfn->descent;
-}
-
-int ccfont_height(CCFontId fid) {
-  return ccfonts[fid]->xfn->height;
-}
+int ccfont_ascent(CCFontId fid)  { return ccfonts[fid]->ascent; }
+int ccfont_descent(CCFontId fid) { return ccfonts[fid]->descent; }
+int ccfont_height(CCFontId fid)  { return ccfonts[fid]->height; }
