@@ -334,9 +334,11 @@ convert_to_ascii(char *dest, const char *_src, int dest_sz)
     if (src[is] == '&') {
       int i, found;
       i = 0; found = -1;
-      if (src[is+1] == '#' && src[is+2] >= '0' && src[is+2] <= '9') {
+      if (src[is+1] == '#' && ((src[is+2] >= '0' && src[is+2] <= '9') ||
+                               ((src[is+2] == 'x' || src[is+2] == 'X') && isxdigit((unsigned char)src[is+3])))) {
         long n; char *end;
-        n = strtol(src+is+2, &end, 10);
+        if (src[is+2] == 'x' || src[is+2] == 'X') n = strtol(src+is+3, &end, 16); /* &#x20ac; */
+        else n = strtol(src+is+2, &end, 10);
         if (n >= 32) {
           while (tab[i].sign) {
             if (tab[i].num && tab[i].num == n) {

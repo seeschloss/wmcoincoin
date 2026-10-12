@@ -167,6 +167,7 @@ static void window_set_size(XwlDisplay *d, XwlDrawable *w, int nw, int nh)
   w->surf = cairo_image_surface_create(CAIRO_FORMAT_RGB24, nw, nh);
   { cairo_t *cr = cairo_create(w->surf); set_color(cr, w->bg_pixel);
     cairo_paint(cr); cairo_destroy(cr); }
+  xwl_window_bg_apply(w, 0, 0, nw, nh);
   if (w->mapped) { free_buffers_all(w); alloc_buffers(d, w); }
   w->dirty = 1;
 }
@@ -399,8 +400,67 @@ extern void xwl_apply_hints(XwlDrawable *w);
 void xwl_window_init_size(XwlDisplay *d, XwlDrawable *w, int nw, int nh)
 { window_set_size(d, w, nw, nh); }
 
+/* ---- xdg_popup: X override-redirect windows (tooltips, balloons, menus) ---- */
+static void popup_configure(void *data, struct xdg_popup *p, int32_t x, int32_t y, int32_t w, int32_t h)
+{ (void)data; (void)p; (void)x; (void)y; (void)w; (void)h; }
+static void popup_done(void *data, struct xdg_popup *p)
+{
+  XwlDrawable *w = data; (void)p;
+  DBG("popup_done win=%p\n", (void *)w);
+  xwl_window_unrealize(w);                 /* dismissed by the compositor */
+}
+static void popup_repositioned(void *data, struct xdg_popup *p, uint32_t token)
+{ (void)data; (void)p; (void)token; }
+static const struct xdg_popup_listener popup_listener = { popup_configure, popup_done, popup_repositioned };
+
+static void realize_popup(XwlDisplay *d, XwlDrawable *w)
+{
+  /* The parent is the window the pointer is in (else the focused one).  libxwl's fake root
+   * coordinates are that window's own coordinates, so (px,py) is the popup's offset in it. */
+  XwlDrawable *par = d->ptr_win ? d->ptr_win : d->kbd_win;
+  if (par == w || !par || !par->xs || !par->configured) {
+    DBG("popup '%p' has no parent window: not shown\n", (void *)w);
+    return;                                 /* never fall back to a toplevel: it would be tiled */
+  }
+  int ax = w->px < 0 ? 0 : (w->px >= par->w ? par->w - 1 : w->px);
+  int ay = w->py < 0 ? 0 : (w->py >= par->h ? par->h - 1 : w->py);
+  struct xdg_positioner *pos = xdg_wm_base_create_positioner(d->wm_base);
+  xdg_positioner_set_size(pos, w->w, w->h);
+  xdg_positioner_set_anchor_rect(pos, ax, ay, 1, 1);
+  xdg_positioner_set_anchor(pos, XDG_POSITIONER_ANCHOR_TOP_LEFT);
+  xdg_positioner_set_gravity(pos, XDG_POSITIONER_GRAVITY_BOTTOM_RIGHT);
+  xdg_positioner_set_offset(pos, w->px - ax, w->py - ay);
+  xdg_positioner_set_constraint_adjustment(pos, XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_SLIDE_X |
+                                                XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_SLIDE_Y);
+  w->wls = wl_compositor_create_surface(d->compositor);
+  wl_surface_set_user_data(w->wls, w);
+  w->xs = xdg_wm_base_get_xdg_surface(d->wm_base, w->wls);
+  xdg_surface_add_listener(w->xs, &xdg_surface_listener, w);
+  w->popup = xdg_surface_get_popup(w->xs, par->xs, pos);
+  xdg_popup_add_listener(w->popup, &popup_listener, w);
+  xdg_positioner_destroy(pos);
+  /* tooltips must never take the pointer: only windows that ask for clicks/keys get input */
+  if (!(w->event_mask & (ButtonPressMask | ButtonReleaseMask | KeyPressMask))) {
+    struct wl_region *empty = wl_compositor_create_region(d->compositor);
+    wl_surface_set_input_region(w->wls, empty);
+    wl_region_destroy(empty);
+  }
+  DBG("popup win=%p at %d,%d size %dx%d in parent %p\n", (void *)w, w->px, w->py, w->w, w->h, (void *)par);
+  w->mapped = 1; w->configured = 0;
+  wl_surface_commit(w->wls);
+}
+
+/* the application moved/resized a mapped popup: xdg_popup v1 cannot, so recreate it */
+void xwl_window_popup_moved(XwlDisplay *d, XwlDrawable *w)
+{
+  if (!w->override_redirect || !w->mapped) return;
+  xwl_window_unrealize(w);
+  xwl_window_realize(d, w);
+}
+
 void xwl_window_realize(XwlDisplay *d, XwlDrawable *w)
 {
+  if (w->override_redirect) { realize_popup(d, w); return; }
   w->wls = wl_compositor_create_surface(d->compositor);
   wl_surface_set_user_data(w->wls, w);
   w->xs = xdg_wm_base_get_xdg_surface(d->wm_base, w->wls);
@@ -420,7 +480,9 @@ void xwl_window_realize(XwlDisplay *d, XwlDrawable *w)
 void xwl_window_unrealize(XwlDrawable *w)
 {
   if (!w->mapped) return;
+  DBG("unrealize win=%p popup=%d\n", (void *)w, w->popup != NULL);
   free_buffers_all(w);
+  if (w->popup) { xdg_popup_destroy(w->popup); w->popup = NULL; }
   if (w->top) xdg_toplevel_destroy(w->top);
   if (w->xs) xdg_surface_destroy(w->xs);
   if (w->wls) wl_surface_destroy(w->wls);
@@ -432,6 +494,12 @@ void xwl_window_client_resize(XwlDisplay *d, XwlDrawable *w, int nw, int nh)
 {
   DBG("client_resize win=%p '%s' %dx%d -> %dx%d\n", (void *)w, w->title ? w->title : "", w->w, w->h, nw, nh);
   if (nw == w->w && nh == w->h) return;
+  if (w->override_redirect && w->mapped) {            /* popups cannot be resized in place */
+    xwl_window_unrealize(w);
+    window_set_size(d, w, nw, nh);
+    xwl_window_realize(d, w);
+    return;
+  }
   window_set_size(d, w, nw, nh);
   if (w->mapped && w->configured) {
     XEvent *e = xwl_push_event(d, ConfigureNotify, (Window)(uintptr_t)w);
@@ -526,5 +594,18 @@ void xwl_window_set_argb(XwlDisplay *d, XwlDrawable *w, int argb)
   if (w->argb == argb) { w->dirty = 1; return; }
   w->argb = argb;
   if (w->mapped && w->bufs[0].buf) { free_buffers_all(w); alloc_buffers(d, w); }
+  w->dirty = 1;
+}
+
+/* paint the window's background pixmap (tiled) into [x,y,w,h] of the backing store */
+void xwl_window_bg_apply(XwlDrawable *w, int x, int y, int ww, int hh)
+{
+  if (!w->bg_surf || !w->surf) return;
+  cairo_t *cr = cairo_create(w->surf);
+  cairo_set_source_surface(cr, w->bg_surf, 0, 0);
+  cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+  cairo_rectangle(cr, x, y, ww, hh);
+  cairo_fill(cr);
+  cairo_destroy(cr);
   w->dirty = 1;
 }

@@ -36,6 +36,10 @@ typedef struct XwlDrawable {
   XwlBuf bufs[2];
   void *shm_map; size_t shm_total;
   int mapped, configured, dirty;
+  int override_redirect;             /* X override-redirect window -> xdg_popup (tooltips, menus) */
+  struct xdg_popup *popup;
+  int px, py;                        /* popup position, in the coordinates of the pointer-focused window */
+  cairo_surface_t *bg_surf;          /* XSetWindowBackgroundPixmap: private copy, tiled */
   cairo_surface_t *shape;            /* A8 bounding mask (XShape), NULL = rectangular */
   int argb;                          /* buffers use ARGB8888 (needed when shaped) */
   int pending_w, pending_h;
@@ -89,6 +93,10 @@ struct XwlDisplay {
 
 int xwl_debug_on(void);
 XwlDrawable *xwl_lookup(Drawable d);
+void xwl_window_bg_apply(XwlDrawable *w, int x, int y, int ww, int hh);
+void xwl_window_unrealize(XwlDrawable *w);
+void xwl_window_realize(XwlDisplay *d, XwlDrawable *w);
+void xwl_window_popup_moved(XwlDisplay *d, XwlDrawable *w);
 XEvent *xwl_push_event(XwlDisplay *d, int type, Window win);
 int xwl_wants(Window w, long mask);
 const char *xwl_atom_name(XwlDisplay *d, Atom a);

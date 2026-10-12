@@ -668,6 +668,13 @@ int pp_tabs_is_site_visible(Dock *dock, Site *s);
 void pp_tabs_set_flag_answer_to_me(Dock *dock, Site *s);
 void pp_set_download_info(char *site, char *what);
 void pp_unset_kbnav(Dock *dock);
+
+/* pinnipede_redbutton.c: the big red button (Wayland port: it used to live in the dock) */
+void pp_redbutton_draw(Dock *dock);
+void pp_redbutton_tick(Dock *dock);
+int  pp_redbutton_press(Dock *dock, int mx, int my, unsigned state);
+int  pp_redbutton_release(Dock *dock);
+
 void pp_totoz_check_updates(Dock *dock);
 char *pp_totoz_realfname(unsigned char *name, int with_path);
 void pp_totoz_get_image(Dock *dock, unsigned char *imgname);

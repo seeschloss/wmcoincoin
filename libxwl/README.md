@@ -23,6 +23,18 @@ libfontconfig-dev libfreetype-dev libx11-dev (headers only) pkg-config
 fontcoincoin.c is a *project* file: copy it over wmcoincoin's src/fontcoincoin.c (it is built into
 libxwl here only so the tests can link it, with -DXWL_FONT_TEST).
 
+## libxwl extensions
+- Key auto-repeat is synthesized by the library (Wayland has none); those KeyPress events carry
+  `xkey.send_event == 2` so applications can ignore repeats (0 = real press, 1 = XSendEvent).
+
+## Popups
+`override_redirect` windows become `xdg_popup` surfaces. libxwl's fake root coordinates are the
+coordinates of the window the pointer is in (falling back to the keyboard-focused one), and
+XMoveWindow/XMoveResizeWindow on such a window sets its offset in that window. A popup with no
+parent window is not shown (it never becomes a toplevel). Moving/resizing a mapped popup recreates it
+(xdg_popup v1 cannot reposition). Popups that don't select button/key events get an empty input region.
+XSetWindowBackgroundPixmap is implemented (private, tiled copy re-applied on resize / XClearArea).
+
 ## Known deviations from X11
 - XMoveWindow/positioning is a no-op; root-window capture (pseudo transparency) unsupported.
 - Selection requests while owning the selection ourselves are short-circuited (set XWL_SEL_NOSHORTCUT=1

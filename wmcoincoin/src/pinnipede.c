@@ -4100,6 +4100,8 @@ pp_dispatch_event(Dock *dock, XEvent *event)
     } break;
   case ButtonPress:
     {     
+      if (event->xbutton.button == Button1 &&
+          pp_redbutton_press(dock, event->xbutton.x, event->xbutton.y, event->xbutton.state)) break;
       pp_selection_unselect(pp);
       if (pp_widgets_handle_button_press(dock, &event->xbutton)) {
       } else {
@@ -4115,6 +4117,7 @@ pp_dispatch_event(Dock *dock, XEvent *event)
     } break;
   case ButtonRelease:
     {
+      if (event->xbutton.button == Button1 && pp_redbutton_release(dock)) break;
       old_mouse_x = event->xbutton.x;
       old_mouse_y = event->xbutton.y;
 

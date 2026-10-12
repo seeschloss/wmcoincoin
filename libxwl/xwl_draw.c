@@ -241,6 +241,7 @@ int XClearArea(Display *dpy, Window w, int x, int y, unsigned width, unsigned he
   if (!width) width = dr->w - x;
   if (!height) height = dr->h - y;
   cairo_rectangle(cr, x, y, width, height); cairo_fill(cr); cairo_destroy(cr);
+  xwl_window_bg_apply(dr, x, y, width, height);
   dr->dirty = 1; (void)dpy; return 0;
 }
 
@@ -364,6 +365,7 @@ Window XCreateWindow(Display *dpy, Window parent, int x, int y, unsigned w, unsi
   win->bg_pixel = 0xffffff;
   if (vmask & CWBackPixel) win->bg_pixel = a->background_pixel;
   if (vmask & CWEventMask) win->event_mask = a->event_mask;
+  if (vmask & CWOverrideRedirect) win->override_redirect = a->override_redirect;
   win->w = 0; win->h = 0;
   /* backing store created through the shared resize path */
   extern void xwl_window_init_size(XwlDisplay *, XwlDrawable *, int, int);
@@ -384,14 +386,32 @@ int XChangeWindowAttributes(Display *dpy, Window w, unsigned long m, XSetWindowA
   if (!dr) return 0;
   if (m & CWEventMask) dr->event_mask = a->event_mask;
   if (m & CWBackPixel) dr->bg_pixel = a->background_pixel;
+  if (m & CWOverrideRedirect) dr->override_redirect = a->override_redirect;
   return 0;
 }
 int XSelectInput(Display *dpy, Window w, long mask)
 { XwlDrawable *dr = xwl_lookup(w); (void)dpy; if (dr) dr->event_mask = mask; return 0; }
 int XSetWindowBackground(Display *dpy, Window w, unsigned long px)
-{ XwlDrawable *dr = xwl_lookup(w); (void)dpy; if (dr) dr->bg_pixel = px; return 0; }
+{
+  XwlDrawable *dr = xwl_lookup(w); (void)dpy;
+  if (dr) { dr->bg_pixel = px; if (dr->bg_surf) { cairo_surface_destroy(dr->bg_surf); dr->bg_surf = NULL; } }
+  return 0;
+}
 int XSetWindowBackgroundPixmap(Display *dpy, Window w, Pixmap p)
-{ (void)dpy; (void)w; (void)p; return 0; }   /* TODO: transparency/bg pixmap */
+{
+  XwlDrawable *dr = xwl_lookup(w), *pm = (p > 1) ? xwl_lookup(p) : NULL;   /* None / ParentRelative: no pixmap */
+  (void)dpy;
+  if (!dr) return 0;
+  if (dr->bg_surf) { cairo_surface_destroy(dr->bg_surf); dr->bg_surf = NULL; }
+  if (pm && pm->surf) {                 /* X lets the app free the pixmap right away: keep a private copy */
+    cairo_surface_flush(pm->surf);
+    dr->bg_surf = cairo_image_surface_create(CAIRO_FORMAT_RGB24, pm->w, pm->h);
+    cairo_t *cr = cairo_create(dr->bg_surf);
+    cairo_set_source_surface(cr, pm->surf, 0, 0); cairo_paint(cr); cairo_destroy(cr);
+    xwl_window_bg_apply(dr, 0, 0, dr->w, dr->h);
+  }
+  return 0;
+}
 int XSetWindowBorderWidth(Display *dpy, Window w, unsigned bw) { (void)dpy; (void)w; (void)bw; return 0; }
 
 int XMapWindow(Display *dpy, Window w)
@@ -419,14 +439,24 @@ int XDestroyWindow(Display *dpy, Window w)
   for (XwlDrawable **pp = &d->windows; *pp; pp = &(*pp)->next_win)
     if (*pp == dr) { *pp = dr->next_win; break; }
   cairo_surface_destroy(dr->surf);
+  if (dr->bg_surf) cairo_surface_destroy(dr->bg_surf);
   free(dr->title); free(dr->app_id); free(dr);
   return 0;
 }
-int XMoveWindow(Display *dpy, Window w, int x, int y) { (void)dpy; (void)w; (void)x; (void)y; return 0; }
+int XMoveWindow(Display *dpy, Window w, int x, int y)
+{
+  XwlDrawable *dr = xwl_lookup(w);
+  if (dr && dr->override_redirect && (dr->px != x || dr->py != y)) {
+    dr->px = x; dr->py = y;
+    xwl_window_popup_moved((XwlDisplay *)dpy, dr);
+  }
+  return 0;                              /* toplevels cannot be positioned by the client on Wayland */
+}
 int XMoveResizeWindow(Display *dpy, Window w, int x, int y, unsigned width, unsigned height)
 {
-  XwlDrawable *dr = xwl_lookup(w); (void)x; (void)y;
+  XwlDrawable *dr = xwl_lookup(w);
   extern void xwl_window_client_resize(XwlDisplay *, XwlDrawable *, int, int);
+  if (dr && dr->override_redirect) { dr->px = x; dr->py = y; }
   if (dr) xwl_window_client_resize(XD(dpy), dr, width, height);
   return 0;
 }

@@ -163,7 +163,7 @@ static void k_leave(void *data, struct wl_keyboard *k, uint32_t serial, struct w
   d->kbd_win = NULL;
 }
 
-static void emit_key(XwlDisplay *d, uint32_t key, int press, uint32_t t)
+static void emit_key(XwlDisplay *d, uint32_t key, int press, uint32_t t, int repeat)
 {
   if (xwl_debug_on()) fprintf(stderr, "xwl: key %u press=%d kbd_win=%p wants=%d\n", key, press, (void *)d->kbd_win, d->kbd_win ? xwl_wants((Window)(uintptr_t)d->kbd_win, KeyPressMask) : -1);
   if (!d->kbd_win || !d->xkb_st) return;
@@ -172,6 +172,7 @@ static void emit_key(XwlDisplay *d, uint32_t key, int press, uint32_t t)
   xkb_keycode_t kc = key + 8;
   XEvent *e = xwl_push_event(d, press ? KeyPress : KeyRelease, w);
   e->xkey.keycode = kc; e->xkey.state = x_state(d); e->xkey.time = t;
+  if (repeat) e->xkey.send_event = 2;     /* libxwl extension: synthesized auto-repeat (0 = real, 1 = XSendEvent) */
   e->xkey.x = d->ptr_x; e->xkey.y = d->ptr_y; e->xkey.same_screen = True;
   XwlKeyInfo *ki = &d->keyinfo[e->xany.serial % 64];
   ki->serial = (uint32_t)e->xany.serial;
@@ -201,7 +202,7 @@ static void k_key(void *data, struct wl_keyboard *k, uint32_t serial, uint32_t t
   XwlDisplay *d = data; (void)k;
   d->last_serial = serial; d->last_time = t;
   int press = st == WL_KEYBOARD_KEY_STATE_PRESSED;
-  emit_key(d, key, press, t);
+  emit_key(d, key, press, t, 0);
   if (press && d->xkb_map && xkb_keymap_key_repeats(d->xkb_map, key + 8) && d->rep_rate > 0) {
     d->rep_key = key; d->rep_active = 1; d->rep_next = now_ms() + d->rep_delay;
   } else if (!press && d->rep_key == key) d->rep_active = 0;
@@ -224,7 +225,7 @@ void xwl_input_pump(XwlDisplay *d)
   long n = now_ms();
   int guard = 0;
   while (n >= d->rep_next && guard++ < 5) {
-    emit_key(d, d->rep_key, 1, d->last_time);
+    emit_key(d, d->rep_key, 1, d->last_time, 1);
     d->rep_next += 1000 / d->rep_rate;
   }
   if (guard >= 5) d->rep_next = n + 1000 / d->rep_rate;

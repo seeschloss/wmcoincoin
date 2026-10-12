@@ -1270,6 +1270,7 @@ void X_loop()
 	if (dock->door_state != CLOSED) dock->door_state = CLOSING;
       }
     }
+    pp_redbutton_tick(dock);   /* Wayland port: animate the button drawn in the pinnipede */
     
     dock_leds_set_state(dock);
     dock_leds_update(&dock->leds);

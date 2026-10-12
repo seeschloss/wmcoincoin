@@ -1725,6 +1725,7 @@ pp_widgets_refresh(Dock *dock)
   }
   if (pp->sc) { scrollcoin_refresh(pp->sc, pp->win, 1); }
   sw_redraw(dock);
+  pp_redbutton_draw(dock);   /* Wayland port */
 }
 
 int

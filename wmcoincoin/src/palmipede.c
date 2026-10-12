@@ -1420,6 +1420,7 @@ editw_show(Dock *dock, SitePrefs *sp, int user_agent_mode)
 void
 editw_unmap(Dock *dock, EditW *ew)
 {
+  if (dock->red_button_press_flag > 0) dock->red_button_press_flag = -1;  /* let the button spring back */
   ew->mapped = 0;
   //#ifdef OLD_KBCOINCOIN
   kb_release_input_context(KB_PALMIPEDE);
@@ -2021,25 +2022,6 @@ static void floude(Dock *dock, char *s) {
 }
 
 
-/* Wayland port: post the current message to the current board and close the editor. */
-static void
-editw_post_now(Dock *dock, EditW *ew)
-{
-  Site *s;
-  if (dock->coin_coin_site_id == -1) {
-    fprintf(stderr, "wmcoincoin: no site equipped with a board to post to\n");
-    return;
-  }
-  s = sl_find_site_id(dock->sites, dock->coin_coin_site_id);
-  if (s && s->board && board_can_post_messages(s->board)) {
-    ccqueue_push_board_post(s->site_id, s->board->coin_coin_useragent, dock->coin_coin_message);
-    pp_unset_kbnav(dock);
-    editw_hide(dock, ew);
-  } else {
-    fprintf(stderr, "wmcoincoin: this board is read-only (or the site is gone)\n");
-  }
-}
-
 int
 editw_handle_keypress(Dock *dock, EditW *ew, XEvent *event)
 {
@@ -2090,7 +2072,7 @@ editw_handle_keypress(Dock *dock, EditW *ew, XEvent *event)
   //printf("editw_handle_keypress: ksym=%04x len=%d\n", (int)kb_state()->ksym, kb_state()->klen);
 
   if (kb_state()->ksym == 0x20ac) { /* vilain hack pour reconnaite l'euro (le klen == 0 !!) */
-    editw_insert_char(ew, (unsigned char)'?');
+    editw_insert_char(ew, (unsigned char)0xA4);  /* Wayland port: the euro in ISO-8859-15 (was '?') */
   } else if (event->xkey.state & Mod1Mask) {
     switch (kb_state()->ksym) {
       case 'I':
@@ -2298,11 +2280,15 @@ editw_handle_keypress(Dock *dock, EditW *ew, XEvent *event)
 
     case XK_Return:
     case XK_KP_Enter:
-      /* Wayland port: the original drives the dock's door/red-button animation and
-         posts from there.  Post straight away instead (same queue call as
-         dock_red_button_check()). */
-      dock->post_anonyme = ((event->xkey.state & ShiftMask) ? 1:0);
-      editw_post_now(dock, ew);
+      /* Wayland port: same behaviour as the original once the dock's door is open.  The Return
+         key pushes the red button (drawn in the pinnipede) down over a few timer ticks; the
+         message is only sent if the key is released with the button fully pressed (see
+         editw_handle_keyrelease() -> dock_red_button_check()).  Keyboard auto-repeat is ignored,
+         so that the Return which opened the editor cannot send anything by being held. */
+      if (event->xany.send_event != 2) {
+        dock->post_anonyme = ((event->xkey.state & ShiftMask) ? 1:0);
+        dock->red_button_press_flag = 1;
+      }
       break;
     default:
 #ifdef OLD_KBCOINCOIN
@@ -2675,11 +2661,11 @@ void editw_balloon_test(Dock *dock, EditW *ew, int x, int y) {
 	   "Hmmm, it seems that you don't know what to say, so, if you don't mind,"
 	   "I suggest <font color=blue>%s</font>"), suggestion[i]);
   if (ew->buff_num == 0) {
-    balloon_test_with_image(dock, x, y, ew->win_xpos, ew->win_ypos, 8000,
+    balloon_test_with_image(dock, x, y, 0, 0, 8000,
 			    EW_TXT_X0, EW_TXT_Y0, EW_TXT_WIDTH-1, EW_TXT_HEIGHT-1,
 			    txt, ew->clippy_pixmap, ew->clippy_w+8, ew->clippy_h);
   } else {
-    balloon_test(dock, x, y, ew->win_xpos, ew->win_ypos, 10000,
+    balloon_test(dock, x, y, 0, 0, 10000,
 		 EW_TXT_X0, EW_TXT_Y0, EW_TXT_WIDTH-1, EW_TXT_HEIGHT-1,
 		 _("Put here the user-agent"));
   }
@@ -2698,7 +2684,7 @@ void editw_balloon_test(Dock *dock, EditW *ew, int x, int y) {
   s[BT_DEFAULTUA] = _("Restore the default user-agent");
   for (i = 0; i < NB_MINIBT; i++) {
     if (ew->mini[i].visible) {
-      balloon_test(dock, x, y, ew->win_xpos, ew->win_ypos, 0, 
+      balloon_test(dock, x, y, 0, 0, 0, 
 		   ew->mini[i].x, ew->mini[i].y, 
 		   ew->mini[i].w, ew->mini[i].h, s[i]);
     }
@@ -2708,20 +2694,10 @@ void editw_balloon_test(Dock *dock, EditW *ew, int x, int y) {
 /* on ne s'endort pas sur le bouton rouge */
 int
 editw_check_corse(Dock *dock, unsigned keycode) {
-  if (dock->red_button_send_cnt < 20) {
-    if (!balloon_ismapped(dock)) {
-      int x,y;
-      dock_get_icon_pos(dock, &x, &y);
-      balloon_show_with_image(dock, x, y, 64, 64,
-                              "<p align=center><b>wmCoinCoin Agent - Corsica Edition</b></p>Hmmm on dirait que<br>"
-                              " (a) vous vous êtes endormi sur la touche enter<br>"
-                              " (b) votre clavier est blo<br>"
-                              "<i>Hint:</i>:remove your big finger from the \"Return\" key", 400, 
-                              dock->editw->clippy_pixmap, dock->editw->clippy_w+8, dock->editw->clippy_h);
-    }
-    dock->red_button_send_cnt = 10;
-    balloon_disable_key(dock,keycode); /* desactive temporairement la disparition du ballon au premier KeyPressEvent */
-  } else if (balloon_ismapped(dock)) balloon_hide(dock);
+  (void)keycode;
+  /* Wayland port: the original showed a balloon ("remove your big finger from the Return key")
+     when a message had just been sent; balloons are gone, so just refuse to reopen for a moment. */
+  if (dock->red_button_send_cnt < 20) dock->red_button_send_cnt = 10;
   return (dock->editw->action == NOACTION && dock->red_button_send_cnt > 20);
 }
 

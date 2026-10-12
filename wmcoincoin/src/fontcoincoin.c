@@ -66,21 +66,68 @@ void ccfont_initialize(Display *display_, int screen_, Visual *visual_, Colormap
   scratch = cairo_create(scratch_surf);
 }
 
-/* ---------------- Latin-1 -> UTF-8 ---------------- */
+/* ---------------- 8-bit (ISO-8859-15) -> UTF-8 ---------------- */
+/* wmcoincoin's 8-bit text is ISO-8859-15 (Latin-9: its font_encoding option, its HTML entity
+ * table, "euro" = 0xA4 ...).  Latin-9 is Latin-1 except for these eight bytes. */
+static unsigned latin9_to_ucs(unsigned char c)
+{
+  switch (c) {
+    case 0xA4: return 0x20AC;  /* euro */
+    case 0xA6: return 0x0160;  case 0xA8: return 0x0161;
+    case 0xB4: return 0x017D;  case 0xB8: return 0x017E;
+    case 0xBC: return 0x0152;  case 0xBD: return 0x0153;  case 0xBE: return 0x0178;
+    default:   return c;
+  }
+}
+static char *put_ucs(char *o, unsigned u)
+{
+  if (u < 0x80) *o++ = (char)u;
+  else if (u < 0x800) { *o++ = (char)(0xC0 | (u >> 6)); *o++ = (char)(0x80 | (u & 0x3F)); }
+  else { *o++ = (char)(0xE0 | (u >> 12)); *o++ = (char)(0x80 | ((u >> 6) & 0x3F)); *o++ = (char)(0x80 | (u & 0x3F)); }
+  return o;
+}
+/* out must hold 3*len+1 bytes */
 static char *latin1_to_utf8(const char *s, int len, char *out)
 {
   char *o = out;
-  for (int i = 0; i < len; i++) {
-    unsigned char c = s[i];
-    if (c < 0x80) *o++ = c;
-    else { *o++ = 0xC0 | (c >> 6); *o++ = 0x80 | (c & 0x3F); }
+  for (int i = 0; i < len; i++) o = put_ucs(o, latin9_to_ucs((unsigned char)s[i]));
+  *o = 0;
+  return out;
+}
+
+/* Length of the valid UTF-8 sequence starting at s (0 = invalid). */
+static int utf8_seq_len(const unsigned char *s, int avail)
+{
+  unsigned char c = s[0];
+  int n;
+  if (c < 0x80) return 1;
+  if (c >= 0xC2 && c <= 0xDF) n = 2;
+  else if (c >= 0xE0 && c <= 0xEF) n = 3;
+  else if (c >= 0xF0 && c <= 0xF4) n = 4;
+  else return 0;
+  if (avail < n) return 0;
+  for (int i = 1; i < n; i++) if ((s[i] & 0xC0) != 0x80) return 0;
+  if (c == 0xE0 && s[1] < 0xA0) return 0;          /* overlong */
+  if (c == 0xED && s[1] >= 0xA0) return 0;         /* surrogate */
+  if (c == 0xF0 && s[1] < 0x90) return 0;          /* overlong */
+  if (c == 0xF4 && s[1] > 0x8F) return 0;          /* > U+10FFFF */
+  return n;
+}
+/* "UTF-8" strings inside wmcoincoin can carry stray legacy bytes (e.g. the HTML entity decoder
+ * emits a bare 0xA4 for &euro;).  Cairo rejects invalid UTF-8 -- and a failed cairo_t stays failed --
+ * so repair first: stray bytes are read as ISO-8859-15.  out must hold 3*len+1 bytes. */
+static char *slice(const char *s, int len, char *out)
+{
+  const unsigned char *p = (const unsigned char *)s;
+  char *o = out;
+  for (int i = 0; i < len; ) {
+    int n = utf8_seq_len(p + i, len - i);
+    if (n == 0) { o = put_ucs(o, latin9_to_ucs(p[i])); i++; }
+    else { memcpy(o, p + i, n); o += n; i += n; }
   }
   *o = 0;
   return out;
 }
-/* utf8 inputs may be unterminated slices: copy to a NUL-terminated buffer */
-static char *slice(const char *s, int len, char *out)
-{ memcpy(out, s, len); out[len] = 0; return out; }
 
 /* ---------------- fonts ---------------- */
 void ccfont_release(CCFontId *pid)
@@ -235,7 +282,7 @@ void ccfont_draw_string8(CCFontId fid, CCColorId cid, Drawable d, int x, int y, 
 {
   assert(str);
   if (len == -1) len = strlen(str);
-  char *tmp = malloc(2 * (size_t)len + 1);
+  char *tmp = malloc(3 * (size_t)len + 1);
   draw_utf8(fid, cid, d, x, y, latin1_to_utf8(str, len, tmp));
   free(tmp);
 }
@@ -244,7 +291,7 @@ void ccfont_draw_string_utf8(CCFontId fid, CCColorId cid, Drawable d, int x, int
 {
   assert(str);
   if (len == -1) len = strlen(str);
-  char *tmp = malloc((size_t)len + 1);
+  char *tmp = malloc(3 * (size_t)len + 1);
   draw_utf8(fid, cid, d, x, y, slice(str, len, tmp));
   free(tmp);
 }
@@ -253,6 +300,9 @@ void ccfont_draw_string_utf8(CCFontId fid, CCColorId cid, Drawable d, int x, int
 static int extents_utf8(CCFontId fid, const char *u, short *pxstart, short *pxoff)
 {
   cairo_text_extents_t te;
+  if (cairo_status(scratch) != CAIRO_STATUS_SUCCESS) {   /* cairo errors are sticky: start afresh */
+    cairo_destroy(scratch); scratch = cairo_create(scratch_surf);
+  }
   cairo_set_scaled_font(scratch, ccfonts[fid]->sf);
   cairo_text_extents(scratch, u, &te);
   /* Xft convention: x = offset of the origin from the left of the ink box */
@@ -266,7 +316,7 @@ static int extents_utf8(CCFontId fid, const char *u, short *pxstart, short *pxof
 int ccfont_text_xbox(CCFontId fid, const char *str, int len, short *pxstart, short *pxoff)
 {
   if (len == -1) len = strlen(str);
-  char *tmp = malloc(2 * (size_t)len + 1);
+  char *tmp = malloc(3 * (size_t)len + 1);
   int w = extents_utf8(fid, latin1_to_utf8(str, len, tmp), pxstart, pxoff);
   free(tmp); return w;
 }
@@ -274,7 +324,7 @@ int ccfont_text_xbox(CCFontId fid, const char *str, int len, short *pxstart, sho
 int ccfont_text_xbox_utf8(CCFontId fid, char *str, int len, short *pxstart, short *pxoff)
 {
   if (len == -1) len = strlen(str);
-  char *tmp = malloc((size_t)len + 1);
+  char *tmp = malloc(3 * (size_t)len + 1);
   int w = extents_utf8(fid, slice(str, len, tmp), pxstart, pxoff);
   free(tmp); return w;
 }
@@ -290,7 +340,7 @@ int ccfont_text_within_width8(CCFontId fid, const char *str, int len, int width,
   int w = 0, i = 0;
   if (width > 0) {
     while (str[i] && (i < len || len == -1)) {
-      char one[3]; short off;
+      char one[4]; short off;
       latin1_to_utf8(str + i, 1, one);
       extents_utf8(fid, one, NULL, &off);
       if (w + off <= width) w += off; else break;
