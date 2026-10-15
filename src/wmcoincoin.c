@@ -682,7 +682,7 @@ exec_coin_coin(Dock *dock, int sid, const char *ua, const char *msg_)
   BLAHBLAH(1,myprintf("request sent, status=%<YEL %d> (%d)\n", http_error(&r), flag_cancel_task));
   wmcc_log_http_request(site, &r);
   if (http_is_ok(&r)) {
-    if (!site->prefs->user_cookie && r.new_cookie) {
+    if (r.new_cookie) {
         site->prefs->user_cookie = strdup(r.new_cookie);
 	char *p;
 	for (p = site->prefs->user_cookie; *p; ++p) {
