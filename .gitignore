@@ -22,3 +22,7 @@ po/POTFILES
 
 *.swp
 
+*.a
+/config.rpath
+/libxwl/*-protocol.c
+/libxwl/*-client-protocol.h
