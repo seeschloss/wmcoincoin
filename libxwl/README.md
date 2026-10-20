@@ -6,7 +6,7 @@ instead of libX11. No X server, no XWayland.
 Build deps (Debian/Ubuntu): libwayland-dev wayland-protocols libxkbcommon-dev libcairo2-dev
 libfontconfig-dev libfreetype-dev libx11-dev (headers only) pkg-config
 
-    make                       # builds libxwl.a
+    ./bootstrap && ./configure && make   # from the top directory; libxwl/ builds libxwl.a
     gcc -DXLIB_ILLEGAL_ACCESS -o test1 test1.c libxwl.a $(pkg-config --cflags --libs wayland-client cairo cairo-ft xkbcommon fontconfig) -lm
 
 ## Status

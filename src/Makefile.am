@@ -105,6 +105,7 @@ wmcoincoin_SOURCES = cc_queue.c plopup.c \
 	swallowcoincoin.c \
         troll_detector.c troll_data.h \
 	pinnipede.c pinnipede_widgets.c pinnipede_pdfm.c pinnipede_totoz.c pinnipede.h \
+	pinnipede_redbutton.c \
 	totoz_bookmark.c \
         palmipede.c \
 	dock.c dock.h \
@@ -122,11 +123,15 @@ wmcoincoin_SOURCES = cc_queue.c plopup.c \
 	prefs.c prefs.h options_list.h prefs_gestion.c\
 	spell_coin.c spell_coin.h
 
+# Wayland port: the Xlib headers are used for types/events only; libX11 is replaced by libxwl
+# (and XLIB_ILLEGAL_ACCESS lets libxwl embed the Display structure the Xlib macros read)
+wmcoincoin_CPPFLAGS = -DXLIB_ILLEGAL_ACCESS -I$(top_srcdir)/libxwl
+
 wmcoincoin_CFLAGS = \
-	@XFT_CFLAGS@
+	@XWL_CFLAGS@ @XHDR_CFLAGS@
 
 wmcoincoin_LDADD = \
-	@XFT_LIBS@ -lm
+	../libxwl/libxwl.a @XWL_LIBS@ -lm
 
 wmccc_CFLAGS = \
 	@GTK_CFLAGS@

@@ -1,4 +1,9 @@
-/* test driver: keeps one virtual pointer alive and runs a script.
+/* Build (from this directory):
+ *   wayland-scanner client-header wlr-virtual-pointer-unstable-v1.xml vptr-proto.h
+ *   wayland-scanner private-code  wlr-virtual-pointer-unstable-v1.xml vptr-proto.c
+ *   cc -o vptr vptr.c vptr-proto.c $(pkg-config --cflags --libs wayland-client)
+ *
+ * test driver: keeps one virtual pointer alive and runs a script.
  *   a X Y      absolute move (1024x768 extent)
  *   b CODE 1|0 button (272=left 273=right 274=middle)
  *   s V        vertical scroll, value V

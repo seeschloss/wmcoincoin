@@ -98,7 +98,7 @@ MAINT_CHARSET = latin1
 # pour faire plaisir à woof :°)
 #prefix=$(DESTDIR)@prefix@
 
-SUBDIRS = m4 po src scripts platypus
+SUBDIRS = m4 po libxwl src scripts platypus
 EXTRA_DIST = config.rpath  MACOSX xpms/porte.h xpms/editwin_minib.xcf xpms/editwin_minib.xpm \
              xpms/coin.xpm  xpms/leds.h  xpms/leds.xcf \
              xpms/porte.xcf  xpms/weekday.xpm xpms/month.xpm \
@@ -115,10 +115,9 @@ rpm-dist: dist
 
 bin-dist: all
 	cp src/wmcoincoin .
-	cp src/wmccc .
 	strip wmcoincoin
-	strip wmccc
-	tar czvf $(PACKAGE)-$(VERSION)-$(COIN_ARCH).tgz ChangeLog README options wmcoincoin wmccc
+	for p in $(WMCCC); do cp src/$$p . ; strip $$p; done
+	tar czvf $(PACKAGE)-$(VERSION)-$(COIN_ARCH).tgz ChangeLog README README.wayland options wmcoincoin $(WMCCC)
 
 nightly: dist
 	cp $(PACKAGE)-$(VERSION).tar.gz ../wmcoincoin-cvs.tar.gz
@@ -128,3 +127,6 @@ pkgdata_DATA = options README wmcoincoin.spec xpms/bracket.xpm  xpms/logo.xpm xp
 	xpms/totoz.xpm pixmaps/cbronson.jpg pixmaps/logoh.png xpms/icon.xpm
 
 CLEANFILES = stamp-h
+
+# Wayland port
+EXTRA_DIST += README.wayland tools/fake-tribune.py tools/options.fake-tribune

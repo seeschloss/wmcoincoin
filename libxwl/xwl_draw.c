@@ -301,7 +301,7 @@ XImage *XCreateImage(Display *dpy, Visual *vis, unsigned depth, int format, int 
   XImage *im = calloc(1, sizeof *im);
   im->width = w; im->height = h; im->depth = depth; im->format = ZPixmap;
   im->bits_per_pixel = 32; im->bitmap_unit = 32; im->bitmap_pad = 32;
-  im->bytes_per_line = bpl ? bpl : w * 4;
+  im->bytes_per_line = bpl ? bpl : (int)(w * 4);
   im->byte_order = LSBFirst; im->bitmap_bit_order = LSBFirst;
   im->red_mask = 0xff0000; im->green_mask = 0xff00; im->blue_mask = 0xff;
   im->data = data;

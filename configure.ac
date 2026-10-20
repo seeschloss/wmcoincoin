@@ -223,7 +223,7 @@ dnl   Revision 1.2  2001/12/02 18:32:05  pouaite
 dnl   update suite à la modif sur http.c et a la generation automatique de src/default*.h
 dnl
 
-AC_INIT(wmcoincoin, 2.6.5-git, triton@kumal.info)
+AC_INIT(wmcoincoin, 2.6.5-git-wayland, triton@kumal.info)
 AC_CONFIG_SRCDIR([src/wmcoincoin.c])
 
 AC_PREREQ(2.52)
@@ -250,6 +250,9 @@ AM_GNU_GETTEXT_VERSION([0.21])
 dnl Checks for programs.
 dnl ===================
 AC_PROG_CC
+dnl libxwl (see libxwl/) is a convenience library
+AM_PROG_AR
+AC_PROG_RANLIB
 
 
 dnl don't want the -g flag
@@ -282,6 +285,8 @@ dnl    LDFLAGS="$LDFLAGS -rdynamic"; dnl juste pour avoir les noms de fonction d
 dnl  fi
   AC_CHECK_CC_FLAG([-rdynamic],LDFLAGS)
   AC_CHECK_CC_FLAG([-Wno-pointer-sign],CFLAGS)
+dnl this is 1990s C: do not let a newer default dialect (gnu23 with gcc 15) reject it
+  AC_CHECK_CC_FLAG([-std=gnu99],CFLAGS)
 else
           echo "Vous n'utilisez pas gcc .. attention coincoin peut avoir quelque bugs si les char ne sont pas signés"
 fi
@@ -290,65 +295,80 @@ YELLOW="\\033\\1331;33m"
 RESET="\\033\\1330m"
 
 
-AC_PATH_X
-AC_PATH_XTRA
-echo x_cflags=$X_CFLAGS libs=$LIBS pre_lib=$X_PRE_LIBS x_libs=$X_LIBS x_extra=$X_EXTRA_LIBS
+dnl Wayland port
+dnl ============
+dnl wmcoincoin is still *compiled* against the Xlib headers (types, XEvent, keysyms...) but it is
+dnl linked against libxwl (see libxwl/), a small implementation of the Xlib subset it uses on top of
+dnl Wayland (xdg-shell, wl_shm), cairo, fontconfig and xkbcommon.  Only the *compile* flags of x11
+dnl and xmu are used: libX11, libXext, libXmu, Xft and Xinerama are never linked, and no X server
+dnl is ever contacted.  (This replaces the original AC_PATH_X / -lX11 -lXext -lXmu / xft / xinerama
+dnl checks.)
 
-if test x$no_x = xyes; then
-  echo "You need to supply the path to the X headers and libraries with --x-includes=dir and --x-libraries=dir";
-  exit 1;
-fi;
+dnl le PKG_CONFIG_PATH pour cygwin qui est un peu con
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/X11R6/lib/pkgconfig
+PKG_CHECK_MODULES(XHDR, [x11 xmu], [],
+  [AC_MSG_ERROR([the X11 *headers* are still needed to compile (not to run): install libx11-dev and libxmu-dev (Debian/Ubuntu) or libX11-devel and libXmu-devel (Fedora)])])
+AC_SUBST(XHDR_CFLAGS)
 
-dnl AC_CHECK_LIB(Xpm, XpmCreatePixmapFromData,,
-dnl  AC_MSG_ERROR(The XPM library is required but wasn't found.),
-dnl  $X_LIBS -lX11 -lXext)
+save_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS $XHDR_CFLAGS"
+AC_CHECK_HEADER([X11/extensions/shape.h], [],
+  [AC_MSG_ERROR([X11/extensions/shape.h not found: install x11proto-dev (Debian/Ubuntu) or xorg-x11-proto-devel (Fedora)])],
+  [#include <X11/Xlib.h>])
+CPPFLAGS="$save_CPPFLAGS"
+
+PKG_CHECK_MODULES(XWL, [wayland-client cairo cairo-ft xkbcommon fontconfig freetype2])
+AC_SUBST(XWL_CFLAGS)
+AC_SUBST(XWL_LIBS)
+
+dnl the xdg-shell and primary-selection bindings are generated at build time
+PKG_CHECK_VAR([WAYLAND_PROTOCOLS_DATADIR], [wayland-protocols], [pkgdatadir], [],
+  [AC_MSG_ERROR([wayland-protocols is required (libwayland-dev / wayland-protocols packages)])])
+PKG_CHECK_VAR([WAYLAND_SCANNER], [wayland-scanner], [wayland_scanner], [],
+  [AC_MSG_ERROR([wayland-scanner is required (libwayland-bin / wayland-devel packages)])])
+for wl_xml in stable/xdg-shell/xdg-shell.xml unstable/primary-selection/primary-selection-unstable-v1.xml; do
+  if test ! -f "$WAYLAND_PROTOCOLS_DATADIR/$wl_xml"; then
+    AC_MSG_ERROR([$WAYLAND_PROTOCOLS_DATADIR/$wl_xml not found (wayland-protocols too old?)])
+  fi
+done
+
+AC_CHECK_HEADER([linux/input-event-codes.h], [],
+  [AC_MSG_ERROR([linux/input-event-codes.h not found (linux-libc-dev / kernel-headers)])])
+AC_CHECK_FUNCS([memfd_create], [],
+  [AC_MSG_ERROR([memfd_create() not found: a C library newer than glibc 2.27 is needed (wl_shm buffers)])])
 
 dnl maintenant on a besoin de curl
 PKG_CHECK_MODULES(libcurl, [libcurl])
 
-LIBS="${X_PRE_LIBS} ${X_LIBS} -lX11 -lXext -lXmu ${LIBS} ${X_EXTRA_LIBS} ${libcurl_LIBS} -lfreetype"
-CFLAGS="$CFLAGS $X_CFLAGS $libcurl_CFLAGS"
-dnl  -I/usr/include/X11/Xft -I/usr/include/freetype2"
+LIBS="${LIBS} ${libcurl_LIBS}"
+CFLAGS="$CFLAGS $libcurl_CFLAGS"
 
-dnl le PKG_CONFIG_PATH pour cygwin qui est un peu con
-export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/X11R6/lib/pkgconfig
-PKG_CHECK_MODULES(XFT, [xft])
-AC_SUBST(XFT_CFLAGS)
-AC_SUBST(XFT_LIBS)
-
-dnl XINERAMA support (stolen from wmaker)
-dnl ================
-xinerama=yes
-AC_ARG_ENABLE(xinerama, 
-[  --disable-xinerama	  disable XInerama extension support],
-		xinerama=$enableval, xinerama=yes)
-if test x$xinerama = xyes; then
-	AC_CHECK_LIB(Xinerama, XineramaQueryScreens, [LIBS="-lXinerama $LIBS"
-                AC_DEFINE([XINERAMA],1,[define if xinerama API is supported])], xinerama=no)
-fi
-
-
-
-
-build_wmccc="yes"
+dnl Wayland port: wmccc is built with GTK2, which only speaks X11 (it would run through XWayland),
+dnl and it is not part of the port: it is now opt-in.
+build_wmccc="no"
 AC_ARG_ENABLE(wmccc,
- [  --enable-wmccc        Builds the wmccc (requires gtk2), the graphical wmcoincoin configuration tool (Default is yes)
+ [  --enable-wmccc        Builds the wmccc (requires gtk2, X11 only), the graphical wmcoincoin configuration tool (Default is no)
   --disable-wmccc         Do not build wmccc],
- [ if   test "x$enableval" = "xno" ; then
+ [ if   test "x$enableval" = "xyes" ; then
+	build_wmccc="yes"
+   else
 	build_wmccc="no"
 	echo you disabled wmccc
    fi
- ], [build_wmccc="yes"])
+ ], [build_wmccc="no"])
 
-build_wmcc_player="yes"
+dnl Wayland port: wmcoincoin_player is a plain X11/imlib2 program (XWayland): opt-in as well.
+build_wmcc_player="no"
 AC_ARG_ENABLE(wmcoincoin_player,
- [  --enable-wmcoincoin_player Builds the wmcoincoin_player (requires imlib2) (viewer for totoz.eu pictures)
+ [  --enable-wmcoincoin_player Builds the wmcoincoin_player (requires imlib2, X11 only) (viewer for totoz.eu pictures) (Default is no)
   --disable-wmcoincoin_player  Do not build wmcoincoin_player],
- [ if   test "x$enableval" = "xno" ; then
+ [ if   test "x$enableval" = "xyes" ; then
+	build_wmcc_player="yes"
+   else
 	build_wmcc_player="no"
 	echo you disabled wmcoincoin_player
    fi
- ], [build_wmcc_player="yes"])
+ ], [build_wmcc_player="no"])
 
 if test "x$build_wmccc" = "xno"; then
   echo wmccc disabled...
@@ -498,7 +518,7 @@ fi;
 
 WMCOINCOIN_PLAYER=""
 if test "x$build_wmcc_player" = "xyes"; then
-  PKG_CHECK_MODULES(IMLIB2, [imlib2], [WMCOINCOIN_PLAYER="wmcoincoin_player${EXEEXT}"], [build_wmcc_player=no])
+  PKG_CHECK_MODULES(IMLIB2, [imlib2 x11 xext], [WMCOINCOIN_PLAYER="wmcoincoin_player${EXEEXT}"], [build_wmcc_player=no])
 fi
 AC_SUBST([WMCOINCOIN_PLAYER])
 
@@ -537,17 +557,18 @@ case "$host" in
          ;;
 esac
 
-AC_CONFIG_FILES([Makefile po/Makefile.in m4/Makefile src/Makefile scripts/Makefile platypus/Makefile])
+AC_CONFIG_FILES([Makefile po/Makefile.in m4/Makefile libxwl/Makefile src/Makefile scripts/Makefile platypus/Makefile])
 AC_CONFIG_COMMANDS([default],[[ echo timestamp > stamp-h ]],[[]])
 AC_OUTPUT
 
+echo "    wmcc will be built for native Wayland (libxwl), without any X server"
 if test "x$build_wmccc" = "xno"; then
-  echo "    **** I recall you that you choosed to disable wmccc ****"
+  echo "    **** I recall you that wmccc won't be built (use --enable-wmccc, X11 only) ****"
 else
   echo "    wmcc will be built with wmccc"
 fi
 if test "x$build_wmcc_player" = "xno"; then
-  echo "    **** I recall you that wmcoincoin_player won't be built ****"
+  echo "    **** I recall you that wmcoincoin_player won't be built (use --enable-wmcoincoin_player, X11 only) ****"
 else
   echo "    wmcc will be built with wmcoincoin_player"
 fi
