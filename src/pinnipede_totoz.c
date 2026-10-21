@@ -6,6 +6,9 @@
 #include "pinnipede.h"
 #include "coincoin.h"
 #include <X11/extensions/shape.h>
+#include <time.h>
+#include "xwl.h"
+#include "totoz_image.h"
 
 typedef struct pp_totoz_img {
   int hash;
@@ -15,9 +18,11 @@ typedef struct pp_totoz_img {
 } pp_totoz_img;
 
 struct pp_totoz {
-  Window win, subwin;
+  Window win;
   int survol_hash;
-  pid_t animate_pid;
+  TotozImage *image;
+  int frame, w, h;
+  struct timespec next_frame;
 
   int nb_img, max_img;
   struct pp_totoz_img *img;
@@ -124,12 +129,9 @@ pp_totoz_unmap(Dock *dock) {
     XDestroyWindow(dock->display, pp->totoz->win);
     pp->totoz->win = None;
   }
-  if (pp->totoz->animate_pid) {
-    kill(pp->totoz->animate_pid, SIGKILL); /* animate est une grosse bouse pas capable de mourir comme un grand quand 
-                                             sa fenetre est détruite. Je suis déçu déçu. C'est pourquoi il se prend 
-                                             un gros SIGKILL dans la face. Dis bonjour au ramasse-zombie
-                                          */
-    pp->totoz->animate_pid = 0;
+  if (pp->totoz->image) {
+    totoz_image_free(pp->totoz->image);
+    pp->totoz->image = NULL;
   }
 }
 
@@ -147,7 +149,7 @@ pp_totoz_rebuild(Dock *dock) {
   pp_totoz_unmap(dock);
   pp->totoz->win = None;
   pp->totoz->survol_hash = -42;
-  pp->totoz->animate_pid = 0;
+  pp->totoz->image = NULL;
   if (pp->totoz->img) {
     int i;
     for (i = 0; i < pp->totoz->nb_img; ++i) FREE_STRING(pp->totoz->img[i].name);
@@ -168,43 +170,59 @@ pp_totoz_destroy(Dock *dock) {
 }
 
 static void
-pp_totoz_show(Dock *dock, int x_, int y_, int w, int h) {
+pp_totoz_paint(Dock *dock) {
+  struct pp_totoz *t = dock->pinnipede->totoz;
+  cairo_surface_t *dst;
+  cairo_t *cr;
+  if (t->win == None || !t->image) return;
+  dst = xwl_surface(dock->display, t->win);
+  if (!dst) return;
+  cr = cairo_create(dst);
+  cairo_set_source_rgb(cr, 1, 0, 0);
+  cairo_paint(cr);
+  cairo_set_source_rgb(cr, 1, 1, 1);
+  cairo_rectangle(cr, 2, 2, t->w, t->h);
+  cairo_fill(cr);
+  cairo_set_source_surface(cr, t->image->frames[t->frame], 2, 2);
+  cairo_paint(cr);
+  cairo_destroy(cr);
+  xwl_damage(dock->display, t->win);
+}
+
+static void
+pp_totoz_schedule_next(struct pp_totoz *t) {
+  int d = t->image->delay_ms[t->frame];
+  clock_gettime(CLOCK_MONOTONIC, &t->next_frame);
+  t->next_frame.tv_nsec += (long)(d % 1000) * 1000000L;
+  t->next_frame.tv_sec += d / 1000;
+  if (t->next_frame.tv_nsec >= 1000000000L) { t->next_frame.tv_nsec -= 1000000000L; t->next_frame.tv_sec++; }
+}
+
+static void
+pp_totoz_show(Dock *dock, int x_, int y_, TotozImage *image) {
   Pinnipede *pp = dock->pinnipede;
   XSetWindowAttributes wa;
-  int x,y;
+  int x,y, w = image->w, h = image->h;
   pp_totoz_unmap(dock);
+  pp->totoz->image = image;
+  pp->totoz->frame = 0; pp->totoz->w = w; pp->totoz->h = h;
 
   x = MAX(x_ - w/2, 0);
   y = y_ - h - 20; /* dessus */
   if (y < 0) y = y_ + 20; /* dessous */
-  if (y+h > pp->win_height) { /* à gauche ? */
+  if (y+h > pp->win_height) { /* a gauche ? */
     y = MAX(y_ - h/2, 0);
     x = x_ - w - 20;
     if (x < 0) x = x_ + 20;
     if (x+w > pp->win_width) { x = 0; }
   }
 
-  pp->totoz->win = XCreateSimpleWindow (dock->display, pp->win, /*RootWindow(dock->display,dock->screennum), */
-                                       x, y, w+4, h+4, 0,
-                                       IRGB2PIXEL(0xffffff), IRGB2PIXEL(0xff0000));
-  pp->totoz->subwin = XCreateSimpleWindow (dock->display, pp->totoz->win,
-                                           2, 2, w, h, 0,
-                                           IRGB2PIXEL(0xffffff), IRGB2PIXEL(0xffffff));
-  wa.event_mask =
-    ButtonPressMask | 
-    ButtonReleaseMask | 
-    ExposureMask;
-  wa.override_redirect = False /*True*/ ;
-  wa.save_under = True;
-  XChangeWindowAttributes (dock->display, pp->totoz->win,
-			   CWSaveUnder | CWEventMask | CWOverrideRedirect, &wa);
-  /*XSetTransientForHint(dock->display, pp->totoz->win, pp->win);
-  set_borderless_window_hints(dock->display, pp->totoz->win);
-  set_window_class_hint(dock->display, pp->totoz->win, "wmcoincoin", "totoz");
-  set_window_pos_hints(dock->display, pp->totoz->win, x, y);
-  XSetWindowBorderWidth(dock->display, pp->totoz->win, 0);*/
+  pp->totoz->win = XCreateSimpleWindow (dock->display, pp->win, x, y, w+4, h+4, 0,
+                                        IRGB2PIXEL(0xffffff), IRGB2PIXEL(0xff0000));
+  wa.event_mask = ExposureMask;
+  wa.override_redirect = True;
+  XChangeWindowAttributes (dock->display, pp->totoz->win, CWEventMask | CWOverrideRedirect, &wa);
 
-  
   {
     Pixmap shape_mask = XCreatePixmap(dock->display, dock->rootwin, w+4, h+4, 1);
     GC monoGC = XCreateGC(dock->display, shape_mask, 0, NULL);
@@ -226,9 +244,26 @@ pp_totoz_show(Dock *dock, int x_, int y_, int w, int h) {
     XFreeGC(dock->display, monoGC);
   }
 
+  pp_totoz_paint(dock);
   XMapRaised(dock->display, pp->totoz->win);
-  XMapWindow(dock->display, pp->totoz->subwin);
+  if (image->nframes > 1) pp_totoz_schedule_next(pp->totoz);
   XSync(dock->display, False);
+}
+
+void
+pp_totoz_tick(Dock *dock) {
+  Pinnipede *pp = dock->pinnipede;
+  struct pp_totoz *t = pp ? pp->totoz : NULL;
+  struct timespec now;
+  int guard = 0;
+  if (!t || t->win == None || !t->image || t->image->nframes < 2) return;
+  clock_gettime(CLOCK_MONOTONIC, &now);
+  if (now.tv_sec < t->next_frame.tv_sec ||
+      (now.tv_sec == t->next_frame.tv_sec && now.tv_nsec < t->next_frame.tv_nsec)) return;
+  t->frame = (t->frame + 1) % t->image->nframes;
+  pp_totoz_paint(dock);
+  pp_totoz_schedule_next(t);
+  (void)guard;
 }
 
 int 
@@ -236,13 +271,7 @@ pp_totoz_dispatch_event(Dock *dock, XEvent *event)
 {
   Pinnipede *pp = dock->pinnipede;
   if (pp->totoz->win != None && event->xany.window == pp->totoz->win) {
-    switch (event->type) {
-      //    case ButtonPress:
-    case ButtonRelease:
-      {
-	pp_totoz_unmap(dock);
-      } break;
-    }
+    if (event->type == Expose) pp_totoz_paint(dock);
     return 1;
   }
   return 0;
@@ -379,38 +408,15 @@ pp_totoz_request(Dock *dock, char *imgname, int x, int y) {
   }
   pp_popup_show_txt(dock, info);
   if (img->status == PP_TOTOZ_STATUS_FOUND) {
-    pp_totoz_show(dock, x, y, img->w, img->h);
-    /* rajouter un check anti-fork bomb */
-    switch ((pp->totoz->animate_pid = fork())) {
-    case -1: /* arrrrg */
-      fprintf(stderr, _("Fork failed...(%s)\n"), strerror(errno)); pp->totoz->animate_pid = 0; break;
-    case 0: {
-      char *swin = str_printf("0x%08lx",(unsigned long)pp->totoz->subwin);
-      char *sfile= str_printf("%s/.wmcoincoin/totoz/%s",getenv("HOME"),img->realname); 
-      int ret;
-      assert(sfile); assert(swin);
-      sfile = shell_quote(sfile); assert(sfile);  /* et une deuxième couche, a priori parfaitement inutile */
-      //    int ret = execlp("/usr/bin/animate", "/usr/bin/animate", "-virtual-pixel", "Constant", "-background", "white", "-window", swin, sfile, NULL, NULL);
-      /*
-        if (use_gifview) {
-        BLAHBLAH(0,myprintf("exec gifview +e -a --bg white -w %s %<YEL %s>\n", swin, sfile));
-        ret = execlp("/usr/bin/gifview", "/usr/bin/gifview", "+e", "-a", "--bg", "white", "-w", swin, sfile, NULL, NULL);
-        } else {
-        BLAHBLAH(0,myprintf("exec animate -window %s %<YEL %s>\n", swin, sfile));
-        ret = execlp("/usr/bin/animate", "/usr/bin/animate", 
-        "-background", "white", "-window", swin, sfile, NULL, NULL);
-        }
-      */
-      BLAHBLAH(1,myprintf("exec wmcoincoin_player %<YEL %s> %s\n", sfile, swin));
-      ret = execlp("wmcoincoin_player", "wmcoincoin_player", sfile, swin, NULL, NULL);
-      if( ret==-1 ) {
-        fprintf(stderr, _("Exec failed...(%s)\n"), strerror(errno));
-      }
-      exit(ret);
-    } break;
-    default:
-      break;
+    char *sfile = str_printf("%s/.wmcoincoin/totoz/%s", getenv("HOME"), img->realname);
+    TotozImage *pic = totoz_image_load(sfile);
+    if (pic) pp_totoz_show(dock, x, y, pic);
+    else {
+      snprintf(info, 1024, "%s [%s]: cannot decode this picture",
+               img->realname, img->mime);
+      pp_popup_show_txt(dock, info);
     }
+    free(sfile);
   }
   free(urlencod_img);
 }
@@ -478,7 +484,7 @@ pp_totoz_get_image(Dock *dock, unsigned char *imgname) {
 
   wmcc_init_http_request(&r, dock->sites->list->prefs, imgurl);
   /* Triton> Et hop, on supporte le header Accept: image/gif pour les images \o/ */
-  r.accept = strdup("image/gif; image/png");
+  r.accept = strdup("image/gif, image/png, image/jpeg");
   http_request_send(&r);
 
   //printf("pp_totoz_get_image(%s,%s) : status = %d\n", imgname, extlist[i], pp_totoz_img_status(pp,imgname));
@@ -504,19 +510,24 @@ pp_totoz_get_image(Dock *dock, unsigned char *imgname) {
         pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_NOTFOUND);
       } else {
         fclose(f);
-        cmd = str_printf("echo \"%s.gif\" `wmcoincoin_player -i \"%s\"` \"%s\" > \"%s\"", imgfname, pathimg, "image/gif", pathdesc);
-        if (system(cmd) == -1)
-          myfprintf(stderr, "%s failed\n", cmd);
-        free(cmd);
-        pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_FOUND);
-        pp_totoz_update_status(dock, imgname);
+        /* the description file used to be written by `wmcoincoin_player -i`: "<file> <w>x<h> <mime>" */
+        int tw, th; const char *tmime;
+        if (totoz_image_info(pathimg, &tw, &th, &tmime) != 0) {
+          myfprintf(stderr, "pp_totoz_get_image : %s is not a GIF, PNG or JPEG picture\n", pathimg);
+          pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_NOTFOUND);
+        } else {
+          FILE *fd = fopen(pathdesc, "w");
+          if (fd) { fprintf(fd, "%s.gif %dx%d %s\n", imgfname, tw, th, tmime); fclose(fd); }
+          pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_FOUND);
+          pp_totoz_update_status(dock, imgname);
+        }
       }
     }
     FREE_STRING(pathimg);
     //printf("pp_totoz_get_image(%s,%s) / http_is_ok : status = %d\n", imgname, extlist[i], pp_totoz_img_status(pp,imgname));
 
   } else pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_NOTFOUND);
-  printf("pp_totoz_get_image(%s) / http_is_not_ok : status = %d\n", imgname, pp_totoz_img_status(pp,imgname));
+  BLAHBLAH(1, printf("pp_totoz_get_image(%s) : status = %d\n", imgname, pp_totoz_img_status(pp,imgname)));
   http_request_close(&r);
   i++;
   free(imgurl);

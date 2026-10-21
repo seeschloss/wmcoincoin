@@ -105,7 +105,7 @@ wmcoincoin_SOURCES = cc_queue.c plopup.c \
 	swallowcoincoin.c \
         troll_detector.c troll_data.h \
 	pinnipede.c pinnipede_widgets.c pinnipede_pdfm.c pinnipede_totoz.c pinnipede.h \
-	pinnipede_redbutton.c \
+	pinnipede_redbutton.c totoz_image.c totoz_image.h stb_image.h \
 	totoz_bookmark.c \
         palmipede.c \
 	dock.c dock.h \

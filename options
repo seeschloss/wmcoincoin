@@ -397,8 +397,8 @@ board.miniua_rule: ua:".*Linux.*" => color:="#80ff80"
 
 ### active la reconnaissance auto des mots du style [:totoz]
 ### pour afficher l'image correspondante trouvee dans les smileys de totoz.eu
-### le d/l d'une image est assure par wmcc-totoz-get
-### l'affichage par wmcoincoin_player
+### le d/l d'une image est assure par wmcoincoin
+### l'affichage par le pinnipede
 #board.enable_hfr_pictures: on
 
 ### active le d/l automatique des images inconnues. Attention c'est potentiellement 

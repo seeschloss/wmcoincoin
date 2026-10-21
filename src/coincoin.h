@@ -676,6 +676,7 @@ int  pp_redbutton_press(Dock *dock, int mx, int my, unsigned state);
 int  pp_redbutton_release(Dock *dock);
 
 void pp_totoz_check_updates(Dock *dock);
+void pp_totoz_tick(Dock *dock);
 char *pp_totoz_realfname(unsigned char *name, int with_path);
 void pp_totoz_get_image(Dock *dock, unsigned char *imgname);
 /* prefs_gestion.c */

@@ -359,8 +359,9 @@ Window XCreateWindow(Display *dpy, Window parent, int x, int y, unsigned w, unsi
                      XSetWindowAttributes *a)
 {
   XwlDisplay *d = XD(dpy);
-  (void)x; (void)y; (void)bw; (void)depth; (void)cls; (void)vis; (void)parent;
+  (void)bw; (void)depth; (void)cls; (void)vis; (void)parent;
   XwlDrawable *win = calloc(1, sizeof *win);
+  win->px = x; win->py = y;     /* where an override-redirect window (xdg_popup) will appear */
   win->kind = XWL_WINDOW; win->dpy = d; win->depth = 24;
   win->bg_pixel = 0xffffff;
   if (vmask & CWBackPixel) win->bg_pixel = a->background_pixel;
