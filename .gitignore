@@ -26,3 +26,4 @@ po/POTFILES
 /config.rpath
 /libxwl/*-protocol.c
 /libxwl/*-client-protocol.h
+/src/options_list.h

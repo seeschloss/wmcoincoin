@@ -1,3 +1,5 @@
+#include <time.h>
+#include <X11/keysym.h>
 #include "coincoin.h"
 #include "dock.h"
 #include "coin_xutil.h"
@@ -21,6 +23,8 @@ struct _Plopup {
   char *descr;
   int descr_width, descr_height;
   unsigned long bgpixel, lightpixel, darkpixel;
+  int ignore_first_release;
+  long open_ms;
 };
 
 void
@@ -103,6 +107,14 @@ plopup_set_description(Dock *dock, char *txt) {
   pup->descr = strdup(txt);
 }
 
+static long
+now_ms(void)
+{
+  struct timespec t;
+  clock_gettime(CLOCK_MONOTONIC, &t);
+  return t.tv_sec * 1000L + t.tv_nsec / 1000000L;
+}
+
 void
 plopup_show(Dock *dock, int winx, int winy, plopup_callback_t cback)
 {
@@ -154,6 +166,8 @@ plopup_show(Dock *dock, int winx, int winy, plopup_callback_t cback)
   if (pup->win_ypos + pup->win_height > scry + scrh) pup->win_ypos = scry + scrh - pup->win_height;
 
   pup->active_entry = NULL;
+  pup->ignore_first_release = 1;
+  pup->open_ms = now_ms();
   pup->win = XCreateSimpleWindow (dock->display, RootWindow(dock->display,dock->screennum), 
 				  0, 0, pup->win_width, pup->win_height, 0,
 				  BlackPixel(dock->display, dock->screennum),
@@ -275,6 +289,17 @@ plopup_unmap(Dock *dock)
   pup->pix = None;
 }
 
+#define PLOPUP_HOLD_MS 400
+
+static void
+plopup_choose(Dock *dock, int id)
+{
+  Plopup *pup = dock->plopup;
+  if (pup->callback) pup->callback(id);
+  else printf("buuuug plopup!!\n");
+  plopup_unmap(dock);
+}
+
 void 
 plopup_dispatch_event(Dock *dock, XEvent *event)
 {
@@ -286,13 +311,35 @@ plopup_dispatch_event(Dock *dock, XEvent *event)
       {
 	plopup_refresh(dock, event->xmotion.x_root-pup->win_xpos, event->xmotion.y_root-pup->win_ypos);
       } break;
-      //    case ButtonPress:
+    case ButtonPress:
+      {
+        if (event->xbutton.button >= Button4) break;
+	plopup_refresh(dock, event->xbutton.x_root-pup->win_xpos, event->xbutton.y_root-pup->win_ypos);
+      } break;
     case ButtonRelease:
       {
-	if (pup->callback) {
-	  pup->callback(pup->active_entry ? pup->active_entry->id : -1);
-	} else printf("buuuug plopup!!\n");
-	plopup_unmap(dock);
+        int x = event->xbutton.x_root - pup->win_xpos, y = event->xbutton.y_root - pup->win_ypos;
+        Plopup_entry *e;
+        if (event->xbutton.button >= Button4) break;
+        plopup_refresh(dock, x, y);
+        e = get_entry(dock, x, y);
+        if (pup->ignore_first_release) {
+          pup->ignore_first_release = 0;
+          if (!(e && now_ms() - pup->open_ms >= PLOPUP_HOLD_MS)) break;
+        }
+        if (e) {
+          plopup_choose(dock, e->id);
+        } else if (x < 0 || y < 0 || x >= pup->win_width || y >= pup->win_height) {
+          plopup_choose(dock, -1);
+        }
+      } break;
+    case KeyPress:
+      {
+        if (XLookupKeysym(&event->xkey, 0) == XK_Escape) plopup_choose(dock, -1);
+      } break;
+    case FocusOut:
+      {
+        plopup_choose(dock, -1);
       } break;
     }
   }

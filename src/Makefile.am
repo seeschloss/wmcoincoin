@@ -120,7 +120,7 @@ wmcoincoin_SOURCES = cc_queue.c plopup.c \
         http.c http.h \
 	coin_util.c coin_util.h \
         coin_xutil.c coin_xutil.h \
-	prefs.c prefs.h options_list.h prefs_gestion.c\
+	prefs.c prefs.h prefs_gestion.c\
 	spell_coin.c spell_coin.h
 
 # Wayland port: the Xlib headers are used for types/events only; libX11 is replaced by libxwl
@@ -145,7 +145,6 @@ wmccc_SOURCES = \
 	myprintf.c myprintf.h \
 	prefs.c prefs.h md5.h md5.c \
 	coin_util.c coin_util.h \
-	options_list.h \
 	keylist.c keylist.h \
 	inet_aton.h
 
@@ -161,8 +160,11 @@ wmccc_LDADD = @GTK_LIBS@
 #defaultoptionsfile.h: ../options
 #	cat ../options | sed -e '/^#%.*/d' | sed -e 's/\\/\\\\/g' | sed -e 's/"/\\"/g' | sed -e 's/	/\\t/g' | sed -e 's/^/fprintf(f,"/g' | sed -e 's/$$/\\n");/g' | sed -e 's/%/%%/g' > ./defaultoptionsfile.h
 
-options_list.h: ../options
-	cd ..; /bin/sh ./genoptlst.sh
+BUILT_SOURCES = options_list.h
+CLEANFILES = options_list.h
+
+options_list.h: $(top_srcdir)/options $(top_srcdir)/genoptlst.sh
+	$(SHELL) $(top_srcdir)/genoptlst.sh $(top_srcdir)/options options_list.h
 
 #useragents_file.o: defaultuseragents.h
 
