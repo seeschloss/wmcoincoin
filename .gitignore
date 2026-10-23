@@ -27,3 +27,5 @@ po/POTFILES
 /libxwl/*-protocol.c
 /libxwl/*-client-protocol.h
 /src/options_list.h
+
+at-lib
