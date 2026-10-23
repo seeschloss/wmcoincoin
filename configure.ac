@@ -352,19 +352,22 @@ PKG_CHECK_MODULES(libcurl, [libcurl])
 LIBS="${LIBS} ${libcurl_LIBS}"
 CFLAGS="$CFLAGS $libcurl_CFLAGS"
 
-dnl Wayland port: wmccc is built with GTK2, which only speaks X11 (it would run through XWayland),
-dnl and it is not part of the port: it is now opt-in.
-build_wmccc="no"
+dnl wmccc is the graphical configuration tool.  It uses GTK+ 3, which supports
+dnl Wayland natively.  Build it automatically when the toolkit is available;
+dnl --enable-wmccc/--disable-wmccc override the detection.
+build_wmccc="auto"
 AC_ARG_ENABLE(wmccc,
- [  --enable-wmccc        Builds the wmccc (requires gtk2, X11 only), the graphical wmcoincoin configuration tool (Default is no)
-  --disable-wmccc         Do not build wmccc],
- [ if   test "x$enableval" = "xyes" ; then
+ [  --enable-wmccc        Build the wmccc graphical configuration tool (requires GTK+ 3; default: auto)
+  --disable-wmccc       Do not build wmccc],
+ [ if test "x$enableval" = "xyes" ; then
 	build_wmccc="yes"
-   else
+   elif test "x$enableval" = "xno" ; then
 	build_wmccc="no"
 	echo you disabled wmccc
+   else
+	build_wmccc="auto"
    fi
- ], [build_wmccc="no"])
+ ], [build_wmccc="auto"])
 
 dnl Wayland port: wmcoincoin_player is a plain X11/imlib2 program (XWayland): opt-in as well.
 build_wmcc_player="no"
@@ -379,29 +382,21 @@ AC_ARG_ENABLE(wmcoincoin_player,
    fi
  ], [build_wmcc_player="no"])
 
+if test "x$build_wmccc" = "xauto"; then
+  if pkg-config --exists "gtk+-3.0 >= 3.0"; then
+    build_wmccc="yes"
+  else
+    build_wmccc="no"
+    echo "wmccc disabled (GTK+ 3 development files not found)"
+  fi
+fi
+
 if test "x$build_wmccc" = "xno"; then
   echo wmccc disabled...
   WMCCC=""
 else
-  echo building with WMCCC, checking for gtk..
-dnl si le test sur gtk ne passe pas (solaris... ?), il suffit de comment la ligne am_path_gtk et de decommenter les 4 lignes suivantes
-dnl GTK_CFLAGS="`gtk-config --cflags`"
-dnl GTK_LIBS="`gtk-config --libs`"
-dnl AC_SUBST(GTK_CFLAGS)
-dnl AC_SUBST(GTK_LIBS)
-  pkg_modules="gtk+-2.0 >= 2.0.0"
-  PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
-
-  GTK_CFLAGS=$PACKAGE_CFLAGS;
-  GTK_LIBS=$PACKAGE_LIBS;
-  AC_SUBST(GTK_CFLAGS)
-  AC_SUBST(GTK_LIBS)
-
-  dnl Add the languages which your application supports here.
-        dnl  ALL_LINGUAS=""
-        dnl  AM_GLIB_GNU_GETTEXT
-
-  dnl AM_PATH_GTK(1.2.0, , AC_MSG_ERROR(Cannot find GTK: Is gtk-config in path? If you dont have gtk you wont be able to build the wmccc try running configure with --disable-wmccc))
+  echo building with WMCCC, checking for GTK+ 3...
+  PKG_CHECK_MODULES(GTK, [gtk+-3.0 >= 3.0])
   WMCCC="wmccc$EXEEXT"
 fi
 AC_SUBST(WMCCC)
@@ -572,7 +567,7 @@ AC_OUTPUT
 
 echo "    wmcc will be built for native Wayland (libxwl), without any X server"
 if test "x$build_wmccc" = "xno"; then
-  echo "    **** I recall you that wmccc won't be built (use --enable-wmccc, X11 only) ****"
+  echo "    **** I recall you that wmccc won't be built (install GTK+ 3 or use --enable-wmccc) ****"
 else
   echo "    wmcc will be built with wmccc"
 fi

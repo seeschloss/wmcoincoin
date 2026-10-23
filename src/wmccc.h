@@ -3,6 +3,7 @@
 
 #define IN_WMCCC
 #include <gtk/gtk.h>
+#include "wmccc_gtk_compat.h"
 #include "prefs.h"
 #include "options_list.h"
 #include "coin_util.h"
@@ -17,7 +18,6 @@
 
 typedef struct _strucGlob {
   GtkWidget *main_win;
-  GdkFont *fixed_font;
   int current_site;
   int updating_labels;
   
@@ -48,24 +48,24 @@ typedef enum { DLG_SITELIST, DLG_NEW_BOARD, DLG_NEW_RSS, DLG_NEW_POP,
 GtkWidget *getdlg(wmccc_dialog_t dlg);
 GtkWidget *my_lookup_widget(GtkWidget *widget, const gchar *widget_name_);
 void wmccc_run_dialog(wmccc_dialog_t dlg, gboolean hide_parent);
-int edit_options_dialog_commit_changes_to_wmccc();
-void sitelist_update_site_order();
+int edit_options_dialog_commit_changes_to_wmccc(void);
+void sitelist_update_site_order(void);
 int prepare_sitelist_dialog(int isinit);
 int prepare_bronson_wizard(int isinit);
-int prepare_new_board_dialog();
-int prepare_new_rss_dialog();
-int prepare_new_pop_dialog();
-int prepare_edit_dialog();
+int prepare_new_board_dialog(void);
+int prepare_new_rss_dialog(void);
+int prepare_new_pop_dialog(void);
+int prepare_edit_dialog(int isinit);
 int prepare_conf_dialog(GtkWidget *w);
 int finalize_conf_dialog(GtkWidget *w);
-int validate_new_board_dialog();
-int validate_new_rss_dialog();
-int validate_new_pop_dialog();
-int apply_prefs();
-int save_prefs();
-void run_new_board_dialog();
-void run_new_rss_dialog();
-void run_new_pop_dialog();
-void run_edit_dialog();
+int validate_new_board_dialog(void);
+int validate_new_rss_dialog(void);
+int validate_new_pop_dialog(void);
+int apply_prefs(void);
+int save_prefs(void);
+void run_new_board_dialog(void);
+void run_new_rss_dialog(void);
+void run_new_pop_dialog(void);
+void run_edit_dialog(void);
 GtkWidget *bronson_wizard(const char *widget_name);
 #endif

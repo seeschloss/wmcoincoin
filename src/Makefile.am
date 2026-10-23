@@ -137,7 +137,7 @@ wmccc_CFLAGS = \
 	@GTK_CFLAGS@
 
 wmccc_SOURCES = \
-	wmccc.c wmccc.h wmccc_dialogs.c \
+	wmccc.c wmccc.h wmccc_gtk_compat.h wmccc_dialogs.c \
 	wmccc_support.c wmccc_support.h \
 	wmccc_interface.c wmccc_interface.h \
 	wmccc_callbacks.c wmccc_callbacks.h \

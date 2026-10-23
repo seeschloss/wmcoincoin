@@ -35,7 +35,7 @@ GtkWidget *my_lookup_widget(GtkWidget *widget, const gchar *widget_name_) {
       if (GTK_IS_MENU (widget))
         parent = gtk_menu_get_attach_widget (GTK_MENU (widget));
       else
-        parent = widget->parent;
+        parent = gtk_widget_get_parent (widget);
       if (!parent)
         parent = (GtkWidget*) g_object_get_data (G_OBJECT (widget), "GladeParentKey");
       if (parent == NULL)
@@ -61,7 +61,6 @@ irgb_to_gdkcolor(unsigned icol) {
   color.green = ((icol & 0x00ff00) >> 8) * 256 + 127;
   color.blue  = ((icol & 0x0000ff)     ) * 256 + 127;
     
-  gdk_colormap_alloc_color( gdk_colormap_get_system(), &color, FALSE, TRUE);
   return &color;
 }
 
@@ -320,7 +319,7 @@ void grab_cookie_bt_clicked(GtkWidget *bt UNUSED, GtkWidget *user_cookie_widget 
   GtkWidget *d = create_grab_cookie_dialog();
   GtkWidget *view = lookup_widget(d,"cookies");
   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW (view)); g_assert(buffer);
-  PangoFontDescription *ttfdesc = pango_font_description_copy(GTK_WIDGET(view)->style->font_desc);
+  PangoFontDescription *ttfdesc = pango_font_description_copy(gtk_widget_get_style(view)->font_desc);
   GtkTextIter start, end;
   gtk_text_buffer_get_bounds(buffer, &start, &end);
   gtk_text_buffer_delete(buffer, &start, &end);
@@ -460,7 +459,7 @@ int check_for_non_ascii(const char *s) {
   for (i = 0; i < strlen(s); ++i) 
     if (s[i] < 0 || s[i] == 127) {
       quick_message("Please, please, please !!!\n Avoid non-ASCII characters in wmccc...\n"
-                    "Since gtk2 is all-UTF8, and wmcc is all-iso8859 everything is going to break "
+                    "Since GTK+ 3 is all-UTF-8, and wmcc is all-iso8859 everything is going to break "
                     "if you put accentuated character everywhere... So for now, it is restricted to pure ascii.\nYes, it sux.");
       return -1;
     }
@@ -566,7 +565,7 @@ void color_button_update_color(GtkWidget *w, GdkColor *c, int value_store) {
 void color_button_clicked_callback(GtkWidget *w, TouchedInfo *ti) {
   GdkColor c;
   
-  GtkWidget *colorsel = GTK_COLOR_SELECTION_DIALOG(colorselection_dialog())->colorsel;
+  GtkWidget *colorsel = gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(colorselection_dialog()));
   
   gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(colorsel), 
                                         irgb_to_gdkcolor(GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "value"))));
@@ -594,7 +593,7 @@ void multi_set_color_button(GtkWidget *w, unsigned value, int count) {
                         G_CALLBACK (color_button_clicked_callback),
                         g_object_get_data(G_OBJECT(w), "touched"));
     }
-    ti->feedback_label = GTK_BIN(w)->child; ti->multivalued = 0;
+    ti->feedback_label = gtk_bin_get_child(GTK_BIN(w)); ti->multivalued = 0;
     ti->touched = -1;
     //printf("bgcolor : %06x\n", value);
     //gtk_widget_modify_text(ti->feedback_label, GTK_STATE_NORMAL, irgb_to_gdkcolor(value));
@@ -1030,7 +1029,7 @@ int edit_dialog_insert_file(const char *fname, gboolean remove_uncommented) {
   return 0;
 }
 
-int prepare_edit_dialog() {
+int prepare_edit_dialog(int isinit UNUSED) {
   GtkTextIter it1, it2, start, end;
   GtkWidget *view = edit_dialog("textview");
   PangoFontDescription *ttfdesc;
@@ -1043,7 +1042,7 @@ int prepare_edit_dialog() {
 
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD);
   gtk_text_view_set_left_margin(GTK_TEXT_VIEW(view), 5);
-  ttfdesc = pango_font_description_copy(GTK_WIDGET(view)->style->font_desc);
+  ttfdesc = pango_font_description_copy(gtk_widget_get_style(view)->font_desc);
   pango_font_description_set_family (ttfdesc, "monospace");
   gtk_widget_modify_font(view, ttfdesc);
 
@@ -1455,10 +1454,8 @@ main (int argc, char *argv[])
   glob.current_site = 0;
   glob.main_win = NULL;
   glob.nb_selected_sites = 0;
-  //  gtk_set_locale ();
 
   umask(077);
-  gtk_set_locale ();
   gtk_init (&argc, &argv);
 
   add_pixmap_directory (WMCCDATADIR);
@@ -1468,7 +1465,6 @@ main (int argc, char *argv[])
   glob.modif_widget_color.red = 32000;
   glob.modif_widget_color.green = 000;
   glob.modif_widget_color.blue = 000;
-  gdk_colormap_alloc_color(gdk_colormap_get_system(), &glob.modif_widget_color, FALSE, TRUE);
 
   glob.wmcc_pid = 0;    
   glob.options_file = abs_options_filename("options");
