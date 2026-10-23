@@ -117,7 +117,7 @@ bin-dist: all
 	cp src/wmcoincoin .
 	strip wmcoincoin
 	for p in $(WMCCC); do cp src/$$p . ; strip $$p; done
-	tar czvf $(PACKAGE)-$(VERSION)-$(COIN_ARCH).tgz ChangeLog README README.wayland options wmcoincoin $(WMCCC)
+	tar czvf $(PACKAGE)-$(VERSION)-$(COIN_ARCH).tgz ChangeLog README options wmcoincoin $(WMCCC)
 
 nightly: dist
 	cp $(PACKAGE)-$(VERSION).tar.gz ../wmcoincoin-cvs.tar.gz
@@ -128,5 +128,4 @@ pkgdata_DATA = options README wmcoincoin.spec xpms/bracket.xpm  xpms/logo.xpm xp
 
 CLEANFILES = stamp-h
 
-# Wayland port
-EXTRA_DIST += README.wayland tools/fake-tribune.py tools/options.fake-tribune
+EXTRA_DIST += tools/fake-tribune.py tools/options.fake-tribune
