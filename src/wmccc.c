@@ -296,7 +296,7 @@ void colorize_grab_cookie_dialog(GtkWidget *view) {
 }
 
 
-void grab_cookie_bt_clicked(GtkWidget *bt UNUSED, GtkWidget *user_cookie_widget UNUSED) {  
+void grab_cookie_bt_clicked(GtkWidget *bt, GtkWidget *user_cookie_widget UNUSED) {
   char searched[200]; searched[0] = 0;
   FILE *f;
   if (glob.nb_selected_sites != 0 && !str_is_empty(glob.selected_sites[0]->backend_url)) {
@@ -318,6 +318,7 @@ void grab_cookie_bt_clicked(GtkWidget *bt UNUSED, GtkWidget *user_cookie_widget 
   if (f == NULL) { quick_message("uh ? failed to launch %s (%s)", cmd, strerror(errno)); return; }
   GtkWidget *d = create_grab_cookie_dialog();
   GtkWidget *view = lookup_widget(d,"cookies");
+  wmccc_set_dialog_hints(d, bt ? gtk_widget_get_toplevel(bt) : NULL);
   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW (view)); g_assert(buffer);
   PangoFontDescription *ttfdesc = pango_font_description_copy(gtk_widget_get_style(view)->font_desc);
   GtkTextIter start, end;
@@ -346,7 +347,6 @@ void grab_cookie_bt_clicked(GtkWidget *bt UNUSED, GtkWidget *user_cookie_widget 
 
   g_signal_connect_swapped (lookup_widget(d,"close_bt"), "clicked", G_CALLBACK(gtk_widget_destroy), d);
   gtk_widget_show(d);
-  //gtk_window_set_transient_for(GTK_WINDOW(grab_cookie_dialog(NULL)), GTK_WINDOW(GTK_WIDGET(bt)->parent));
 }
 
 /* ------ widget management ------*/
@@ -597,16 +597,17 @@ void color_button_update_color(GtkWidget *w, GdkColor *c, int value_store) {
 
 void color_button_clicked_callback(GtkWidget *w, TouchedInfo *ti) {
   GdkColor c;
-  
-  GtkWidget *colorsel = gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(colorselection_dialog()));
-  
-  gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(colorsel), 
+  GtkWidget *dialog = colorselection_dialog();
+  GtkWidget *colorsel = gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(dialog));
+
+  wmccc_set_dialog_hints(dialog, gtk_widget_get_toplevel(w));
+  gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(colorsel),
                                         irgb_to_gdkcolor(GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "value"))));
   gtk_color_selection_set_has_palette(GTK_COLOR_SELECTION(colorsel), TRUE);
-  int rep = gtk_dialog_run(GTK_DIALOG(colorselection_dialog()));
+  int rep = gtk_dialog_run(GTK_DIALOG(dialog));
 
   gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(colorsel), &c);
-  gtk_widget_hide(GTK_WIDGET(colorselection_dialog()));
+  gtk_widget_hide(dialog);
   
   if (rep == GTK_RESPONSE_OK) {
     //printf("colorselection_dialog returned %d %d/%d/%d\n", rep, c.red, c.green, c.blue);

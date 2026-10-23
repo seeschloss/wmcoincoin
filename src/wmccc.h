@@ -48,6 +48,7 @@ typedef enum { DLG_SITELIST, DLG_NEW_BOARD, DLG_NEW_RSS, DLG_NEW_POP,
 GtkWidget *getdlg(wmccc_dialog_t dlg);
 GtkWidget *my_lookup_widget(GtkWidget *widget, const gchar *widget_name_);
 void wmccc_run_dialog(wmccc_dialog_t dlg, gboolean hide_parent);
+void wmccc_set_dialog_hints(GtkWidget *dialog, GtkWidget *parent);
 int edit_options_dialog_commit_changes_to_wmccc(void);
 void sitelist_update_site_order(void);
 int prepare_sitelist_dialog(int isinit);

@@ -68,9 +68,23 @@ GtkWidget *getdlg(wmccc_dialog_t dlg) { return getdlg_(dlg,FALSE); }
 
 GtkWidget *releasedlg(wmccc_dialog_t dlg) { return getdlg_(dlg,TRUE); }
 
+void wmccc_set_dialog_hints(GtkWidget *dialog, GtkWidget *parent) {
+  GtkWindow *window;
+  if (!GTK_IS_WINDOW(dialog)) return;
+  window = GTK_WINDOW(dialog);
+  if (parent && GTK_IS_WINDOW(parent) && parent != dialog) {
+    gtk_window_set_transient_for(window, GTK_WINDOW(parent));
+    gtk_window_set_modal(window, TRUE);
+  } else {
+    gtk_window_set_transient_for(window, NULL);
+  }
+  gtk_window_set_type_hint(window, GDK_WINDOW_TYPE_HINT_DIALOG);
+}
+
 void wmccc_dialog_response_cb(GtkWidget *dlg, gint response, int idx);
 
 void global_pinnipede_options_font_bt_cb() {
+  GtkWidget *parent = getdlg(DLG_GLOBAL_PINNIPEDE_OPTIONS);
   GtkFontSelectionDialog *w = GTK_FONT_SELECTION_DIALOG(create_fontselectiondialog());
   /*char oldfnname[512];
     snprintf(oldfnname, sizeof oldfnname, "%s %d", Prefs->pp_fn_family, Prefs->pp_fn_size);*/
@@ -82,6 +96,7 @@ void global_pinnipede_options_font_bt_cb() {
 
   gtk_font_selection_dialog_set_font_name(w, pango_font_description_to_string(oldpfn));
   pango_font_description_free(oldpfn);
+  wmccc_set_dialog_hints(GTK_WIDGET(w), parent);
   if (gtk_dialog_run(GTK_DIALOG(w)) == GTK_RESPONSE_OK) {
     char *newfnname = gtk_font_selection_dialog_get_font_name(w);
     PangoFontDescription* pfn = pango_font_description_from_string(newfnname);
@@ -209,16 +224,18 @@ void wmccc_dialog_response_cb(GtkWidget *dlg, gint response, int idx) {
 }
 
 void wmccc_run_dialog(wmccc_dialog_t dlg, gboolean hide_parent) {
-  GtkWidget *parent = dlgstack.sz > 0 ? getdlg(dlgstack.lst[dlgstack.sz-1]) : NULL;
+  GtkWidget *parent = dlgstack.sz > 0 ? getdlg(dlgstack.lst[dlgstack.sz-1]) : glob.main_win;
+  GtkWidget *dialog = getdlg(dlg);
   wmccc_initialize_dialog(dlg);
+  wmccc_set_dialog_hints(dialog, parent);
   if (hide_parent && parent) {
     gtk_widget_set_sensitive(parent, FALSE);
     gtk_widget_hide(parent);
   }
   
-  g_signal_connect ((gpointer) getdlg(dlg), "response",
+  g_signal_connect ((gpointer) dialog, "response",
                     G_CALLBACK (wmccc_dialog_response_cb),
                     GINT_TO_POINTER(dlgstack.sz));
   dlgstack.lst[dlgstack.sz++] = dlg;
-  gtk_widget_show(getdlg(dlg));
+  gtk_widget_show(dialog);
 }
