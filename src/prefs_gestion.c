@@ -486,13 +486,15 @@ wmcc_prefs_relecture(Dock *dock, int whatfile)
     int rebuild_palmi = 0;
     int close_palmi = 0;
     int reset_dock_pix = 0;
+    int palmipede_was_mapped = 0;
     int i;
 
     myprintf(_("rereading of options '%<YEL %s>' successful\n"), options_full_file_name);
     /*printf("VIREZ MOIVIREZ MOIVIREZ MOIVIREZ MOIVIREZ MOIVIREZ MOIVIREZ MOI\n"
            "sites=%s,%s,%s..\n", newPrefs.site[0]->site_name,newPrefs.site[1]->site_name,newPrefs.site[2]->site_name);
     */
-    if (editw_ismapped(dock->editw)) editw_unmap(dock, dock->editw);
+    palmipede_was_mapped = editw_ismapped(dock->editw);
+    if (palmipede_was_mapped) editw_unmap(dock, dock->editw);
 
     /* recopie bête de certaines options modifiables sans difficultes */
     
@@ -782,10 +784,7 @@ wmcc_prefs_relecture(Dock *dock, int whatfile)
     }
     
     if (close_palmi) {
-      int showed;
-      if ((showed = editw_ismapped(dock->editw))) editw_unmap(dock, dock->editw);
       editw_reload_colors(dock, dock->editw);
-      if (showed) editw_show(dock, NULL, 0);
     }
 
     if (rebuild_pinni) {
@@ -806,6 +805,10 @@ wmcc_prefs_relecture(Dock *dock, int whatfile)
 
     if (rebuild_palmi) {
       editw_rebuild(dock);
+    }
+
+    if (palmipede_was_mapped && !editw_ismapped(dock->editw)) {
+      editw_show(dock, NULL, 0);
     }
   }
   
