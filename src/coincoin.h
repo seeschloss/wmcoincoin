@@ -541,6 +541,7 @@ void block_sigalrm(int bloque);
 int launch_wmccc(Dock *dock,...);
 void exec_coin_coin(Dock *dock, int sid, const char *ua, const char *msg);
 void wmcc_save_or_restore_state(Dock *dock, int do_restore);
+void wmcc_quit(Dock *dock);
 Dock *get_dock();
 
 /* picohtml.c */

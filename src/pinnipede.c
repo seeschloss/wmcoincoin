@@ -4279,7 +4279,9 @@ pp_dispatch_event(Dock *dock, XEvent *event)
       if (event->xclient.message_type == dock->atom_WM_PROTOCOLS
 	  && event->xclient.format == 32 
 	  && (Atom)event->xclient.data.l[0] == dock->atom_WM_DELETE_WINDOW) {
-	pp_unmap(dock);
+	/* The pinnipede is the application's main window: closing it from the
+	   compositor must terminate wmcoincoin, not merely hide the window. */
+	wmcc_quit(dock);
       }
     } break;
   }

@@ -778,6 +778,29 @@ launch_wmccc(Dock *dock,...)
   return 0;
 }
 
+/* Quit through the normal path: save the window/board state and close the
+   display.  Used when the compositor asks us to close a window (the Wayland
+   equivalent of the window manager's close button).  Guarded against re-entry
+   because a close event can be delivered while another one is being handled. */
+void
+wmcc_quit(Dock *dock)
+{
+  static int quitting = 0;
+
+  if (quitting) return;
+  quitting = 1;
+
+  if (dock) {
+    if (dock->sites) wmcc_save_or_restore_state(dock, 0);
+    if (dock->display) {
+      Display *dpy = dock->display;
+      dock->display = NULL;
+      XCloseDisplay(dpy);
+    }
+  }
+  exit(0);
+}
+
 /* sauvegarde ou restaure l'état du wmcc
    (position du pinnipede/newswin) 
    decalage horaire des boards

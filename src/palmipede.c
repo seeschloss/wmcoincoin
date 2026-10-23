@@ -2507,6 +2507,16 @@ editw_dispatch_event(Dock *dock, EditW *ew, XEvent *event)
   case DestroyNotify: 
     {
     } break;
+  case ClientMessage:
+    {
+      if (event->xclient.message_type == dock->atom_WM_PROTOCOLS
+	  && event->xclient.format == 32
+	  && (Atom)event->xclient.data.l[0] == dock->atom_WM_DELETE_WINDOW) {
+	editw_hide(dock, ew);
+	/* closing the last visible window of the application quits it */
+	if (!pp_ismapped(dock)) wmcc_quit(dock);
+      }
+    } break;
   case ButtonPress:
     {
       editw_handle_button_press(dock, ew, &event->xbutton);
