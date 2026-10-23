@@ -13,7 +13,7 @@ URL:		http://hules.free.fr/wmcoincoin/wmcoincoin.html
 Group:		Applications/Communications
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 Prefix:		%{_prefix}
-BuildRequires:  gtk+-devel imlib2-devel
+BuildRequires:  gtk+-devel
   
 
 %description

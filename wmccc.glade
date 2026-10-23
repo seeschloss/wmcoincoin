@@ -3747,7 +3747,7 @@ In the command, the &lt;b&gt;%s&lt;/b&gt; is remplaced by the &lt;b&gt;escaped U
 	      <child>
 		<widget class="GtkLabel" id="label94">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">The totoz module requires wmcoincoin_player support. It searches for occurences of [:totoz] etc in the pinnipede, and displays a correspounding picture from the set of smileys of http://totoz.eu
+		  <property name="label" translatable="yes">The totoz module searches for occurences of [:totoz] etc in the pinnipede, and displays a correspounding picture from the set of smileys of http://totoz.eu
 
 This pictures may be bookmarked in the pinnipede (via right clic), and the bookmark ( stored in ~/.wmcoincoin/totoz/bookmarks.{txt,html} ) can be opened from the totoz button in the palmipede.</property>
 		  <property name="use_underline">False</property>

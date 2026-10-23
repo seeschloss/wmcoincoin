@@ -7,7 +7,6 @@ Prérequis
    - gettext-dev
    - pkgconfig
    - gtk+2-dev glib2-dev atk1 pango1-xft2-dev
-   - imlib2
 
 
 MacOS 10.3

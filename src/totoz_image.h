@@ -1,10 +1,8 @@
-/* Totoz pictures, decoded in-process (Wayland port).
+/* Totoz pictures, decoded in-process.
  *
- * The X11 version handed the picture to an external program, wmcoincoin_player, which drew into a
- * window of the pinnipede.  There is no such thing as drawing into someone else's window on Wayland,
- * so the pictures are now decoded here, with stb_image: GIF (animations included), PNG and JPEG.
- * The file is recognised by its contents, not by its name (totoz are saved as ".gif" whatever
- * the server sent).
+ * The pictures are decoded here with stb_image: GIF (animations included),
+ * PNG and JPEG.  The file is recognised by its contents, not by its name
+ * (totoz are saved as ".gif" whatever the server sent).
  */
 #ifndef TOTOZ_IMAGE_H
 #define TOTOZ_IMAGE_H

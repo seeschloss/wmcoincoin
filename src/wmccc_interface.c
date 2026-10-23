@@ -1529,7 +1529,7 @@ create_global_pinnipede_options_dialog (void)
   board_totoz_server = gtk_bin_get_child (GTK_BIN (combo4));
   gtk_widget_show (board_totoz_server);
 
-  label94 = gtk_label_new (_("The totoz module requires wmcoincoin_player support. It searches for occurences of [:totoz] etc in the pinnipede, and displays a correspounding picture from the set of smileys of http://totoz.eu\n\nThis pictures may be bookmarked in the pinnipede (via right clic), and the bookmark ( stored in ~/.wmcoincoin/totoz/bookmarks.{txt,html} ) can be opened from the totoz button in the palmipede."));
+  label94 = gtk_label_new (_("The totoz module searches for occurences of [:totoz] etc in the pinnipede, and displays a correspounding picture from the set of smileys of http://totoz.eu\n\nThis pictures may be bookmarked in the pinnipede (via right clic), and the bookmark ( stored in ~/.wmcoincoin/totoz/bookmarks.{txt,html} ) can be opened from the totoz button in the palmipede."));
   gtk_widget_show (label94);
   gtk_box_pack_start (GTK_BOX (vbox19), label94, FALSE, FALSE, 0);
   gtk_label_set_line_wrap (GTK_LABEL (label94), TRUE);

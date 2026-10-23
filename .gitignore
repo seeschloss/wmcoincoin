@@ -15,7 +15,6 @@ config.*
 
 src/wmccc
 src/wmcoincoin
-platypus/wmcoincoin_player
 .deps
 po/Makevars.template
 po/POTFILES

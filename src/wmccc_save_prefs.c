@@ -144,11 +144,9 @@ prefs_write_to_file(GeneralPrefs *p, FILE *f) {
   G_SAVEINT(OPT_tribunenews_switch_off_coincoin_delay, switch_off_coincoin_delay);
   G_SAVEBOOL(OPT_tribune_troll_detector, enable_troll_detector);
   G_SAVEBOOL(OPT_pinnipede_show_seconds, pp_show_sec_mode);
-#ifdef HAVE_WMCOINCOIN_PLAYER  
   G_SAVESTR(OPT_board_totoz_server, board_totoz_server);
   G_SAVEBOOL(OPT_board_auto_dl_pictures, board_auto_dl_pictures);
   G_SAVEBOOL(OPT_board_enable_hfr_pictures, board_enable_hfr_pictures);
-#endif
   G_SAVESTR(OPT_tribune_post_cmd, post_cmd[0]);
   G_SAVEBOOL(OPT_tribune_post_cmd_enabled, post_cmd_enabled[0]);
   G_SAVESTR(OPT_tribune_post_cmd2, post_cmd[1]);

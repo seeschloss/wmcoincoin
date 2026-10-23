@@ -369,19 +369,6 @@ AC_ARG_ENABLE(wmccc,
    fi
  ], [build_wmccc="auto"])
 
-dnl Wayland port: wmcoincoin_player is a plain X11/imlib2 program (XWayland): opt-in as well.
-build_wmcc_player="no"
-AC_ARG_ENABLE(wmcoincoin_player,
- [  --enable-wmcoincoin_player Builds the wmcoincoin_player (requires imlib2, X11 only) (viewer for totoz.eu pictures) (Default is no)
-  --disable-wmcoincoin_player  Do not build wmcoincoin_player],
- [ if   test "x$enableval" = "xyes" ; then
-	build_wmcc_player="yes"
-   else
-	build_wmcc_player="no"
-	echo you disabled wmcoincoin_player
-   fi
- ], [build_wmcc_player="no"])
-
 if test "x$build_wmccc" = "xauto"; then
   if pkg-config --exists "gtk+-3.0 >= 3.0"; then
     build_wmccc="yes"
@@ -520,12 +507,6 @@ if test "x$ac_cv_have_backtrace" = "xyes"; then
         AC_DEFINE(HAVE_BACKTRACE,1,[glibc backtrace function])
 fi;     
 
-WMCOINCOIN_PLAYER=""
-if test "x$build_wmcc_player" = "xyes"; then
-  PKG_CHECK_MODULES(IMLIB2, [imlib2 x11 xext], [WMCOINCOIN_PLAYER="wmcoincoin_player${EXEEXT}"], [build_wmcc_player=no])
-fi
-AC_SUBST([WMCOINCOIN_PLAYER])
-
 YELLOW="\\033\\1331;33m"
 RESET="\\033\\1330m"
 
@@ -561,7 +542,7 @@ case "$host" in
          ;;
 esac
 
-AC_CONFIG_FILES([Makefile po/Makefile.in m4/Makefile libxwl/Makefile src/Makefile scripts/Makefile platypus/Makefile])
+AC_CONFIG_FILES([Makefile po/Makefile.in m4/Makefile libxwl/Makefile src/Makefile scripts/Makefile])
 AC_CONFIG_COMMANDS([default],[[ echo timestamp > stamp-h ]],[[]])
 AC_OUTPUT
 
@@ -570,9 +551,4 @@ if test "x$build_wmccc" = "xno"; then
   echo "    **** I recall you that wmccc won't be built (install GTK+ 3 or use --enable-wmccc) ****"
 else
   echo "    wmcc will be built with wmccc"
-fi
-if test "x$build_wmcc_player" = "xno"; then
-  echo "    **** I recall you that wmcoincoin_player won't be built (use --enable-wmcoincoin_player, X11 only) ****"
-else
-  echo "    wmcc will be built with wmcoincoin_player"
 fi

@@ -439,19 +439,6 @@ pp_check_totoz(Dock *dock, PostWord *pw, int x_root, int y_root) {
   pp->totoz->survol_hash = survol_hash;
 }
 
-/*void
-pp_totoz_download(Dock *dock, unsigned char *imgname) {
-  char *realname = pp_totoz_realfname(imgname,0);
-  char *cmd = NULL;
-  pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_DOWNLOADING);
-  //cmd = str_printf("%s/wmcoincoin/wmcc/scripts/wmcoincoin-totoz-get %s&", getenv("HOME"), realname);
-  cmd = str_printf("wmcoincoin-totoz-get %s&",realname);
-  BLAHBLAH(0, myprintf("Trying to get a new picture [%s] ! executing '%<GRN %s>'\n", realname, cmd));
-  system(cmd);
-  free(cmd);
-  free(realname);
-}*/
-
 void
 pp_totoz_download(Dock *dock, unsigned char *imgname) {  
   pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_DOWNLOADING);
@@ -464,7 +451,7 @@ void
 pp_totoz_get_image(Dock *dock, unsigned char *imgname) {
   Pinnipede *pp = dock->pinnipede;
   HttpRequest r;
-  char *imgurl=NULL, *pathimg=NULL, *pathdesc=NULL, *cmd;
+  char *imgurl=NULL, *pathimg=NULL, *pathdesc=NULL;
   int is_found=0, i=0, lu;
   char *siteroot;
   siteroot = strdup(Prefs.board_totoz_server);
@@ -510,7 +497,7 @@ pp_totoz_get_image(Dock *dock, unsigned char *imgname) {
         pp_totoz_register_img(dock->pinnipede, imgname, PP_TOTOZ_STATUS_NOTFOUND);
       } else {
         fclose(f);
-        /* the description file used to be written by `wmcoincoin_player -i`: "<file> <w>x<h> <mime>" */
+        /* write the description file: "<file> <w>x<h> <mime>" */
         int tw, th; const char *tmime;
         if (totoz_image_info(pathimg, &tw, &th, &tmime) != 0) {
           myfprintf(stderr, "pp_totoz_get_image : %s is not a GIF, PNG or JPEG picture\n", pathimg);
