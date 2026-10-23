@@ -557,9 +557,42 @@ int multi_get_spin_button(GtkWidget *w, int *pvalue) {
 /* ------------------- color button -------------------------- */
 
 void color_button_update_color(GtkWidget *w, GdkColor *c, int value_store) {
+  GtkStyleContext *sc = gtk_widget_get_style_context(w);
+  GtkCssProvider *provider;
+  char *css;
+  unsigned r = c->red >> 8, g = c->green >> 8, b = c->blue >> 8;
+  unsigned luminance = (r * 299 + g * 587 + b * 114) / 1000;
+  const char *fg = luminance >= 128 ? "#000000" : "#ffffff";
+
   if (value_store) g_object_set_data(G_OBJECT(w), "value", GINT_TO_POINTER(gdkcolor_to_irgb(c)));
-  gtk_widget_modify_bg(w, GTK_STATE_PRELIGHT, c);
-  gtk_widget_modify_bg(w, GTK_STATE_NORMAL, c);
+
+  /* gtk_widget_modify_bg() does not affect a GtkButton under GTK+ 3: the
+   * theme paints the button background from CSS.  Install a per-button
+   * provider instead, replacing the previous one when the color changes. */
+  provider = g_object_get_data(G_OBJECT(w), "color_css_provider");
+  if (provider) gtk_style_context_remove_provider(sc, GTK_STYLE_PROVIDER(provider));
+
+  provider = gtk_css_provider_new();
+  css = g_strdup_printf(
+    "button, button:hover, button:active, button:focus, button:backdrop {"
+    " background-image: none;"
+    " background-color: #%02x%02x%02x;"
+    " color: %s;"
+    " text-shadow: none;"
+    " box-shadow: none;"
+    " }", r, g, b, fg);
+
+  GError *error = NULL;
+  if (!gtk_css_provider_load_from_data(provider, css, -1, &error)) {
+    g_warning("Could not set color button style: %s",
+              error ? error->message : "unknown error");
+    if (error) g_error_free(error);
+  }
+  g_free(css);
+  gtk_style_context_add_provider(sc, GTK_STYLE_PROVIDER(provider),
+                                 GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+  g_object_set_data_full(G_OBJECT(w), "color_css_provider", provider, g_object_unref);
+  gtk_widget_queue_draw(w);
 }
 
 void color_button_clicked_callback(GtkWidget *w, TouchedInfo *ti) {
