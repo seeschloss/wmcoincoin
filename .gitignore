@@ -28,4 +28,4 @@ po/POTFILES
 /libxwl/*-client-protocol.h
 /src/options_list.h
 
-at-lib
+ar-lib
