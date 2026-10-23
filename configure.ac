@@ -332,6 +332,15 @@ for wl_xml in stable/xdg-shell/xdg-shell.xml unstable/primary-selection/primary-
   fi
 done
 
+have_cursor_shape=no
+if test -f "$WAYLAND_PROTOCOLS_DATADIR/staging/cursor-shape/cursor-shape-v1.xml" && \
+   test -f "$WAYLAND_PROTOCOLS_DATADIR/unstable/tablet/tablet-unstable-v2.xml"; then
+  have_cursor_shape=yes
+fi
+AC_MSG_CHECKING([for the cursor-shape-v1 Wayland protocol])
+AC_MSG_RESULT([$have_cursor_shape])
+AM_CONDITIONAL([HAVE_CURSOR_SHAPE], [test "x$have_cursor_shape" = "xyes"])
+
 AC_CHECK_HEADER([linux/input-event-codes.h], [],
   [AC_MSG_ERROR([linux/input-event-codes.h not found (linux-libc-dev / kernel-headers)])])
 AC_CHECK_FUNCS([memfd_create], [],

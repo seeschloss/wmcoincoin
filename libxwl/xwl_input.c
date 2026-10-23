@@ -57,9 +57,10 @@ static void p_enter(void *data, struct wl_pointer *p, uint32_t serial, struct wl
                     wl_fixed_t x, wl_fixed_t y)
 {
   XwlDisplay *d = data; (void)p;
-  d->last_serial = serial;
+  d->last_serial = serial; d->ptr_enter_serial = serial;
   d->ptr_win = s ? wl_surface_get_user_data(s) : NULL;
   d->ptr_x = wl_fixed_to_int(x); d->ptr_y = wl_fixed_to_int(y);
+  xwl_cursor_apply(d);          /* a client that sets no cursor gets whatever the previous focus left */
   if (d->ptr_win && xwl_wants((Window)(uintptr_t)d->ptr_win, EnterWindowMask)) {
     XEvent *e = xwl_push_event(d, EnterNotify, (Window)(uintptr_t)d->ptr_win);
     fill_xy(e, d); e->xcrossing.mode = NotifyNormal; e->xcrossing.detail = NotifyNonlinear;
@@ -242,6 +243,7 @@ static void seat_caps(void *data, struct wl_seat *s, uint32_t caps)
     d->pointer = wl_seat_get_pointer(s); wl_pointer_add_listener(d->pointer, &pointer_listener, d);
   } else if (!has_ptr && d->pointer) {
     if (wl_seat_get_version(s) >= 3) wl_pointer_release(d->pointer); else wl_pointer_destroy(d->pointer);
+    xwl_cursor_pointer_gone(d);
     d->pointer = NULL; d->ptr_win = NULL; d->ptr_buttons = 0;
   }
   if (has_kbd && !d->keyboard) {

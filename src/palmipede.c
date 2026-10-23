@@ -1447,13 +1447,10 @@ double exp(double x);
 void
 editw_action(Dock *dock, EditW *ew)
 {
-  /* Wayland port: there is no dock to slide out of, and a shaped, animated,
-     absolutely-positioned window cannot exist.  Open at full size, close at once.
-     (the original animation code below is kept but unreachable) */
   if (ew->action == SORTIR) {
     XSizeHints sh;
     memset(&sh, 0, sizeof sh);
-    sh.flags = PMinSize | PMaxSize;               /* fixed size -> compositors float it */
+    sh.flags = PMinSize | PMaxSize;
     sh.min_width = sh.max_width = EW_SHAPED_WIDTH;
     sh.min_height = sh.max_height = EW_SHAPED_HEIGHT;
     XSetWMNormalHints(dock->display, ew->win, &sh);
@@ -2072,7 +2069,7 @@ editw_handle_keypress(Dock *dock, EditW *ew, XEvent *event)
   //printf("editw_handle_keypress: ksym=%04x len=%d\n", (int)kb_state()->ksym, kb_state()->klen);
 
   if (kb_state()->ksym == 0x20ac) { /* vilain hack pour reconnaite l'euro (le klen == 0 !!) */
-    editw_insert_char(ew, (unsigned char)0xA4);  /* Wayland port: the euro in ISO-8859-15 (was '?') */
+    editw_insert_char(ew, (unsigned char)0xA4);
   } else if (event->xkey.state & Mod1Mask) {
     switch (kb_state()->ksym) {
       case 'I':
@@ -2280,11 +2277,6 @@ editw_handle_keypress(Dock *dock, EditW *ew, XEvent *event)
 
     case XK_Return:
     case XK_KP_Enter:
-      /* Wayland port: same behaviour as the original once the dock's door is open.  The Return
-         key pushes the red button (drawn in the pinnipede) down over a few timer ticks; the
-         message is only sent if the key is released with the button fully pressed (see
-         editw_handle_keyrelease() -> dock_red_button_check()).  Keyboard auto-repeat is ignored,
-         so that the Return which opened the editor cannot send anything by being held. */
       if (event->xany.send_event != 2) {
         dock->post_anonyme = ((event->xkey.state & ShiftMask) ? 1:0);
         dock->red_button_press_flag = 1;
@@ -2499,6 +2491,14 @@ editw_handle_motion(Dock *dock, EditW *ew, XMotionEvent *event)
 }
 
 
+static void
+editw_update_cursor(Dock *dock, EditW *ew, int x, int y)
+{
+  int in_txt = (x >= EW_TXT_X0 && x < EW_TXT_X0 + EW_TXT_WIDTH &&
+                y >= EW_TXT_Y0 && y < EW_TXT_Y0 + EW_TXT_HEIGHT);
+  cc_set_cursor(dock->display, ew->win, in_txt ? CC_CURSOR_TEXT : CC_CURSOR_ARROW);
+}
+
 void
 editw_dispatch_event(Dock *dock, EditW *ew, XEvent *event)
 {
@@ -2519,10 +2519,12 @@ editw_dispatch_event(Dock *dock, EditW *ew, XEvent *event)
     } break;
   case MotionNotify:
     {
+      editw_update_cursor(dock, ew, event->xmotion.x, event->xmotion.y);
       editw_handle_motion(dock, ew, &event->xmotion);
     } break;
   case EnterNotify:
     {
+      editw_update_cursor(dock, ew, event->xcrossing.x, event->xcrossing.y);
       editw_set_kbfocus(dock, ew, 1);
     } break;
   case LeaveNotify:
@@ -2695,8 +2697,6 @@ void editw_balloon_test(Dock *dock, EditW *ew, int x, int y) {
 int
 editw_check_corse(Dock *dock, unsigned keycode) {
   (void)keycode;
-  /* Wayland port: the original showed a balloon ("remove your big finger from the Return key")
-     when a message had just been sent; balloons are gone, so just refuse to reopen for a moment. */
   if (dock->red_button_send_cnt < 20) dock->red_button_send_cnt = 10;
   return (dock->editw->action == NOACTION && dock->red_button_send_cnt > 20);
 }

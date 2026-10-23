@@ -52,6 +52,7 @@
 #include <X11/Xatom.h>
 #include <X11/Xmd.h>
 #include <string.h>
+#include <X11/cursorfont.h>
 #include "coin_xutil.h"
 
 
@@ -694,4 +695,20 @@ show_gc(Display *display, GC gc) {
   printf(" Pixmap clip_mask         = %08lx\n",v.clip_mask);
   printf(" int dash_offset          = %d\n",v.dash_offset);
   printf(" char dashes              = %c\n",v.dashes);
+}
+
+
+void
+cc_set_cursor(Display *display, Window win, cc_cursor_kind kind)
+{
+  static Cursor cur[3];
+  static Display *cur_dpy = NULL;
+  if (win == None) return;
+  if (cur_dpy != display) {
+    cur[CC_CURSOR_ARROW] = XCreateFontCursor(display, XC_left_ptr);
+    cur[CC_CURSOR_TEXT] = XCreateFontCursor(display, XC_xterm);
+    cur[CC_CURSOR_HAND] = XCreateFontCursor(display, XC_hand2);
+    cur_dpy = display;
+  }
+  XDefineCursor(display, win, cur[kind]);
 }

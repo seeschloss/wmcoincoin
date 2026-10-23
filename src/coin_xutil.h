@@ -39,4 +39,7 @@ void set_window_sizepos_hints(Display *display, Window win,
 void set_window_class_hint(Display *display, Window win, char *res_class, char *res_name);
 void show_gc(Display *, GC);
 
+typedef enum { CC_CURSOR_ARROW, CC_CURSOR_TEXT, CC_CURSOR_HAND } cc_cursor_kind;
+void cc_set_cursor(Display *display, Window win, cc_cursor_kind kind);
+
 #endif

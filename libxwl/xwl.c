@@ -268,8 +268,10 @@ static void reg_global(void *data, struct wl_registry *reg, uint32_t name,
   } else if (!strcmp(iface, "wl_output") && !d->output) {
     d->output = wl_registry_bind(reg, name, &wl_output_interface, ver < 2 ? ver : 2);
     wl_output_add_listener(d->output, &output_listener, d);
-  } else
+  } else {
+    xwl_cursor_global(d, reg, name, iface, ver);
     xwl_selection_global(d, reg, name, iface, ver);
+  }
 }
 static void reg_remove(void *d, struct wl_registry *r, uint32_t n) { (void)d; (void)r; (void)n; }
 static const struct wl_registry_listener registry_listener = { reg_global, reg_remove };

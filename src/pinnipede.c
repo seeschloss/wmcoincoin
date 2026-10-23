@@ -2311,6 +2311,25 @@ pp_get_pw_at_xy(Pinnipede *pp,int x, int y)
   return pw;
 }
 
+/* met à jour le pointeur de la souris suivant l'élément survolé */
+static void
+pp_update_cursor(Dock *dock, int x, int y)
+{
+  Pinnipede *pp = dock->pinnipede;
+  cc_cursor_kind kind = CC_CURSOR_ARROW;
+  if (x >= pp->zmsg_x1 && x <= pp->zmsg_x2 && y >= pp->zmsg_y1 && y <= pp->zmsg_y2) {
+    int l;
+    for (l = 0; l < pp->nb_lignes; l++) {
+      if (pp->lignes[l] && y >= LINEY0(l) && y <= LINEY1(l)) { kind = CC_CURSOR_TEXT; break; }
+    }
+    if (kind == CC_CURSOR_TEXT) {
+      PostWord *pw = pp_get_pw_at_xy(pp, x, y);
+      if (pw && (pw->attr & (PWATTR_LNK | PWATTR_TSTAMP | PWATTR_REF | PWATTR_REFID))) kind = CC_CURSOR_HAND;
+    }
+  }
+  cc_set_cursor(dock->display, pp->win, kind);
+}
+
 /* affiche le texte en haut du pinnipede (dans le style très dépouillé des useragents) */
 void
 pp_popup_show_txt(Dock *dock, unsigned char *txt)
@@ -3375,11 +3394,13 @@ pp_handle_button_release(Dock *dock, XButtonEvent *event)
     /* un coup de roulette */
     pp_update_content(dock, pp->id_base, pp->decal_base-q,0,0);
     pp_refresh(dock, pp->win, NULL);
+    pp_update_cursor(dock, mx, my);
     //    printf("scroll up  : id=%d %d\n",pp->id_base, pp->decal_base);
   } else if (event->button == Button5) {
     
     pp_update_content(dock, pp->id_base, pp->decal_base+q,0,0);
     pp_refresh(dock, pp->win, NULL);
+    pp_update_cursor(dock, mx, my);
     //printf("scroll down: id=%d %d\n",pp->id_base, pp->decal_base);
   } else if (event->button == Button1) {
     if (event->state & ShiftMask) {
@@ -4148,6 +4169,7 @@ pp_dispatch_event(Dock *dock, XEvent *event)
 
       if (pp_widgets_handle_motion(dock, &event->xmotion)) {
 	/* plop */
+        cc_set_cursor(dock->display, pp->win, CC_CURSOR_ARROW);
       } else if (event->xmotion.state & Button1Mask && 
 	  SQR(mouse_button_press_x - event->xbutton.x)+
 	  SQR(mouse_button_press_y - event->xbutton.y) >= 6) {
@@ -4174,6 +4196,7 @@ pp_dispatch_event(Dock *dock, XEvent *event)
 	}
       } else {
         PostWord *pw = pp_get_pw_at_xy(dock->pinnipede, event->xmotion.x, event->xmotion.y);
+        pp_update_cursor(dock, event->xmotion.x, event->xmotion.y);
 	pp_check_survol(dock, pw, 0);
         pp_check_totoz(dock, pw, event->xmotion.x, event->xmotion.y);/*event->xmotion.x_root, event->xmotion.y_root);*/
 	old_mouse_x = event->xmotion.x;
@@ -4213,6 +4236,7 @@ pp_dispatch_event(Dock *dock, XEvent *event)
     } break;
   case EnterNotify:
     {
+      pp_update_cursor(dock, event->xcrossing.x, event->xcrossing.y);
     } break;
   case LeaveNotify:
     {

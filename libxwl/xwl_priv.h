@@ -49,6 +49,7 @@ typedef struct XwlDrawable {
   Window transient_for;
   int min_w, min_h, max_w, max_h;
   XwlProp *props;
+  Cursor cursor;                     /* XDefineCursor: (X font cursor shape)+1, 0 = default arrow */
   struct XwlDrawable *next_win;
 } XwlDrawable;
 
@@ -87,6 +88,10 @@ struct XwlDisplay {
   double axis_acc; uint32_t last_serial; uint32_t last_time;
   int rep_rate, rep_delay; uint32_t rep_key; long rep_next; int rep_active;
   XwlKeyInfo keyinfo[64];
+  /* pointer cursor (see xwl_cursor.c) */
+  uint32_t ptr_enter_serial;         /* the serial wl_pointer.set_cursor / cursor-shape want */
+  void *cs_mgr, *cs_dev;             /* wp_cursor_shape_manager_v1 / wp_cursor_shape_device_v1, if offered */
+  int cur_applied_shape; uint32_t cur_applied_serial;
   /* selection (see xwl_sel.c) */
   void *sel;
 };
@@ -98,6 +103,10 @@ void xwl_window_unrealize(XwlDrawable *w);
 void xwl_window_realize(XwlDisplay *d, XwlDrawable *w);
 void xwl_window_popup_moved(XwlDisplay *d, XwlDrawable *w);
 XEvent *xwl_push_event(XwlDisplay *d, int type, Window win);
+/* xwl_cursor.c */
+void xwl_cursor_global(XwlDisplay *d, struct wl_registry *reg, uint32_t name, const char *iface, uint32_t ver);
+void xwl_cursor_apply(XwlDisplay *d);          /* (re)sets the cursor for the window the pointer is in */
+void xwl_cursor_pointer_gone(XwlDisplay *d);
 int xwl_wants(Window w, long mask);
 const char *xwl_atom_name(XwlDisplay *d, Atom a);
 

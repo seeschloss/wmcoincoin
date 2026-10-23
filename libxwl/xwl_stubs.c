@@ -41,10 +41,18 @@ Atom XmuInternAtom(Display *dpy, XwlAtomPtr a)
   return a->atom;
 }
 
-/* --- cursors: selection of cursor shapes could map to wp_cursor_shape later --- */
+/* --- cursors: X font cursor numbers are kept (shape+1) and mapped to Wayland cursor shapes by
+ * xwl_cursor.c when the pointer is in the window --- */
 Cursor XCreateFontCursor(Display *d, unsigned shape) { (void)d; return (Cursor)(shape + 1); }
-int XDefineCursor(Display *d, Window w, Cursor c) { (void)d; (void)w; (void)c; return 0; }
-int XUndefineCursor(Display *d, Window w) { (void)d; (void)w; return 0; }
+int XDefineCursor(Display *d, Window w, Cursor c)
+{
+  XwlDrawable *dr = xwl_lookup(w);
+  if (!dr) return 0;
+  dr->cursor = c;
+  if (dr == ((XwlDisplay *)d)->ptr_win) xwl_cursor_apply((XwlDisplay *)d);
+  return 0;
+}
+int XUndefineCursor(Display *d, Window w) { return XDefineCursor(d, w, 0); }
 
 /* --- window tree / reparenting / dock / session: not applicable --- */
 Status XQueryTree(Display *d, Window w, Window *root, Window *parent, Window **children, unsigned *n)

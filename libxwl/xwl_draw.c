@@ -367,6 +367,7 @@ Window XCreateWindow(Display *dpy, Window parent, int x, int y, unsigned w, unsi
   if (vmask & CWBackPixel) win->bg_pixel = a->background_pixel;
   if (vmask & CWEventMask) win->event_mask = a->event_mask;
   if (vmask & CWOverrideRedirect) win->override_redirect = a->override_redirect;
+  if (vmask & CWCursor) win->cursor = a->cursor;
   win->w = 0; win->h = 0;
   /* backing store created through the shared resize path */
   extern void xwl_window_init_size(XwlDisplay *, XwlDrawable *, int, int);
@@ -388,6 +389,7 @@ int XChangeWindowAttributes(Display *dpy, Window w, unsigned long m, XSetWindowA
   if (m & CWEventMask) dr->event_mask = a->event_mask;
   if (m & CWBackPixel) dr->bg_pixel = a->background_pixel;
   if (m & CWOverrideRedirect) dr->override_redirect = a->override_redirect;
+  if (m & CWCursor) XDefineCursor(dpy, w, a->cursor);
   return 0;
 }
 int XSelectInput(Display *dpy, Window w, long mask)
