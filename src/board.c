@@ -2117,6 +2117,8 @@ regular_board_update(Board *board, char *path) {
   http_request_send(&r);
   wmcc_log_http_request(board->site, &r);
 
+  BLAHBLAH(3, printf("updating board at %s\n", path));
+
   if (!http_is_ok(&r)) { 
     myfprintf(stderr, _("[%<YEL %s>] Error while downloading "
           "'%<YEL %s>' : %<RED %s>\n"), 
@@ -2127,11 +2129,12 @@ regular_board_update(Board *board, char *path) {
     return 1;
   } else {
     if (r.content_type && strncmp(r.content_type, "text/tab-separated-values", 25) == 0) {
-      fprintf(stderr, "parsing backend %s\n", r.content_type);
+		BLAHBLAH(2, printf("parsing TSV backend %s\n", r.content_type));
         board->encoding = strdup("UTF-8");
         /* le standard impose l'UTF-8 pour les backends TSV */
         regular_board_update_tsv(board, &r);
     } else {
+		BLAHBLAH(2, printf("assuming XML backend %s\n", r.content_type));
         regular_board_update_xml(board, &r);
     }
 

@@ -188,8 +188,10 @@ _http_request_send_parse_headers(HttpRequest *r)
   char *line = r->header_data;
 
   while ((line_end = strchr(line, '\n'))) {
+	BLAHBLAH(Prefs.verbosity_http, printf("Parsing header: %s\n", strndup(line, line_end - line)));
+
     if (r->p_last_modified) {
-      if (strncmp(line, "Last-Modified: ", 15) == 0) {
+      if (strncmp(line, "Last-Modified: ", 15) == 0 || strncmp(line, "last-modified: ", 15) == 0) {
         if (*r->p_last_modified) {
           free(*r->p_last_modified);
           *r->p_last_modified = NULL;
@@ -199,24 +201,24 @@ _http_request_send_parse_headers(HttpRequest *r)
         BLAHBLAH(Prefs.verbosity_http, printf("last modified: %s\n", *r->p_last_modified));
       }
     }
-    if (strncmp(line, "Transfer-Encoding: chunked", 26) == 0) {
+    if (strncmp(line, "Transfer-Encoding: chunked", 26) == 0 || strncmp(line, "transfer-encoding: chunked", 26) == 0) {
       r->is_chunk_encoded = 1;
       r->chunk_num = -1;
     }
-    if (strncmp(line, "Content-Length:", 15) == 0) {
+    if (strncmp(line, "Content-Length:", 15) == 0 || strncmp(line, "content-length:", 15) == 0) {
       r->content_length = atoi(line+15);
       BLAHBLAH(Prefs.verbosity_http, printf("content length: %d\n", r->content_length));
     }
-    if (strncmp(line, "X-Post-Id:", 10) == 0) {
+    if (strncmp(line, "X-Post-Id:", 10) == 0 || strncmp(line, "x-post-id:", 10) == 0) {
       r->post_id = atoi(line+10);
       BLAHBLAH(Prefs.verbosity_http, printf("x-post-id: %d\n", r->post_id));
     }
-    if (strncmp(line, "Content-Type:", 13) == 0) {
+    if (strncmp(line, "Content-Type:", 13) == 0 || strncmp(line, "content-type:", 13) == 0) {
       r->content_type = strndup(line+13, line_end - line - 13);
       str_trim(r->content_type);
       BLAHBLAH(Prefs.verbosity_http, printf("content type: %s\n", r->content_type));
     }
-    if (strncmp(line, "Set-Cookie:", 11) == 0) {
+    if (strncmp(line, "Set-Cookie:", 11) == 0 || strncmp(line, "set-cookie:", 11) == 0) {
       /* Format: Set-Cookie: <name>=<value>[; <name>=<value>]...
                              [; expires=<date>][; domain=<domain_name>]
                              [; path=<some_path>][; secure][; httponly] */
@@ -412,9 +414,13 @@ http_request_send(HttpRequest *r)
       strcpy(http_last_err_url, http_last_url);
       time(&http_err_time);
 
+	  BLAHBLAH(Prefs.verbosity_http, printf("Error response code: %d\n", r->response));
+
       myprintf(_("[%<MAG %s>]: %<yel %s>\n"), http_last_err_url, http_last_err_msg);
     } else {
       r->error = 0;
+
+	  BLAHBLAH(Prefs.verbosity_http, printf("Response code was good: %d\n", r->response));
     }
 
     _http_request_send_parse_headers(r);
